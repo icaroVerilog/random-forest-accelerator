@@ -1,13 +1,13 @@
 digraph Tree {
 node [shape=box, fontname="helvetica"] ;
 edge [fontname="helvetica"] ;
-0 [label="x[0] <= 100.5\ngini = 0.665\nsamples = 68\nvalue = [32, 35, 38]"] ;
-1 [label="x[3] <= 2.6\ngini = 0.499\nsamples = 42\nvalue = [32, 35, 0]"] ;
+0 [label="x[0] <= 100.0\ngini = 0.665\nsamples = 67\nvalue = [36, 32, 37]"] ;
+1 [label="x[0] <= 50.0\ngini = 0.498\nsamples = 47\nvalue = [36, 32, 0]"] ;
 0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
-2 [label="gini = 0.0\nsamples = 21\nvalue = [32, 0, 0]"] ;
+2 [label="gini = 0.0\nsamples = 25\nvalue = [36, 0, 0]"] ;
 1 -> 2 ;
-3 [label="gini = 0.0\nsamples = 21\nvalue = [0, 35, 0]"] ;
+3 [label="gini = 0.0\nsamples = 22\nvalue = [0, 32, 0]"] ;
 1 -> 3 ;
-4 [label="gini = 0.0\nsamples = 26\nvalue = [0, 0, 38]"] ;
+4 [label="gini = 0.0\nsamples = 20\nvalue = [0, 0, 37]"] ;
 0 -> 4 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
 }
