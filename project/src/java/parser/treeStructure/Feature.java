@@ -2,10 +2,10 @@ package project.src.java.parser.treeStructure;
 
 public class Feature {
     String name;
-    Integer value;
+    Integer threshold;
 
-    public Feature(String name, Integer value){
+    public Feature(String name, Integer threshold){
         this.name = name;
-        this.value = value;
+        this.threshold = threshold;
     }
 }
