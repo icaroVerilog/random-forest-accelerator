@@ -7,8 +7,8 @@ import pandas as pd
 import sys
 import os
 
-dataset_name = sys.argv[1]
-# dataset_name = "Iris"
+# dataset_name = sys.argv[1]
+dataset_name = "Iris"
 
 
 dataset = pd.read_csv("../../assets/datasets/" + dataset_name + ".csv")
@@ -18,7 +18,8 @@ column_names = list(dataset)
 target_column_name = column_names[len(column_names) - 1]
 dataset.rename(columns={target_column_name: "Target"}, inplace=True)
 
-# criando a matriz de características X (dataframe) com os valores originais das variáveis, desconsiderando a última coluna (target)
+# criando a matriz de características X (dataframe) com os valores originais das variáveis, desconsiderando a última
+# coluna (target)
 X = dataset.drop(["Target"], axis=1)
 # criando o vetor de rótulos (saída esperada do modelo para cada amostra)
 Y = dataset["Target"]

@@ -1,7 +1,7 @@
 package project.src.java.parser.treeStructure;
 
 public class Feature {
-    String name;
+    String  name;
     Integer threshold;
 
     public Feature(String name, Integer threshold){
