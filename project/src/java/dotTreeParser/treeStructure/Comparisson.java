@@ -1,4 +1,4 @@
-package project.src.java.model;
+package project.src.java.dotTreeParser.treeStructure;
 
 public class Comparisson {
     private String  featureName;

@@ -1,11 +1,11 @@
-package project.src.java.model;
+package project.src.java.dotTreeParser.treeStructure;
 
 import java.util.HashMap;
 import java.util.Objects;
 
-import project.src.java.model.Nodes.InnerNode;
-import project.src.java.model.Nodes.Node;
-import project.src.java.model.Nodes.OuterNode;
+import project.src.java.dotTreeParser.treeStructure.Nodes.InnerNode;
+import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
+import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 
 public class Tree {
 

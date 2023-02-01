@@ -1,4 +1,4 @@
-package project.src.java.model.Nodes;
+package project.src.java.dotTreeParser.treeStructure.Nodes;
 
 import java.util.ArrayList;
 
