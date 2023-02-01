@@ -1,4 +1,4 @@
-package project.src.java.parser;
+package project.src.java.dotTreeParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,7 +10,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import project.src.java.model.Tree;
+import project.src.java.dotTreeParser.treeStructure.Tree;
+import project.src.java.dotTreeParser.treeStructure.TreeBuilder;
 
 public class Parser {
 
@@ -30,7 +31,7 @@ public class Parser {
         classesNames = new HashSet<String>();
         while(scanner.hasNext()){
             line = scanner.nextLine().split(",");
-            classesNames.add(line[line.length-1]);
+            classesNames.add(line[line.length - 1]);
         }
 
         scanner.close();

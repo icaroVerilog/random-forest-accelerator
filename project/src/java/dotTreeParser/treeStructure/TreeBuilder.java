@@ -1,4 +1,4 @@
-package project.src.java.parser;
+package project.src.java.dotTreeParser.treeStructure;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -8,10 +8,8 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import project.src.java.model.Comparisson;
-import project.src.java.model.Tree;
-import project.src.java.model.Nodes.InnerNode;
-import project.src.java.model.Nodes.OuterNode;
+import project.src.java.dotTreeParser.treeStructure.Nodes.InnerNode;
+import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 
 public class TreeBuilder {
 

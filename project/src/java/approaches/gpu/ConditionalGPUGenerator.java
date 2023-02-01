@@ -1,18 +1,17 @@
-package project.src.java.gpuGenerator.conditional;
+package project.src.java.approaches.gpu;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import project.src.java.model.Comparisson;
-import project.src.java.model.Tree;
-import project.src.java.model.Nodes.InnerNode;
-import project.src.java.model.Nodes.Node;
-import project.src.java.model.Nodes.OuterNode;
-import project.src.java.parser.Parser;
+import project.src.java.dotTreeParser.Parser;
+import project.src.java.dotTreeParser.treeStructure.Comparisson;
+import project.src.java.dotTreeParser.treeStructure.Tree;
+import project.src.java.dotTreeParser.treeStructure.Nodes.*;
 import project.src.java.util.FileBuilder;
+
+
 
 public class ConditionalGPUGenerator {
     public static void execute(List<Tree> trees) {
