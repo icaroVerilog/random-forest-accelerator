@@ -2,6 +2,7 @@ package project.src.java;
 
 import java.io.IOException;
 
+import project.src.java.gpuGenerator.conditional.ConditionalGPUGenerator;
 import project.src.java.parser.Parser;
 
 public class Main {
@@ -14,6 +15,6 @@ public class Main {
 
     public static void start() throws IOException{
         var trees = Parser.execute(dataset);
-        System.out.println(trees);
+        ConditionalGPUGenerator.execute(trees);
     }
 }
