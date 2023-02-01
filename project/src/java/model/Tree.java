@@ -54,5 +54,8 @@ public class Tree {
         return "Tree [root=" + root + "]";
     }
 
+    public int getClassQuantity() {
+        return outerNodes.size();
+    }
   
 }

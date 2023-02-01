@@ -14,8 +14,8 @@ import project.src.java.model.Tree;
 
 public class Parser {
 
-    private static List<String> featuresNames;
-    private static Set<String> classesNames;
+    public static List<String> featuresNames;
+    public static Set<String> classesNames;
 
     public static List<Tree> execute(String dataset) throws IOException {
         readDatasetHeader(dataset);
