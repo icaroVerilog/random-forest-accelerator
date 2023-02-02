@@ -16,17 +16,18 @@ public class ConditionalFPGAGenerator {
     int BITWIDTH = 32;
 
     public void execute(List<Tree> trees){
+        System.out.println(trees.size());
+        for (int index = 0; index < 1; index++){
+            String sourceCode = new String();
 
-        String sourceCode = new String();
+            sourceCode += generateHeader(0, 4);
+            sourceCode += generatePortDeclaration(4, 3);
+            sourceCode += generateAlwaysBlock();
+            sourceCode += generateConditionals(trees.get(index).getRoot(), 2);
+            sourceCode += generateEndDelimiters();
 
-        sourceCode += generateHeader(10, 4);
-        sourceCode += generatePortDeclaration(4, 3);
-        sourceCode += generateAlwaysBlock();
-        sourceCode += generateConditionals(trees.get(5).getRoot(), 2);
-        sourceCode += generateEndDelimiters();
-
-        FileBuilder.execute(sourceCode, "FPGA/a.v");
-
+//            FileBuilder.execute(sourceCode, "FPGA/tree" + index + ".v");
+        }
 
     }
 
@@ -126,6 +127,9 @@ public class ConditionalFPGAGenerator {
 
         first += "(" + "ft" + c.getColumn() + "_integral " + c.getComparissonType() + " " + binaryIntegralTh + ")";
         second += "((" + "ft" + c.getColumn() + "_integral == " + binaryIntegralTh + ") & ft" + c.getColumn() + "_fractional " + c.getComparissonType() + " " + binaryFractionalTh + ")";
+
+        System.out.println(c.getFeatureName());
+        System.out.println(c.getColumn());
 
         return first + " | " + second;
     }
