@@ -19,7 +19,7 @@ public class Main {
     public static void start() throws IOException{
         List<Tree> trees = Parser.execute(dataset);
 
-//        ConditionalFPGAGenerator a = new ConditionalFPGAGenerator();
-//        a.execute(trees);
+        ConditionalFPGAGenerator a = new ConditionalFPGAGenerator();
+        a.execute(trees, "iris");
     }
 }

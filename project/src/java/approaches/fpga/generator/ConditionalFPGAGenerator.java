@@ -14,10 +14,13 @@ import java.util.stream.IntStream;
 public class ConditionalFPGAGenerator {
 
     int BITWIDTH = 32;
+    String dataset;
 
-    public void execute(List<Tree> trees){
-        System.out.println(trees.size());
-        for (int index = 0; index < 1; index++){
+    public void execute(List<Tree> trees, String dataset){
+
+        this.dataset = dataset;
+
+        for (int index = 0; index < trees.size(); index++){
             String sourceCode = new String();
 
             sourceCode += generateHeader(0, 4);
@@ -26,7 +29,7 @@ public class ConditionalFPGAGenerator {
             sourceCode += generateConditionals(trees.get(index).getRoot(), 2);
             sourceCode += generateEndDelimiters();
 
-//            FileBuilder.execute(sourceCode, "FPGA/tree" + index + ".v");
+            FileBuilder.execute(sourceCode, "FPGA/tree" + index + ".v");
         }
 
     }
@@ -97,7 +100,7 @@ public class ConditionalFPGAGenerator {
 
         if (node instanceof OuterNode){
             OuterNode newNode = (OuterNode) node;
-            return tabs + "voted_class = " + newNode.getClassNumber() + ";\n";
+            return tabs + "voted_class = class" + newNode.getClassNumber() + ";\n";
         }
         else {
             InnerNode newNode = (InnerNode) node;
@@ -123,7 +126,6 @@ public class ConditionalFPGAGenerator {
 
         String first = "";
         String second = "";
-        String code = "";
 
         first += "(" + "ft" + c.getColumn() + "_integral " + c.getComparissonType() + " " + binaryIntegralTh + ")";
         second += "((" + "ft" + c.getColumn() + "_integral == " + binaryIntegralTh + ") & ft" + c.getColumn() + "_fractional " + c.getComparissonType() + " " + binaryFractionalTh + ")";
