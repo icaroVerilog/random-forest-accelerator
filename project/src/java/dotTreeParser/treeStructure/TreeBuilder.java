@@ -122,7 +122,9 @@ public class TreeBuilder {
         var begin = line.indexOf(LABEL_EQUAL_STRING) + LABEL_BEGIN_OFFSET;
         var end = line.indexOf(INNER_NODE_INDICATOR_STRING) - NGINI_END_OFFSET;
         var comparissonParts = line.substring(begin, end).split(" ");
-        
+
+        /* o problema ta aqui*/
+
         comparisson.setColumn(
             Integer.parseInt(comparissonParts[0]
             .replace("[", "")

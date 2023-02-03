@@ -2,11 +2,7 @@ package project.src.java.dotTreeParser;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,11 +20,14 @@ public class Parser {
     }
 
     private static void readDatasetHeader(String dataset) throws IOException {
+
         var path = System.getProperty("user.dir") + "/project/assets/datasets/" + dataset + ".csv";
         var scanner = new Scanner(new File(path));
         var line = scanner.nextLine().split(",");
+
         featuresNames = Arrays.asList(line);
         classesNames = new HashSet<String>();
+
         while(scanner.hasNext()){
             line = scanner.nextLine().split(",");
             classesNames.add(line[line.length - 1]);
