@@ -1,4 +1,4 @@
-package project.src.java.approaches.fpga.generator;
+package project.src.java.approaches.fpga.conditionalGenerator;
 
 import project.src.java.dotTreeParser.treeStructure.Comparisson;
 import project.src.java.dotTreeParser.treeStructure.Nodes.InnerNode;
@@ -11,27 +11,34 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ConditionalFPGAGenerator {
+public class TreeGenerator {
 
     int BITWIDTH = 32;
+
     String dataset;
+    Integer classQuantity;
+    Integer featureQuantity;
 
-    public void execute(List<Tree> trees, String dataset){
+    public void execute(List<Tree> trees, String dataset, Integer classQuantity, Integer featureQuantity){
 
-        this.dataset = dataset;
+        this.dataset         = dataset;
+        this.classQuantity   = classQuantity;
+        this.featureQuantity = featureQuantity;
+
+        System.out.println(classQuantity);
+        System.out.println(featureQuantity);
 
         for (int index = 0; index < trees.size(); index++){
             String sourceCode = new String();
 
-            sourceCode += generateHeader(0, 4);
-            sourceCode += generatePortDeclaration(4, 3);
+            sourceCode += generateHeader(index, this.featureQuantity);
+            sourceCode += generatePortDeclaration(this.featureQuantity, this.classQuantity);
             sourceCode += generateAlwaysBlock();
             sourceCode += generateConditionals(trees.get(index).getRoot(), 2);
             sourceCode += generateEndDelimiters();
 
             FileBuilder.execute(sourceCode, "FPGA/tree" + index + ".v");
         }
-
     }
 
     public String generateHeader(int treeIndex, int featureQuantity){
@@ -130,8 +137,8 @@ public class ConditionalFPGAGenerator {
         first += "(" + "ft" + c.getColumn() + "_integral " + c.getComparissonType() + " " + binaryIntegralTh + ")";
         second += "((" + "ft" + c.getColumn() + "_integral == " + binaryIntegralTh + ") & ft" + c.getColumn() + "_fractional " + c.getComparissonType() + " " + binaryFractionalTh + ")";
 
-        System.out.println(c.getFeatureName());
-        System.out.println(c.getColumn());
+//        System.out.println(c.getFeatureName());
+//        System.out.println(c.getColumn());
 
         return first + " | " + second;
     }
