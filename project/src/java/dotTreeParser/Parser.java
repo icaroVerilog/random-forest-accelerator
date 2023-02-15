@@ -19,6 +19,17 @@ public class Parser {
         return readDatasetSamples(dataset);
     }
 
+    public static int getClassQuantity(){
+        return classesNames.size();
+    }
+
+    public static int getFeatureQuantity(){
+
+        /* the number of feature also count the class column, subtracting 1 to return the correct value */
+
+        return featuresNames.size() - 1;
+    }
+
     private static void readDatasetHeader(String dataset) throws IOException {
 
         var path = System.getProperty("user.dir") + "/project/assets/datasets/" + dataset + ".csv";
@@ -41,8 +52,10 @@ public class Parser {
         var files = listFiles(path);
         return files
             .stream()
+            .sorted()
             .map(file -> parseFromDot(path, file))
             .collect(Collectors.toList());
+
     }
 
     private static Tree parseFromDot(String path, String file){
