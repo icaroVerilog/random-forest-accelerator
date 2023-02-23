@@ -19,14 +19,14 @@ public class TreeGenerator {
     Integer classQuantity;
     Integer featureQuantity;
 
-    public void execute(List<Tree> trees, String dataset, Integer classQuantity, Integer featureQuantity){
+    public void execute(List<Tree> trees, String dataset, Integer classQnt, Integer featureQnt){
 
         this.dataset         = dataset;
-        this.classQuantity   = classQuantity;
-        this.featureQuantity = featureQuantity;
+        this.classQuantity   = classQnt;
+        this.featureQuantity = featureQnt;
 
-        System.out.println(classQuantity);
-        System.out.println(featureQuantity);
+        System.out.println(classQnt);
+        System.out.println(featureQnt);
 
         for (int index = 0; index < trees.size(); index++){
             String sourceCode = new String();
