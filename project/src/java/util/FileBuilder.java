@@ -7,7 +7,7 @@ import java.io.IOException;
 public class FileBuilder {
 
     public static void execute(String content, String filePath){
-        try{
+        try {
             var path = System.getProperty("user.dir") + "/project/target/" + filePath;
             var fileWriter = new FileWriter(path);
             BufferedWriter out = new BufferedWriter(fileWriter);

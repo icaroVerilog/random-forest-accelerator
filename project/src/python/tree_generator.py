@@ -1,6 +1,4 @@
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn import metrics
+
 from sklearn import tree
 
 import pandas as pd
@@ -47,5 +45,5 @@ for t in clf.estimators_:
     fileTree = open("../../assets/trees/" + directory + "/" + fileName, 'w')
     fileTree.write(text)
     fileTree.close()
-    print("Tree ", i, " succefully generated")
+    print("Tree ", i, " successfully generated")
     i += 1

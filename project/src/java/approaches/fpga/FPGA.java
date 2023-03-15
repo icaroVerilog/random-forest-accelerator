@@ -22,9 +22,15 @@ public class FPGA {
         this.featureQnt = featureQnt;
     }
 
-    public void executeConditionalApproach(){
+    public void executeConditionalApproach() throws IOException {
         var conditionalGen = new ConditionalFPGAGenerator();
-        conditionalGen.execute(treeList, dataset, classQnt, featureQnt);
+        var datasetParser = new DatasetParser();
+
+        int samplesQnt = datasetParser.readDataset("Iris");
+        conditionalGen.execute(treeList, dataset, classQnt, featureQnt, samplesQnt);
     }
 
+    public void execute() throws IOException {
+        executeConditionalApproach();
+    }
 }

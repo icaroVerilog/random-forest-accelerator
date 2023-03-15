@@ -19,6 +19,6 @@ public class Main {
     public static void start() throws IOException{
         List<Tree> trees = Parser.execute(dataset);
         FPGA a = new FPGA(trees, dataset, Parser.getClassQuantity(), Parser.getFeatureQuantity());
-        a.executeConditionalApproach();
+        a.execute();
     }
 }

@@ -15,9 +15,9 @@ public class TreeGenerator {
 
     int BITWIDTH = 32;
 
-    String dataset;
-    Integer classQuantity;
-    Integer featureQuantity;
+    private String dataset;
+    private Integer classQuantity;
+    private Integer featureQuantity;
 
     public void execute(List<Tree> trees, String dataset, Integer classQnt, Integer featureQnt){
 
@@ -46,11 +46,11 @@ public class TreeGenerator {
         String tab = generateTab(1);
         String header = "module tree" + treeIndex + "(\n";
         String FI = IntStream.range(0, featureQuantity)
-                .mapToObj(index -> "ft" + index + "_integral")
+                .mapToObj(index -> "ft" + index + "_exponent")
                 .collect(Collectors.joining(", ")
         );
         String FF = IntStream.range(0, featureQuantity)
-                .mapToObj(index -> "ft" + index + "_fractional")
+                .mapToObj(index -> "ft" + index + "_fraction")
                 .collect(Collectors.joining(", ")
         );
 
@@ -67,11 +67,11 @@ public class TreeGenerator {
         String CLK = tab + "input wire clock;\n\n";
 
         String FI = IntStream.range(0, featureQuantity)
-                .mapToObj(index -> tab + "input wire [31:0] ft" + index + "_integral;\n")
+                .mapToObj(index -> tab + "input wire [31:0] ft" + index + "_exponent;\n")
                 .collect(Collectors.joining("")
         );
         String FF = IntStream.range(0, featureQuantity)
-                .mapToObj(index -> tab + "input wire [31:0] ft" + index + "_fractional;\n")
+                .mapToObj(index -> tab + "input wire [31:0] ft" + index + "_fraction;\n")
                 .collect(Collectors.joining("")
         );
 
@@ -107,7 +107,7 @@ public class TreeGenerator {
 
         if (node instanceof OuterNode){
             OuterNode newNode = (OuterNode) node;
-            return tabs + "voted_class = class" + newNode.getClassNumber() + ";\n";
+            return tabs + "voted_class <= class" + newNode.getClassNumber() + ";\n";
         }
         else {
             InnerNode newNode = (InnerNode) node;
@@ -134,8 +134,8 @@ public class TreeGenerator {
         String first = "";
         String second = "";
 
-        first += "(" + "ft" + c.getColumn() + "_integral " + c.getComparissonType() + " " + binaryIntegralTh + ")";
-        second += "((" + "ft" + c.getColumn() + "_integral == " + binaryIntegralTh + ") & ft" + c.getColumn() + "_fractional " + c.getComparissonType() + " " + binaryFractionalTh + ")";
+        first += "(" + "ft" + c.getColumn() + "_exponent " + c.getComparissonType() + " " + binaryIntegralTh + ")";
+        second += "((" + "ft" + c.getColumn() + "_exponent == " + binaryIntegralTh + ") & ft" + c.getColumn() + "_fraction " + c.getComparissonType() + " " + binaryFractionalTh + ")";
 
 //        System.out.println(c.getFeatureName());
 //        System.out.println(c.getColumn());
