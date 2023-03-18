@@ -22,7 +22,7 @@ public class ControllerGenerator {
         }
 
         sourceCode += generateInitialBlock(featureQuantity);
-        sourceCode += generateAlwaysBlock(featureQuantity, samplesQnt, classQuantity);
+        sourceCode += generateAlwaysBlock(featureQuantity, samplesQnt, classQuantity, treeQuantity);
 
         FileBuilder.execute(sourceCode, "FPGA/controller.v");
     }
@@ -61,7 +61,7 @@ public class ControllerGenerator {
         String mostVoted = "\n" + tab + "reg [" + (bitwidth - 1) + ":0] most_voted;\n";
 //        String votedClass = "\n" + tab + "wire [" + (bitwidth - 1) + ":0] voted_class;\n\n\n";
         String votedClass = IntStream.range(0, treeQnt)
-                .mapToObj(index -> tab + "wire [" + (bitwidth - 1) + ":0] voted_class" + index)
+                .mapToObj(index -> tab + "wire [" + (bitwidth - 1) + ":0] voted_class" + index + ";")
                 .collect(Collectors.joining("\n"));
 
         return "\n\n" + module + "\n" + classes + clock + counter + FI + FF + mostVoted + votedClass + "\n\n";
@@ -94,7 +94,7 @@ public class ControllerGenerator {
                 .collect(Collectors.joining("\n")
         );
 
-        String output = "\n "+ tab2 + ".voted_class(voted_class),\n";
+        String output = "\n "+ tab2 + ".voted_class(voted_class" + treeIndex + "),\n";
         String clock = tab2 + ".clock(clock)\n";
 
         return moduleAlias + exponent + "\n" + fraction + output + clock + tab1 + ");\n\n";
@@ -124,7 +124,7 @@ public class ControllerGenerator {
 
     }
 
-    private String generateAlwaysBlock(Integer featuresQnt ,Integer samplesQnt, Integer classQnt) {
+    private String generateAlwaysBlock(Integer featuresQnt ,Integer samplesQnt, Integer classQnt, Integer treeQnt) {
         String tab1 = generateTab(1);
         String tab2 = generateTab(2);
         String tab3 = generateTab(3);
@@ -150,19 +150,28 @@ public class ControllerGenerator {
 
 
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
-        String switchCaseOpen = "\n" + tab3 + "case (voted_class)\n";
 
-        String switchCaseBody = IntStream.range(0, classQnt)
-                .mapToObj(
-                        index -> tab4 + bitwidth + "'b" +
-                                String.format("%" + bitwidth + "s", Integer.toBinaryString(index)).replaceAll(" ", "0") + ": " + "class" +
-                                String.format("%" + bitwidth + "s", Integer.toBinaryString(index)).replaceAll(" ", "0") + " <= class" +
-                                String.format("%" + bitwidth + "s", Integer.toBinaryString(index)).replaceAll(" ", "0") + " + 1;"
-                )
-                .collect(Collectors.joining("\n")
-        );
+        String switchCases = "";
 
-        String switchCaseClose = "\n" + tab4 + "default: class00 <= class00;\n" + tab3 + "endcase";
+        for (int index = 0; index < treeQnt; index++){
+
+            String switchCaseOpen = "\n" + tab3 + "case (voted_class" + index + ")      \n";
+
+            String switchCaseBody = IntStream.range(0, classQnt)
+                    .mapToObj(
+                            index2 -> tab4 + bitwidth + "'b" +
+                                    String.format("%" + bitwidth + "s", Integer.toBinaryString(index2)).replaceAll(" ", "0") + ": " + "class" +
+                                    String.format("%" + bitwidth + "s", Integer.toBinaryString(index2)).replaceAll(" ", "0") + " <= class" +
+                                    String.format("%" + bitwidth + "s", Integer.toBinaryString(index2)).replaceAll(" ", "0") + " + 1;"
+                    )
+                    .collect(Collectors.joining("\n")
+                    );
+
+            String switchCaseClose = "\n" + tab4 + "default: class00 <= class00;\n" + tab3 + "endcase";
+
+            switchCases += switchCaseOpen + switchCaseBody + switchCaseClose;
+
+        }
 
         ArrayList<String> classes = new ArrayList<>();
         for (int index = 0; index < classQnt; index++){
@@ -209,9 +218,7 @@ public class ControllerGenerator {
                conditionalOpen +
                featureExponent + "\n" +
                featureFraction + "\n" +
-                switchCaseOpen +
-                switchCaseBody +
-                switchCaseClose + "\n" +
+                switchCases + "\n" +
                 teste +
                 counterIncrement +
                conditionalClose +
