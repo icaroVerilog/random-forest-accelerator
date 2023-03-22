@@ -9,19 +9,26 @@ import java.util.stream.IntStream;
 
 public class ControllerGenerator {
 
-    public void execute(Integer treeQuantity, String dataset, Integer classQuantity, Integer featureQuantity, Integer samplesQnt){
+    public void execute(
+            Integer treeQuantity,
+            String dataset,
+            Integer classQuantity,
+            Integer featureQuantity,
+            Integer samplesQnt,
+            Boolean debugMode
+    ){
 
         String sourceCode = "";
 
         sourceCode += generateImports(treeQuantity);
-        sourceCode += generateIO(featureQuantity, classQuantity, treeQuantity);
+        sourceCode += generateIO(featureQuantity, classQuantity, treeQuantity, debugMode);
         sourceCode += generateMemoryRead(featureQuantity, samplesQnt);
         
         for (int index = 0; index < treeQuantity; index++){
             sourceCode += generateModuleInstantiation(featureQuantity, index);
         }
 
-        sourceCode += generateInitialBlock(featureQuantity);
+        sourceCode += generateInitialBlock(featureQuantity, classQuantity, debugMode);
         sourceCode += generateAlwaysBlock(featureQuantity, samplesQnt, classQuantity, treeQuantity);
 
         FileBuilder.execute(sourceCode, "FPGA/controller.v");
@@ -35,13 +42,25 @@ public class ControllerGenerator {
         return imports;
     }
 
-    private String generateIO(Integer featureQuantity, Integer classQnt, Integer treeQnt){
+    private String generateIO(Integer featureQuantity, Integer classQnt, Integer treeQnt, Boolean debugMode){
 
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
         String tab = generateTab(1);
-        String module = "module controller();\n";
-        String clock = "\n" + tab + "reg clock;\n";
+        String module = "";
+        String clock = "";
+
+
+        if (debugMode){
+            module = "module controller(clock);\n";
+            clock = "\n" + tab + "input wire clock;\n";
+        }
+        else {
+            module = "module controller();\n";
+            clock = "\n" + tab + "reg clock;\n";
+        }
+
+
         String counter = tab + "integer counter;\n\n";
 
         String classes = "";
@@ -100,12 +119,21 @@ public class ControllerGenerator {
         return moduleAlias + exponent + "\n" + fraction + output + clock + tab1 + ");\n\n";
     }
 
-    private String generateInitialBlock(Integer featureQnt){
+    private String generateInitialBlock(Integer featureQnt, Integer classQnt, Boolean debugMode){
         String tab1 = generateTab(1);
         String tab2 = generateTab(2);
+        int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
-        String clockSetup = tab2 + "clock = 0;\n";
         String counterSetup = tab2 + "counter = 0;\n\n";
+
+        String classSetup = IntStream.range(0, classQnt)
+                .mapToObj(
+                        index -> tab2 + "class" + String.format("%" + bitwidth +
+                                "s", Integer.toBinaryString(index)).replaceAll(" ", "0") + " = 0;"
+                )
+                .collect(Collectors.joining("\n")
+                );
+
 
         String initialBlockOpen = tab1 + "initial begin\n\n";
         String initialBlockClose = tab1 + "end\n\n";
@@ -120,7 +148,7 @@ public class ControllerGenerator {
                 .collect(Collectors.joining("\n")
         );
 
-        return initialBlockOpen + clockSetup + counterSetup + readmemExponent + "\n" + readmemFraction + "\n\n" + initialBlockClose;
+        return initialBlockOpen + classSetup + "\n" + counterSetup + readmemExponent + "\n" + readmemFraction + "\n\n" + initialBlockClose;
 
     }
 

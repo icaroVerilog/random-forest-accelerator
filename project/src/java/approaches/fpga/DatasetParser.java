@@ -52,7 +52,6 @@ public class DatasetParser {
         return datasetDepth;
     }
 
-
     private String ValueToBinary(String value, boolean integralPart){
 
         String splitedValue = null;
@@ -78,5 +77,4 @@ public class DatasetParser {
         }
         return binaryValue;
     }
-
 }
