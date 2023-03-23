@@ -7,6 +7,9 @@ import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 
+import java.sql.SQLOutput;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -24,9 +27,6 @@ public class TreeGenerator {
         this.dataset         = dataset;
         this.classQuantity   = classQnt;
         this.featureQuantity = featureQnt;
-
-        System.out.println(classQnt);
-        System.out.println(featureQnt);
 
         for (int index = 0; index < trees.size(); index++){
             String sourceCode = new String();
@@ -61,7 +61,6 @@ public class TreeGenerator {
     }
 
     public String generatePortDeclaration(int featureQuantity, int classQuantity){
-
         String tab = generateTab(1);
 
         String CLK = tab + "input wire clock;\n\n";
@@ -76,18 +75,30 @@ public class TreeGenerator {
         );
 
         int bitwidth = (int) Math.ceil(Math.sqrt(classQuantity));
-        String votedClass = "\n" + tab + "output reg [" + (bitwidth - 1) + ":0] voted_class;\n\n\n";
+        String votedClass = "\n" + tab + "output reg [" + (bitwidth) + ":0] voted_class;\n\n\n";
 
+        int[][] oneHotMatrix = new int[classQuantity][classQuantity];
+
+        for (int i = 0; i < oneHotMatrix.length; i++) {
+            for (int j = 0; j < oneHotMatrix[i].length; j++) {
+                if (i == j){
+                    oneHotMatrix[i][j] = 1;
+                }
+                else {
+                    oneHotMatrix[i][j] = 0;
+                }
+            }
+        }
 
         String CL = IntStream.range(0, classQuantity)
                 .mapToObj(
-                        index -> tab + "parameter class" + index + " = " +
-                                bitwidth + "'b" + String.format("%" + bitwidth +
-                                "s;", Integer.toBinaryString(index)).replaceAll(" ", "0")
+                        index -> tab + "parameter class" + index + " = " + (bitwidth + 1) + "'b" +
+                                Arrays.toString(oneHotMatrix[index])
+                                        .replaceAll("[\\[\\]\\s]", "")
+                                        .replace(",", "") + ";"
                 )
                 .collect(Collectors.joining("\n")
         );
-
         return CLK + FI + "\n" + FF  + votedClass + CL;
     }
 

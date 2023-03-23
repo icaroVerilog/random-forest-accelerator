@@ -78,9 +78,8 @@ public class ControllerGenerator {
         );
 
         String mostVoted = "\n" + tab + "reg [" + (bitwidth - 1) + ":0] most_voted;\n";
-//        String votedClass = "\n" + tab + "wire [" + (bitwidth - 1) + ":0] voted_class;\n\n\n";
         String votedClass = IntStream.range(0, treeQnt)
-                .mapToObj(index -> tab + "wire [" + (bitwidth - 1) + ":0] voted_class" + index + ";")
+                .mapToObj(index -> tab + "wire [" + (bitwidth) + ":0] voted_class" + index + ";")
                 .collect(Collectors.joining("\n"));
 
         return "\n\n" + module + "\n" + classes + clock + counter + FI + FF + mostVoted + votedClass + "\n\n";
@@ -176,29 +175,22 @@ public class ControllerGenerator {
                 .collect(Collectors.joining("\n")
         );
 
-
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
-        String switchCases = "";
+        String voteAccumulator = "";
 
-        for (int index = 0; index < treeQnt; index++){
+        for (int index1 = 0; index1 < classQnt; index1++){
+            voteAccumulator += tab3 + "class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index1)).replaceAll(" ", "0");
+            voteAccumulator += " = ";
 
-            String switchCaseOpen = "\n" + tab3 + "case (voted_class" + index + ")      \n";
+            for (int index2 = 0; index2 < treeQnt; index2++){
+                voteAccumulator += "voted_class" + index2 + "[" + index1 + "]" + " + ";
 
-            String switchCaseBody = IntStream.range(0, classQnt)
-                    .mapToObj(
-                            index2 -> tab4 + bitwidth + "'b" +
-                                    String.format("%" + bitwidth + "s", Integer.toBinaryString(index2)).replaceAll(" ", "0") + ": " + "class" +
-                                    String.format("%" + bitwidth + "s", Integer.toBinaryString(index2)).replaceAll(" ", "0") + " <= class" +
-                                    String.format("%" + bitwidth + "s", Integer.toBinaryString(index2)).replaceAll(" ", "0") + " + 1;"
-                    )
-                    .collect(Collectors.joining("\n")
-                    );
-
-            String switchCaseClose = "\n" + tab4 + "default: class00 <= class00;\n" + tab3 + "endcase";
-
-            switchCases += switchCaseOpen + switchCaseBody + switchCaseClose;
-
+                if (index2 + 1 == treeQnt){
+                    voteAccumulator += "class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index1)).replaceAll(" ", "0");
+                    voteAccumulator += ";\n";
+                }
+            }
         }
 
         ArrayList<String> classes = new ArrayList<>();
@@ -238,15 +230,11 @@ public class ControllerGenerator {
 
         String counterIncrement = generateTab(3) + "counter <= counter + 1;\n\n";
 
-        System.out.println(teste);
-
-
-
         return alwaysBlockOpen +
                conditionalOpen +
                featureExponent + "\n" +
-               featureFraction + "\n" +
-                switchCases + "\n" +
+               featureFraction + "\n\n" +
+                voteAccumulator +
                 teste +
                 counterIncrement +
                conditionalClose +
