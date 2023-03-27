@@ -12,19 +12,26 @@ public class FPGA {
     String dataset;
     Integer classQnt;
     Integer featureQnt;
-
     List<Tree> treeList;
+    Boolean debugMode;
 
-    public FPGA(List<Tree> treeList, String dataset, Integer classQnt, Integer featureQnt){
+    public FPGA(List<Tree> treeList, String dataset, Integer classQnt, Integer featureQnt, Boolean debugMode){
         this.treeList = treeList;
         this.dataset = dataset;
         this.classQnt = classQnt;
         this.featureQnt = featureQnt;
+        this.debugMode = debugMode;
     }
 
-    public void executeConditionalApproach(){
+    public void executeConditionalApproach() throws IOException {
         var conditionalGen = new ConditionalFPGAGenerator();
-        conditionalGen.execute(treeList, dataset, classQnt, featureQnt);
+        var datasetParser = new DatasetParser();
+
+        int samplesQnt = datasetParser.readDataset(dataset);
+        conditionalGen.execute(treeList, classQnt, featureQnt, samplesQnt, debugMode);
     }
 
+    public void execute() throws IOException {
+        executeConditionalApproach();
+    }
 }

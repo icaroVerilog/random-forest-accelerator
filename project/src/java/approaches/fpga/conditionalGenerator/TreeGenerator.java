@@ -7,6 +7,9 @@ import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 
+import java.sql.SQLOutput;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -15,24 +18,13 @@ public class TreeGenerator {
 
     int BITWIDTH = 32;
 
-    String dataset;
-    Integer classQuantity;
-    Integer featureQuantity;
-
-    public void execute(List<Tree> trees, String dataset, Integer classQuantity, Integer featureQuantity){
-
-        this.dataset         = dataset;
-        this.classQuantity   = classQuantity;
-        this.featureQuantity = featureQuantity;
-
-        System.out.println(classQuantity);
-        System.out.println(featureQuantity);
+    public void execute(List<Tree> trees, Integer classQnt, Integer featureQnt){
 
         for (int index = 0; index < trees.size(); index++){
-            String sourceCode = new String();
+            String sourceCode = "";
 
-            sourceCode += generateHeader(index, this.featureQuantity);
-            sourceCode += generatePortDeclaration(this.featureQuantity, this.classQuantity);
+            sourceCode += generateHeader(index, featureQnt);
+            sourceCode += generatePortDeclaration(featureQnt, classQnt);
             sourceCode += generateAlwaysBlock();
             sourceCode += generateConditionals(trees.get(index).getRoot(), 2);
             sourceCode += generateEndDelimiters();
@@ -41,16 +33,16 @@ public class TreeGenerator {
         }
     }
 
-    public String generateHeader(int treeIndex, int featureQuantity){
+    public String generateHeader(int treeIndex, int featureQnt){
 
         String tab = generateTab(1);
         String header = "module tree" + treeIndex + "(\n";
-        String FI = IntStream.range(0, featureQuantity)
-                .mapToObj(index -> "ft" + index + "_integral")
+        String FI = IntStream.range(0, featureQnt)
+                .mapToObj(index -> "ft" + index + "_exponent")
                 .collect(Collectors.joining(", ")
         );
-        String FF = IntStream.range(0, featureQuantity)
-                .mapToObj(index -> "ft" + index + "_fractional")
+        String FF = IntStream.range(0, featureQnt)
+                .mapToObj(index -> "ft" + index + "_fraction")
                 .collect(Collectors.joining(", ")
         );
 
@@ -60,34 +52,45 @@ public class TreeGenerator {
                tab + clkAndOut + "\n);\n";
     }
 
-    public String generatePortDeclaration(int featureQuantity, int classQuantity){
-
+    public String generatePortDeclaration(int featureQnt, int classQnt){
         String tab = generateTab(1);
 
         String CLK = tab + "input wire clock;\n\n";
 
-        String FI = IntStream.range(0, featureQuantity)
-                .mapToObj(index -> tab + "input wire [31:0] ft" + index + "_integral;\n")
+        String FI = IntStream.range(0, featureQnt)
+                .mapToObj(index -> tab + "input wire [31:0] ft" + index + "_exponent;\n")
                 .collect(Collectors.joining("")
         );
-        String FF = IntStream.range(0, featureQuantity)
-                .mapToObj(index -> tab + "input wire [31:0] ft" + index + "_fractional;\n")
+        String FF = IntStream.range(0, featureQnt)
+                .mapToObj(index -> tab + "input wire [31:0] ft" + index + "_fraction;\n")
                 .collect(Collectors.joining("")
         );
 
-        int bitwidth = (int) Math.ceil(Math.sqrt(classQuantity));
-        String votedClass = "\n" + tab + "output reg [" + (bitwidth - 1) + ":0] voted_class;\n\n\n";
+        int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
+        String votedClass = "\n" + tab + "output reg [" + (bitwidth) + ":0] voted_class;\n\n\n";
 
+        int[][] oneHotMatrix = new int[classQnt][classQnt];
 
-        String CL = IntStream.range(0, classQuantity)
+        for (int i = 0; i < oneHotMatrix.length; i++) {
+            for (int j = 0; j < oneHotMatrix[i].length; j++) {
+                if (i == j){
+                    oneHotMatrix[i][j] = 1;
+                }
+                else {
+                    oneHotMatrix[i][j] = 0;
+                }
+            }
+        }
+
+        String CL = IntStream.range(0, classQnt)
                 .mapToObj(
-                        index -> tab + "parameter class" + index + " = " +
-                                bitwidth + "'b" + String.format("%" + bitwidth +
-                                "s;", Integer.toBinaryString(index)).replaceAll(" ", "0")
+                        index -> tab + "parameter class" + index + " = " + (bitwidth + 1) + "'b" +
+                                Arrays.toString(oneHotMatrix[index])
+                                        .replaceAll("[\\[\\]\\s]", "")
+                                        .replace(",", "") + ";"
                 )
                 .collect(Collectors.joining("\n")
         );
-
         return CLK + FI + "\n" + FF  + votedClass + CL;
     }
 
@@ -107,7 +110,7 @@ public class TreeGenerator {
 
         if (node instanceof OuterNode){
             OuterNode newNode = (OuterNode) node;
-            return tabs + "voted_class = class" + newNode.getClassNumber() + ";\n";
+            return tabs + "voted_class <= class" + newNode.getClassNumber() + ";\n";
         }
         else {
             InnerNode newNode = (InnerNode) node;
@@ -134,11 +137,8 @@ public class TreeGenerator {
         String first = "";
         String second = "";
 
-        first += "(" + "ft" + c.getColumn() + "_integral " + c.getComparissonType() + " " + binaryIntegralTh + ")";
-        second += "((" + "ft" + c.getColumn() + "_integral == " + binaryIntegralTh + ") & ft" + c.getColumn() + "_fractional " + c.getComparissonType() + " " + binaryFractionalTh + ")";
-
-//        System.out.println(c.getFeatureName());
-//        System.out.println(c.getColumn());
+        first += "(" + "ft" + c.getColumn() + "_exponent " + c.getComparissonType() + " " + binaryIntegralTh + ")";
+        second += "((" + "ft" + c.getColumn() + "_exponent == " + binaryIntegralTh + ") & ft" + c.getColumn() + "_fraction " + c.getComparissonType() + " " + binaryFractionalTh + ")";
 
         return first + " | " + second;
     }

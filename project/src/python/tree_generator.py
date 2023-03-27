@@ -47,5 +47,5 @@ for t in clf.estimators_:
     fileTree = open("../../assets/trees/" + directory + "/" + fileName, 'w')
     fileTree.write(text)
     fileTree.close()
-    print("Tree ", i, " succefully generated")
+    print("Tree ", i, " successfully generated")
     i += 1
