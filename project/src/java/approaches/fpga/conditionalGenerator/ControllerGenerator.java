@@ -11,7 +11,6 @@ public class ControllerGenerator {
 
     public void execute(
             Integer treeQuantity,
-            String dataset,
             Integer classQuantity,
             Integer featureQuantity,
             Integer samplesQnt,
@@ -155,10 +154,10 @@ public class ControllerGenerator {
         String tab1 = generateTab(1);
         String tab2 = generateTab(2);
         String tab3 = generateTab(3);
-        String tab4 = generateTab(4);
 
         String alwaysBlockOpen = tab1 + "always @(posedge clock) begin\n";
-        String alwaysBlockClose = tab1 + "end";
+        String alwaysBlockClose = tab1 + "end\n";
+        String moduleClose = "endmodule";
 
         String conditionalOpen = tab2 + "if (counter < " + samplesQnt + ") begin\n";
         String conditionalClose = tab2 + "end\n";
@@ -234,13 +233,13 @@ public class ControllerGenerator {
                conditionalOpen +
                featureExponent + "\n" +
                featureFraction + "\n\n" +
-                voteAccumulator +
-                teste +
-                counterIncrement +
+               voteAccumulator +
+               teste +
+               counterIncrement +
                conditionalClose +
                conditionalElse  + "\n" +
-               alwaysBlockClose + "\n" +
-               "endmodule";
+               alwaysBlockClose +
+               moduleClose;
     }
 
     public String generateTab(int tab){

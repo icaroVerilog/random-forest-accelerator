@@ -27,8 +27,8 @@ public class FPGA {
         var conditionalGen = new ConditionalFPGAGenerator();
         var datasetParser = new DatasetParser();
 
-        int samplesQnt = datasetParser.readDataset("Iris");
-        conditionalGen.execute(treeList, dataset, classQnt, featureQnt, samplesQnt, debugMode);
+        int samplesQnt = datasetParser.readDataset(dataset);
+        conditionalGen.execute(treeList, classQnt, featureQnt, samplesQnt, debugMode);
     }
 
     public void execute() throws IOException {

@@ -18,21 +18,13 @@ public class TreeGenerator {
 
     int BITWIDTH = 32;
 
-    private String dataset;
-    private Integer classQuantity;
-    private Integer featureQuantity;
-
-    public void execute(List<Tree> trees, String dataset, Integer classQnt, Integer featureQnt){
-
-        this.dataset         = dataset;
-        this.classQuantity   = classQnt;
-        this.featureQuantity = featureQnt;
+    public void execute(List<Tree> trees, Integer classQnt, Integer featureQnt){
 
         for (int index = 0; index < trees.size(); index++){
-            String sourceCode = new String();
+            String sourceCode = "";
 
-            sourceCode += generateHeader(index, this.featureQuantity);
-            sourceCode += generatePortDeclaration(this.featureQuantity, this.classQuantity);
+            sourceCode += generateHeader(index, featureQnt);
+            sourceCode += generatePortDeclaration(featureQnt, classQnt);
             sourceCode += generateAlwaysBlock();
             sourceCode += generateConditionals(trees.get(index).getRoot(), 2);
             sourceCode += generateEndDelimiters();
@@ -41,15 +33,15 @@ public class TreeGenerator {
         }
     }
 
-    public String generateHeader(int treeIndex, int featureQuantity){
+    public String generateHeader(int treeIndex, int featureQnt){
 
         String tab = generateTab(1);
         String header = "module tree" + treeIndex + "(\n";
-        String FI = IntStream.range(0, featureQuantity)
+        String FI = IntStream.range(0, featureQnt)
                 .mapToObj(index -> "ft" + index + "_exponent")
                 .collect(Collectors.joining(", ")
         );
-        String FF = IntStream.range(0, featureQuantity)
+        String FF = IntStream.range(0, featureQnt)
                 .mapToObj(index -> "ft" + index + "_fraction")
                 .collect(Collectors.joining(", ")
         );
@@ -60,24 +52,24 @@ public class TreeGenerator {
                tab + clkAndOut + "\n);\n";
     }
 
-    public String generatePortDeclaration(int featureQuantity, int classQuantity){
+    public String generatePortDeclaration(int featureQnt, int classQnt){
         String tab = generateTab(1);
 
         String CLK = tab + "input wire clock;\n\n";
 
-        String FI = IntStream.range(0, featureQuantity)
+        String FI = IntStream.range(0, featureQnt)
                 .mapToObj(index -> tab + "input wire [31:0] ft" + index + "_exponent;\n")
                 .collect(Collectors.joining("")
         );
-        String FF = IntStream.range(0, featureQuantity)
+        String FF = IntStream.range(0, featureQnt)
                 .mapToObj(index -> tab + "input wire [31:0] ft" + index + "_fraction;\n")
                 .collect(Collectors.joining("")
         );
 
-        int bitwidth = (int) Math.ceil(Math.sqrt(classQuantity));
+        int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
         String votedClass = "\n" + tab + "output reg [" + (bitwidth) + ":0] voted_class;\n\n\n";
 
-        int[][] oneHotMatrix = new int[classQuantity][classQuantity];
+        int[][] oneHotMatrix = new int[classQnt][classQnt];
 
         for (int i = 0; i < oneHotMatrix.length; i++) {
             for (int j = 0; j < oneHotMatrix[i].length; j++) {
@@ -90,7 +82,7 @@ public class TreeGenerator {
             }
         }
 
-        String CL = IntStream.range(0, classQuantity)
+        String CL = IntStream.range(0, classQnt)
                 .mapToObj(
                         index -> tab + "parameter class" + index + " = " + (bitwidth + 1) + "'b" +
                                 Arrays.toString(oneHotMatrix[index])
@@ -147,9 +139,6 @@ public class TreeGenerator {
 
         first += "(" + "ft" + c.getColumn() + "_exponent " + c.getComparissonType() + " " + binaryIntegralTh + ")";
         second += "((" + "ft" + c.getColumn() + "_exponent == " + binaryIntegralTh + ") & ft" + c.getColumn() + "_fraction " + c.getComparissonType() + " " + binaryFractionalTh + ")";
-
-//        System.out.println(c.getFeatureName());
-//        System.out.println(c.getColumn());
 
         return first + " | " + second;
     }
