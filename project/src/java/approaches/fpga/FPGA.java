@@ -33,5 +33,6 @@ public class FPGA {
 
     public void execute() throws IOException {
         executeConditionalApproach();
+        System.out.println("success");
     }
 }

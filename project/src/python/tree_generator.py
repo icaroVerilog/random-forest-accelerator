@@ -7,8 +7,11 @@ import pandas as pd
 import sys
 import os
 
+
 dataset_name = "Iris"
 
+
+current_dir = os.getcwd()
 
 dataset = pd.read_csv("heart.csv")
 
@@ -25,12 +28,18 @@ def remove_id(dataset):
 
     return dataset
 
-
 def parse_qualitative_variables(dataset, method=1):
         
     dataset = pd.get_dummies(dataset, drop_first = True)
     return dataset
 
+
+print("O diretório atual é:", current_dir)
+dataset_name = "Iris"
+
+print(current_dir + "/project/assets/datasets/" + dataset_name + ".csv")
+dataset = pd.read_csv(current_dir + "/project/assets/datasets/" + dataset_name + ".csv")
+# dataset.head()
 column_names = list(dataset)
 target_column_name = column_names[len(column_names) - 1]
 dataset.rename(columns={target_column_name: "target"}, inplace=True)
@@ -53,14 +62,14 @@ y_pred = clf.predict(X_test)
 # print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
 
 directory = dataset_name
-parent_dir = "../../assets/trees/"
+parent_dir = current_dir + "/project/assets/trees/"
 path = os.path.join(parent_dir, directory)
 
 i = 0
 for t in clf.estimators_:
     text = tree.export_graphviz(t)
     fileName = "tree" + str(i) + ".txt"
-    fileTree = open("../../assets/trees/" + directory + "/" + fileName, 'w')
+    fileTree = open(current_dir + "/project/assets/trees/" + directory + "/" + fileName, 'w')
     fileTree.write(text)
     fileTree.close()
     print("Tree ", i, " successfully generated")
