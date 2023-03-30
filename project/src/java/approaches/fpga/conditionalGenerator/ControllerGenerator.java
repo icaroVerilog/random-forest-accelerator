@@ -17,6 +17,8 @@ public class ControllerGenerator {
             Boolean debugMode
     ){
 
+        System.out.println("generating controller");
+
         String sourceCode = "";
 
         sourceCode += generateImports(treeQuantity);

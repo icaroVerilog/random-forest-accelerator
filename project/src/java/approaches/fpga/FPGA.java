@@ -23,16 +23,24 @@ public class FPGA {
         this.debugMode = debugMode;
     }
 
+    public void execute() throws IOException {
+
+        System.out.println("\n========================================\n");
+        System.out.println("starting FPGA random forest generator");
+
+        executeConditionalApproach();
+
+        System.out.println("\nfinishing FPGA random forest generator");
+        System.out.println("\n========================================\n");
+    }
     public void executeConditionalApproach() throws IOException {
+
+        System.out.println("conditional approach\n");
+
         var conditionalGen = new ConditionalFPGAGenerator();
         var datasetParser = new DatasetParser();
 
         int samplesQnt = datasetParser.readDataset(dataset);
         conditionalGen.execute(treeList, classQnt, featureQnt, samplesQnt, debugMode);
-    }
-
-    public void execute() throws IOException {
-        executeConditionalApproach();
-        System.out.println("success");
     }
 }

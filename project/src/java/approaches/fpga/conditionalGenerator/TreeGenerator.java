@@ -21,6 +21,9 @@ public class TreeGenerator {
     public void execute(List<Tree> trees, Integer classQnt, Integer featureQnt){
 
         for (int index = 0; index < trees.size(); index++){
+
+            System.out.println("generating verilog decision tree" + index);
+
             String sourceCode = "";
 
             sourceCode += generateHeader(index, featureQnt);
