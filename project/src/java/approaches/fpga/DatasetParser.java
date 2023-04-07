@@ -44,9 +44,11 @@ public class DatasetParser {
 
         scanner.close();
 
+        FileBuilder.createDir("FPGA/" + dataset + "/dataset");
+
         for (int index = 0; index < integralFeaturesVal.size(); index++) {
-            FileBuilder.execute(integralFeaturesVal.get(index), "FPGA/dataset/" + "feature" + index + "_exponent.bin");
-            FileBuilder.execute(fractionalFeaturesVal.get(index), "FPGA/dataset/" + "feature" + index + "_fraction.bin");
+            FileBuilder.execute(integralFeaturesVal.get(index), "FPGA/" + dataset + "/dataset/" + "feature" + index + "_exponent.bin");
+            FileBuilder.execute(fractionalFeaturesVal.get(index), "FPGA/" + dataset + "/dataset/" + "feature" + index + "_fraction.bin");
         }
 
         return datasetDepth;

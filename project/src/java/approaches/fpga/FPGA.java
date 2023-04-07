@@ -41,6 +41,6 @@ public class FPGA {
         var datasetParser = new DatasetParser();
 
         int samplesQnt = datasetParser.readDataset(dataset);
-        conditionalGen.execute(treeList, classQnt, featureQnt, samplesQnt, debugMode);
+        conditionalGen.execute(treeList, classQnt, featureQnt, samplesQnt, debugMode, dataset);
     }
 }

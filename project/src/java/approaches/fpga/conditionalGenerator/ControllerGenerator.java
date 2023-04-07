@@ -2,6 +2,7 @@ package project.src.java.approaches.fpga.conditionalGenerator;
 
 import project.src.java.util.FileBuilder;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -14,7 +15,8 @@ public class ControllerGenerator {
             Integer classQuantity,
             Integer featureQuantity,
             Integer samplesQnt,
-            Boolean debugMode
+            Boolean debugMode,
+            String dataset
     ){
 
         System.out.println("generating controller");
@@ -32,7 +34,7 @@ public class ControllerGenerator {
         sourceCode += generateInitialBlock(featureQuantity, classQuantity, debugMode);
         sourceCode += generateAlwaysBlock(featureQuantity, samplesQnt, classQuantity, treeQuantity);
 
-        FileBuilder.execute(sourceCode, "FPGA/controller.v");
+        FileBuilder.execute(sourceCode, "FPGA/" + dataset + "/controller.v");
     }
 
     private String generateImports(Integer treeQuantity){

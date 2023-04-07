@@ -33,6 +33,6 @@ public class Main {
         FPGA FPGAGenerator = new FPGA(trees, dataset, Parser.getClassQuantity(), Parser.getFeatureQuantity(), true);
         FPGAGenerator.execute();
 
-        System.out.println("success");
+        System.out.println("job finished: Success");
     }
 }

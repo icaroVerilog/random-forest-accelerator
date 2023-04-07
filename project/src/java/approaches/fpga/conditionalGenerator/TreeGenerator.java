@@ -18,7 +18,7 @@ public class TreeGenerator {
 
     int BITWIDTH = 32;
 
-    public void execute(List<Tree> trees, Integer classQnt, Integer featureQnt){
+    public void execute(List<Tree> trees, Integer classQnt, Integer featureQnt, String dataset){
 
         for (int index = 0; index < trees.size(); index++){
 
@@ -32,7 +32,8 @@ public class TreeGenerator {
             sourceCode += generateConditionals(trees.get(index).getRoot(), 2);
             sourceCode += generateEndDelimiters();
 
-            FileBuilder.execute(sourceCode, "FPGA/tree" + index + ".v");
+            FileBuilder.createDir("FPGA/" + dataset);
+            FileBuilder.execute(sourceCode, "FPGA/" + dataset + "/tree" + index + ".v");
         }
     }
 
