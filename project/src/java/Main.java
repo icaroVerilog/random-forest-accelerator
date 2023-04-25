@@ -30,7 +30,7 @@ public class Main {
 
 
         List<Tree> trees = Parser.execute(dataset);
-        FPGA FPGAGenerator = new FPGA(trees, dataset, Parser.getClassQuantity(), Parser.getFeatureQuantity(), true);
+        FPGA FPGAGenerator = new FPGA(trees, dataset, Parser.getClassQuantity(), Parser.getFeatureQuantity(), false);
         FPGAGenerator.execute();
 
         System.out.println("job finished: Success");

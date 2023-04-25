@@ -1,14 +1,17 @@
 package project.src.java.approaches.fpga.conditionalGenerator;
 
+import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
 
 import java.io.File;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ControllerGenerator {
+public class ControllerGenerator extends BasicGenerator {
 
     public void execute(
             Integer treeQuantity,
@@ -25,14 +28,14 @@ public class ControllerGenerator {
 
         sourceCode += generateImports(treeQuantity);
         sourceCode += generateIO(featureQuantity, classQuantity, treeQuantity, debugMode);
-        sourceCode += generateMemoryRead(featureQuantity, samplesQnt);
+        sourceCode += generateMemoryRead(featureQuantity, samplesQnt, debugMode);
         
         for (int index = 0; index < treeQuantity; index++){
             sourceCode += generateModuleInstantiation(featureQuantity, index);
         }
 
         sourceCode += generateInitialBlock(featureQuantity, classQuantity, debugMode);
-        sourceCode += generateAlwaysBlock(featureQuantity, samplesQnt, classQuantity, treeQuantity);
+        sourceCode += generateAlwaysBlock(featureQuantity, samplesQnt, classQuantity, treeQuantity, debugMode);
 
         FileBuilder.execute(sourceCode, "FPGA/" + dataset + "/controller.v");
     }
@@ -49,56 +52,103 @@ public class ControllerGenerator {
 
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
-        String tab = generateTab(1);
-        String module = "";
-        String clock = "";
+        String ind1 = generateTab(1);
 
+        ArrayList<String> moduleIO = new ArrayList<>();
+        String sourceCode;
 
-        if (debugMode){
-            module = "module controller(clock);\n";
-            clock = "\n" + tab + "input wire clock;\n";
+        moduleIO.add("clock");
+        moduleIO.add("most_voted");
+
+        for (int index = 0; index < featureQuantity; index++){
+            moduleIO.add("ft" + index + "_exponent");
         }
-        else {
-            module = "module controller();\n";
-            clock = "\n" + tab + "reg clock;\n";
+        for (int index = 0; index < featureQuantity; index++){
+            moduleIO.add("ft" + index + "_fraction");
         }
 
+        sourceCode = "\n\n";
+        sourceCode += generateModule(
+                "controller",
+                moduleIO
+        );
 
-        String counter = tab + "integer counter;\n\n";
+        sourceCode += "\n\n";
 
-        String classes = "";
         for (int index = 0; index < classQnt; index++){
-            classes += tab + "integer class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index)).replaceAll(" ", "0") + ";\n";
+            sourceCode += generateIndentation(1);
+            sourceCode += generatePort(
+                "class" + generateBinaryNumber(index, bitwidth),
+                INTEGER,
+                NONE,
+                1,
+                true
+            );
         }
 
-        String FI = IntStream.range(0, featureQuantity)
-                .mapToObj(index -> tab + "reg [31:0] ft" + index + "_exponent;\n")
-                .collect(Collectors.joining("")
-        );
-        String FF = IntStream.range(0, featureQuantity)
-                .mapToObj(index -> tab + "reg [31:0] ft" + index + "_fraction;\n")
-                .collect(Collectors.joining("")
-        );
 
-        String mostVoted = "\n" + tab + "reg [" + (bitwidth - 1) + ":0] most_voted;\n";
-        String votedClass = IntStream.range(0, treeQnt)
-                .mapToObj(index -> tab + "wire [" + (bitwidth) + ":0] voted_class" + index + ";")
-                .collect(Collectors.joining("\n"));
+        sourceCode += ind1 + generatePort("clock", WIRE, INPUT, 1, true);
+        sourceCode += ind1 + generatePort("most_voted", REGISTER, OUTPUT, 2, true);
+        sourceCode += "\n";
 
-        return "\n\n" + module + "\n" + classes + clock + counter + FI + FF + mostVoted + votedClass + "\n\n";
+        for (int index = 0; index < featureQuantity; index++){
+            sourceCode += generateIndentation(1);
+            sourceCode += generatePort(
+                "ft" + index + "_exponent",
+                WIRE,
+                INPUT,
+                32,
+                false
+            );
+            sourceCode += "\n";
+        }
+
+        for (int index = 0; index < featureQuantity; index++){
+            sourceCode += generateIndentation(1);
+            sourceCode += generatePort(
+                    "ft" + index + "_fraction",
+                    WIRE,
+                    INPUT,
+                    32,
+                    false
+            );
+            sourceCode += "\n";
+        }
+
+        sourceCode += "\n";
+
+        for (int index = 0; index < treeQnt; index++){
+            sourceCode += generateIndentation(1);
+            sourceCode += generatePort("voted_class" + index,
+                    WIRE,
+                    NONE,
+                    3,
+                    false
+            );
+            sourceCode += "\n";
+        }
+
+        sourceCode += "\n";
+
+        return sourceCode;
     }
     
-    private String generateMemoryRead(Integer featureQnt, Integer samplesQnt){
-        String tab = generateTab(1);
-        String memRegistersExponent = IntStream.range(0, featureQnt)
-                .mapToObj(index -> tab + "reg [31:0] mem_feature_" + index + "_e" + " [0:" + (samplesQnt -1) + "];")
-                .collect(Collectors.joining("\n"));
+    private String generateMemoryRead(Integer featureQnt, Integer samplesQnt, Boolean debugMode) {
 
-        String memRegistersFractional = IntStream.range(0, featureQnt)
-                .mapToObj(index -> tab + "reg [31:0] mem_feature_" + index + "_f" + " [0:" + (samplesQnt -1) + "];")
-                .collect(Collectors.joining("\n"));
+        if (debugMode) {
+            String tab = generateTab(1);
+            String memRegistersExponent = IntStream.range(0, featureQnt)
+                    .mapToObj(index -> tab + "reg [31:0] mem_feature_" + index + "_e" + " [0:" + (samplesQnt - 1) + "];")
+                    .collect(Collectors.joining("\n"));
 
-        return memRegistersExponent + "\n" + memRegistersFractional + "\n\n";
+            String memRegistersFractional = IntStream.range(0, featureQnt)
+                    .mapToObj(index -> tab + "reg [31:0] mem_feature_" + index + "_f" + " [0:" + (samplesQnt - 1) + "];")
+                    .collect(Collectors.joining("\n"));
+
+            return memRegistersExponent + "\n" + memRegistersFractional + "\n\n";
+        } else {
+            return "";
+        }
     }
 
     private String generateModuleInstantiation(Integer featureQnt, Integer treeIndex){
@@ -140,21 +190,26 @@ public class ControllerGenerator {
         String initialBlockOpen = tab1 + "initial begin\n\n";
         String initialBlockClose = tab1 + "end\n\n";
 
-        String readmemExponent = IntStream.range(0, featureQnt)
-                .mapToObj(index -> tab2 + "$readmemb(" + '"' + "dataset/feature" + index + "_exponent.bin" + '"' + ", mem_feature_" + index + "_e);")
-                .collect(Collectors.joining("\n")
-        );
+        if (debugMode) {
+            String readmemExponent = IntStream.range(0, featureQnt)
+                    .mapToObj(index -> tab2 + "$readmemb(" + '"' + "dataset/feature" + index + "_exponent.bin" + '"' + ", mem_feature_" + index + "_e);")
+                    .collect(Collectors.joining("\n")
+                    );
 
-        String readmemFraction = IntStream.range(0, featureQnt)
-                .mapToObj(index -> tab2 + "$readmemb(" + '"' + "dataset/feature" + index + "_fraction.bin" + '"' + ", mem_feature_" + index + "_f);")
-                .collect(Collectors.joining("\n")
-        );
+            String readmemFraction = IntStream.range(0, featureQnt)
+                    .mapToObj(index -> tab2 + "$readmemb(" + '"' + "dataset/feature" + index + "_fraction.bin" + '"' + ", mem_feature_" + index + "_f);")
+                    .collect(Collectors.joining("\n")
+                    );
 
-        return initialBlockOpen + classSetup + "\n" + counterSetup + readmemExponent + "\n" + readmemFraction + "\n\n" + initialBlockClose;
+            return initialBlockOpen + classSetup + "\n" + counterSetup + readmemExponent + "\n" + readmemFraction + "\n\n" + initialBlockClose;
 
+        }
+        else {
+            return initialBlockOpen + classSetup + "\n" + initialBlockClose;
+        }
     }
 
-    private String generateAlwaysBlock(Integer featuresQnt ,Integer samplesQnt, Integer classQnt, Integer treeQnt) {
+    private String generateAlwaysBlock(Integer featuresQnt ,Integer samplesQnt, Integer classQnt, Integer treeQnt, Boolean debugMode) {
         String tab1 = generateTab(1);
         String tab2 = generateTab(2);
         String tab3 = generateTab(3);
@@ -163,87 +218,151 @@ public class ControllerGenerator {
         String alwaysBlockClose = tab1 + "end\n";
         String moduleClose = "endmodule";
 
-        String conditionalOpen = tab2 + "if (counter < " + samplesQnt + ") begin\n";
-        String conditionalClose = tab2 + "end\n";
+        if (debugMode){
+            String conditionalOpen = tab2 + "if (counter < " + samplesQnt + ") begin\n";
+            String conditionalClose = tab2 + "end\n";
 
-        String conditionalElse = tab2 + "else begin\n" + tab3 + "$finish;\n" + tab2 + "end";
+            String conditionalElse = tab2 + "else begin\n" + tab3 + "$finish;\n" + tab2 + "end";
 
-        String featureExponent = IntStream.range(0, featuresQnt)
-                .mapToObj(index -> tab3 + "ft" + index + "_exponent <= mem_feature_" + index + "_e[counter];")
-                .collect(Collectors.joining("\n")
-        );
+            String featureExponent = IntStream.range(0, featuresQnt)
+                    .mapToObj(index -> tab3 + "ft" + index + "_exponent <= mem_feature_" + index + "_e[counter];")
+                    .collect(Collectors.joining("\n")
+                    );
 
-        String featureFraction = IntStream.range(0, featuresQnt)
-                .mapToObj(index -> tab3 + "ft" + index + "_fraction <= mem_feature_" + index + "_f[counter];")
-                .collect(Collectors.joining("\n")
-        );
+            String featureFraction = IntStream.range(0, featuresQnt)
+                    .mapToObj(index -> tab3 + "ft" + index + "_fraction <= mem_feature_" + index + "_f[counter];")
+                    .collect(Collectors.joining("\n"));
 
-        int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
+            int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
-        String voteAccumulator = "";
+            String voteAccumulator = "";
 
-        for (int index1 = 0; index1 < classQnt; index1++){
-            voteAccumulator += tab3 + "class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index1)).replaceAll(" ", "0");
-            voteAccumulator += " = ";
+            for (int index1 = 0; index1 < classQnt; index1++){
+                voteAccumulator += tab3 + "class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index1)).replaceAll(" ", "0");
+                voteAccumulator += " = ";
 
-            for (int index2 = 0; index2 < treeQnt; index2++){
-                voteAccumulator += "voted_class" + index2 + "[" + index1 + "]" + " + ";
+                for (int index2 = 0; index2 < treeQnt; index2++){
+                    voteAccumulator += "voted_class" + index2 + "[" + index1 + "]" + " + ";
 
-                if (index2 + 1 == treeQnt){
-                    voteAccumulator += "class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index1)).replaceAll(" ", "0");
-                    voteAccumulator += ";\n";
+                    if (index2 + 1 == treeQnt){
+                        voteAccumulator += "class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index1)).replaceAll(" ", "0");
+                        voteAccumulator += ";\n";
+                    }
                 }
             }
-        }
 
-        ArrayList<String> classes = new ArrayList<>();
-        for (int index = 0; index < classQnt; index++){
-            classes.add(String.format("%" + bitwidth + "s", Integer.toBinaryString(index)).replaceAll(" ", "0"));
-        }
-
-        String teste = "";
-
-        for (int index1 = 0; index1 < classQnt; index1++) {
-
-            String comparrison = "";
-
-
-            if (index1 == 0){
-                teste += "\n" + tab3 + "most_voted <= " + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
-            }
-            if (index1 == classQnt - 1){
-                teste += generateTab(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + ";\n\n";
-            }
-            else {
-                teste += generateTab(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
+            ArrayList<String> classes = new ArrayList<>();
+            for (int index = 0; index < classQnt; index++){
+                classes.add(String.format("%" + bitwidth + "s", Integer.toBinaryString(index)).replaceAll(" ", "0"));
             }
 
-            for (int index2 = 0; index2 < classQnt; index2++) {
-                if (Objects.equals(classes.get(index1), classes.get(index2))) {
-                    continue;
+            String teste = "";
+
+            for (int index1 = 0; index1 < classQnt; index1++) {
+
+                String comparrison = "";
+
+
+                if (index1 == 0){
+                    teste += "\n" + tab3 + "most_voted <= " + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
+                }
+                if (index1 == classQnt - 1){
+                    teste += generateTab(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + ";\n\n";
                 }
                 else {
-                    comparrison += "(class" + classes.get(index1) + " > class" + classes.get(index2) + ")";
+                    teste += generateTab(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
+                }
+
+                for (int index2 = 0; index2 < classQnt; index2++) {
+                    if (Objects.equals(classes.get(index1), classes.get(index2))) {
+                        continue;
+                    }
+                    else {
+                        comparrison += "(class" + classes.get(index1) + " > class" + classes.get(index2) + ")";
+                    }
+                }
+
+                teste = teste.replace("x", comparrison);
+                teste = teste.replace(")(", ") & (");
+            }
+
+            String counterIncrement = generateTab(3) + "counter <= counter + 1;\n\n";
+
+            return alwaysBlockOpen +
+                    conditionalOpen +
+                    featureExponent + "\n" +
+                    featureFraction + "\n\n" +
+                    voteAccumulator +
+                    teste +
+                    counterIncrement +
+                    conditionalClose +
+                    conditionalElse  + "\n" +
+                    alwaysBlockClose +
+                    moduleClose;
+        }
+        else {
+
+            int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
+
+            String voteAccumulator = "";
+
+            for (int index1 = 0; index1 < classQnt; index1++){
+                voteAccumulator += tab3 + "class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index1)).replaceAll(" ", "0");
+                voteAccumulator += " = ";
+
+                for (int index2 = 0; index2 < treeQnt; index2++){
+                    voteAccumulator += "voted_class" + index2 + "[" + index1 + "]" + " + ";
+
+                    if (index2 + 1 == treeQnt){
+                        voteAccumulator += "class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index1)).replaceAll(" ", "0");
+                        voteAccumulator += ";\n";
+                    }
                 }
             }
 
-            teste = teste.replace("x", comparrison);
-            teste = teste.replace(")(", ") & (");
+            ArrayList<String> classes = new ArrayList<>();
+            for (int index = 0; index < classQnt; index++){
+                classes.add(String.format("%" + bitwidth + "s", Integer.toBinaryString(index)).replaceAll(" ", "0"));
+            }
+
+            String teste = "";
+
+            for (int index1 = 0; index1 < classQnt; index1++) {
+
+                String comparrison = "";
+
+
+                if (index1 == 0){
+                    teste += "\n" + tab3 + "most_voted <= " + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
+                }
+                if (index1 == classQnt - 1){
+                    teste += generateTab(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + ";\n\n";
+                }
+                else {
+                    teste += generateTab(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
+                }
+
+                for (int index2 = 0; index2 < classQnt; index2++) {
+                    if (Objects.equals(classes.get(index1), classes.get(index2))) {
+                        continue;
+                    }
+                    else {
+                        comparrison += "(class" + classes.get(index1) + " > class" + classes.get(index2) + ")";
+                    }
+                }
+
+                teste = teste.replace("x", comparrison);
+                teste = teste.replace(")(", ") & (");
+            }
+
+            String counterIncrement = generateTab(3) + "counter <= counter + 1;\n\n";
+
+            return alwaysBlockOpen +
+                    voteAccumulator +
+                    teste +
+                    alwaysBlockClose +
+                    moduleClose;
         }
-
-        String counterIncrement = generateTab(3) + "counter <= counter + 1;\n\n";
-
-        return alwaysBlockOpen +
-               conditionalOpen +
-               featureExponent + "\n" +
-               featureFraction + "\n\n" +
-               voteAccumulator +
-               teste +
-               counterIncrement +
-               conditionalClose +
-               conditionalElse  + "\n" +
-               alwaysBlockClose +
-               moduleClose;
     }
 
     public String generateTab(int tab){
