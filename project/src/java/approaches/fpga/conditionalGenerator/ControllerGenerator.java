@@ -97,7 +97,7 @@ public class ControllerGenerator extends BasicGenerator {
                 "ft" + index + "_exponent",
                 WIRE,
                 INPUT,
-                32,
+                FEATURE_BITWIDTH,
                 false
             );
             sourceCode += "\n";
@@ -109,7 +109,7 @@ public class ControllerGenerator extends BasicGenerator {
                     "ft" + index + "_fraction",
                     WIRE,
                     INPUT,
-                    32,
+                    FEATURE_BITWIDTH,
                     false
             );
             sourceCode += "\n";
@@ -152,23 +152,69 @@ public class ControllerGenerator extends BasicGenerator {
     }
 
     private String generateModuleInstantiation(Integer featureQnt, Integer treeIndex){
-        String tab1 = generateTab(1);
-        String tab2 = generateTab(2);
 
-        String moduleAlias = tab1 + "tree" + treeIndex + " tree" + treeIndex + "(\n";
-        String exponent = IntStream.range(0, featureQnt)
-                .mapToObj(index -> tab2 + ".ft" + index + "_exponent(ft" + index + "_exponent),")
-                .collect(Collectors.joining("\n")
-        );
-        String fraction = IntStream.range(0, featureQnt)
-                .mapToObj(index -> tab2 + ".ft" + index + "_fraction(ft" + index + "_fraction),")
-                .collect(Collectors.joining("\n")
-        );
+        String ind = generateIndentation(1);
+        String ind2 = generateIndentation(2);
 
-        String output = "\n "+ tab2 + ".voted_class(voted_class" + treeIndex + "),\n";
-        String clock = tab2 + ".clock(clock)\n";
+        String moduleFeatureExponent = ".ftZ_exponent(ftZ_exponent),";
+        String moduleFeatureFraction = ".ftZ_fraction(ftZ_fraction),";
 
-        return moduleAlias + exponent + "\n" + fraction + output + clock + tab1 + ");\n\n";
+        String sourceCode = "";
+        String processed = "";
+        String module = MODULE_INSTANCE;
+
+        sourceCode += ind2 + ".clock(clock),\n";
+        sourceCode += ind2 + ".voted_class(voted_class),";
+
+        for (int index = 0; index < featureQnt; index++){
+            processed = moduleFeatureExponent.replace("Z", Integer.toString(index));
+            sourceCode += "\n";
+
+            sourceCode += ind2 + processed;
+        }
+
+        for (int index = 0; index < featureQnt; index++){
+
+            if (index == featureQnt - 1){
+                int commaPosition = processed.lastIndexOf(",");
+                processed = processed.substring(0, commaPosition);
+                sourceCode += "\n";
+            }
+            else {
+                processed = moduleFeatureFraction.replace("Z", Integer.toString(index));
+                sourceCode += "\n";
+            }
+
+            sourceCode += ind2 + processed;
+        }
+
+        module = module
+                .replace("moduleName", "tree" + treeIndex.toString())
+                .replace("ports", sourceCode)
+                .replace("ind", ind);
+
+        return module;
+
+
+
+
+//        String tab1 = generateTab(1);
+//        String tab2 = generateTab(2);
+//
+//        String moduleAlias = tab1 + "tree" + treeIndex + " tree" + treeIndex + "(\n";
+//        String exponent = IntStream.range(0, featureQnt)
+//                .mapToObj(index -> tab2 + ".ft" + index + "_exponent(ft" + index + "_exponent),")
+//                .collect(Collectors.joining("\n")
+//        );
+//        String fraction = IntStream.range(0, featureQnt)
+//                .mapToObj(index -> tab2 + ".ft" + index + "_fraction(ft" + index + "_fraction),")
+//                .collect(Collectors.joining("\n")
+//        );
+//
+//        String output = "\n "+ tab2 + ".voted_class(voted_class" + treeIndex + "),\n";
+//        String clock = tab2 + ".clock(clock)\n";
+//
+//        return moduleAlias + exponent + "\n" + fraction + output + clock + tab1 + ");\n\n";
     }
 
     private String generateInitialBlock(Integer featureQnt, Integer classQnt, Boolean debugMode){

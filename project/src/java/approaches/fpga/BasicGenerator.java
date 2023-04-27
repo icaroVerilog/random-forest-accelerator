@@ -10,12 +10,9 @@ import java.util.stream.IntStream;
 
 public class BasicGenerator {
 
+    protected final Integer FEATURE_BITWIDTH = 32;
+
     /* RESERVED WORDS */
-    protected final String ALWAYS = "always @(x z) begin\n";
-    protected final String INITIAL = "initial begin\n";
-
-
-
 
     protected final String WIRE = "wire";
     protected final String REGISTER = "reg";
@@ -25,6 +22,9 @@ public class BasicGenerator {
     protected final String INPUT = "input";
     protected final String NONE = "";
 
+    /* */
+
+    protected final String MODULE_INSTANCE = "\nind" + "moduleName moduleName(\nports \nind);\n";
 
     protected String generatePort(String name, String type, String direction, Integer bitwidth, Boolean lineBreak){
 

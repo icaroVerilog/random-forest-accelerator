@@ -10,10 +10,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ApiGenerator extends BasicGenerator {
+
     public void execute(Integer featureQnt, Boolean debugMode, String dataset){
         String sourceCode = "";
         sourceCode += generateImport("controller");
-        sourceCode += generateIO();
+        sourceCode += generateIO(featureQnt);
+        sourceCode += generateModuleInstantiation(featureQnt, "controller");
 
         FileBuilder.execute(sourceCode, "FPGA/" + dataset + "/api.v");
 
@@ -24,8 +26,7 @@ public class ApiGenerator extends BasicGenerator {
         return "`include " + moduleName + ".v\n";
     }
 
-    private String generateIO(){
-
+    private String generateIO(Integer featureQnt){
         String tab = generateTab(1);
         String sourceCode = "";
 
@@ -50,30 +51,81 @@ public class ApiGenerator extends BasicGenerator {
         sourceCode += tab + generatePort("data_read_request",  REGISTER, OUTPUT, 2, true);
         sourceCode += tab + generatePort("data_write_request", REGISTER, OUTPUT, 2, true);
         sourceCode += "\n";
-        sourceCode += tab + generatePort("data_read", WIRE, INPUT, 256, true);
-        sourceCode += tab + generatePort("data_write", REGISTER, OUTPUT, 256, true);
+        sourceCode += tab + generatePort("data_read", WIRE, INPUT, featureQnt * FEATURE_BITWIDTH, true);
+        sourceCode += tab + generatePort("data_write", REGISTER, OUTPUT, featureQnt * FEATURE_BITWIDTH, true);
         sourceCode += "\n";
         sourceCode += tab + generatePort("most_voted", WIRE, NONE, 2, true);
         sourceCode += tab + generatePort("read_request", REGISTER, NONE, 2, true);
         sourceCode += tab + generatePort("write_request", REGISTER, NONE, 2, true);
-        sourceCode += tab + generatePort("features", REGISTER, NONE, 128, true);
+        sourceCode += tab + generatePort("features", REGISTER, NONE, featureQnt * FEATURE_BITWIDTH, true);
 
         return sourceCode;
     }
 
-    private String generateModuleInstantiation(){
+    private String generateModuleInstantiation(Integer featureQnt, String moduleName){
 
         String ind = generateIndentation(1);
         String ind2 = generateIndentation(2);
 
+        String moduleFeatureExponent = ".ftZ_exponent(features[Y:X]),";
+        String moduleFeatureFraction = ".ftZ_fraction(features[Y:X]),";
+
         String sourceCode = "";
+        String processed = "";
+        String module = MODULE_INSTANCE;
 
-        sourceCode += ind + "controller controller (\n";
-//        sourceCode += ind2
+        int counter = 0;
 
 
+        sourceCode += ind2 + ".clock(clock),\n";
+        sourceCode += ind2 + ".most_voted(most_voted),";
 
-        return sourceCode;
+        for (int index = 0; index < featureQnt; index++){
+
+            if (index == 0){
+                processed = moduleFeatureExponent
+                        .replace("Z", Integer.toString(index))
+                        .replace("Y", Integer.toString(FEATURE_BITWIDTH - 1))
+                        .replace("X", Integer.toString(0));
+            }
+            else {
+                processed = moduleFeatureExponent
+                        .replace("Z", Integer.toString(index))
+                        .replace("Y", Integer.toString((FEATURE_BITWIDTH * index + FEATURE_BITWIDTH) - 1))
+                        .replace("X", Integer.toString(FEATURE_BITWIDTH * index));
+            }
+
+            sourceCode += "\n";
+            sourceCode += ind2 + processed;
+            counter++;
+        }
+
+        for (int index = 0; index < featureQnt; index++){
+
+            if (index == featureQnt - 1){
+                int commaPosition = processed.lastIndexOf(",");
+                processed = processed.substring(0, commaPosition);
+                sourceCode += "\n";
+            }
+            else {
+                processed = moduleFeatureFraction
+                    .replace("Z", Integer.toString(index))
+                    .replace("Y", Integer.toString((FEATURE_BITWIDTH * counter + FEATURE_BITWIDTH) - 1))
+                    .replace("X", Integer.toString(FEATURE_BITWIDTH * counter));
+            }
+
+
+            sourceCode += "\n";
+            sourceCode += ind2 + processed;
+            counter++;
+        }
+
+        module = module
+                .replace("moduleName", moduleName)
+                .replace("ports", sourceCode)
+                .replace("ind", ind);
+
+        return module;
     }
 
     public String generateTab(int tab){
