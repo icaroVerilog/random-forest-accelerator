@@ -3,10 +3,7 @@ package project.src.java.approaches.fpga.conditionalGenerator;
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
 
-import java.io.File;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -14,9 +11,9 @@ import java.util.stream.IntStream;
 public class ControllerGenerator extends BasicGenerator {
 
     public void execute(
-            Integer treeQuantity,
-            Integer classQuantity,
-            Integer featureQuantity,
+            Integer treeQnt,
+            Integer classQnt,
+            Integer featureQnt,
             Integer samplesQnt,
             Boolean debugMode,
             String dataset
@@ -26,16 +23,16 @@ public class ControllerGenerator extends BasicGenerator {
 
         String sourceCode = "";
 
-        sourceCode += generateImports(treeQuantity);
-        sourceCode += generateIO(featureQuantity, classQuantity, treeQuantity, debugMode);
-        sourceCode += generateMemoryRead(featureQuantity, samplesQnt, debugMode);
+        sourceCode += generateImports(treeQnt);
+        sourceCode += generateIO(featureQnt, classQnt, treeQnt, debugMode);
+        sourceCode += generateMemoryRead(featureQnt, samplesQnt, debugMode);
         
-        for (int index = 0; index < treeQuantity; index++){
-            sourceCode += generateModuleInstantiation(featureQuantity, index);
+        for (int index = 0; index < treeQnt; index++){
+            sourceCode += generateModuleInstantiation(featureQnt, index);
         }
 
-        sourceCode += generateInitialBlock(featureQuantity, classQuantity, debugMode);
-        sourceCode += generateAlwaysBlock(featureQuantity, samplesQnt, classQuantity, treeQuantity, debugMode);
+        sourceCode += generateInitialBlock(featureQnt, classQnt, debugMode);
+        sourceCode += generateAlwaysBlock(featureQnt, samplesQnt, classQnt, treeQnt, debugMode);
 
         FileBuilder.execute(sourceCode, "FPGA/" + dataset + "/controller.v");
     }
@@ -48,7 +45,7 @@ public class ControllerGenerator extends BasicGenerator {
         return imports;
     }
 
-    private String generateIO(Integer featureQuantity, Integer classQnt, Integer treeQnt, Boolean debugMode){
+    private String generateIO(Integer featureQnt, Integer classQnt, Integer treeQnt, Boolean debugMode){
 
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
@@ -60,10 +57,10 @@ public class ControllerGenerator extends BasicGenerator {
         moduleIO.add("clock");
         moduleIO.add("most_voted");
 
-        for (int index = 0; index < featureQuantity; index++){
+        for (int index = 0; index < featureQnt; index++){
             moduleIO.add("ft" + index + "_exponent");
         }
-        for (int index = 0; index < featureQuantity; index++){
+        for (int index = 0; index < featureQnt; index++){
             moduleIO.add("ft" + index + "_fraction");
         }
 
@@ -91,7 +88,7 @@ public class ControllerGenerator extends BasicGenerator {
         sourceCode += ind1 + generatePort("most_voted", REGISTER, OUTPUT, 2, true);
         sourceCode += "\n";
 
-        for (int index = 0; index < featureQuantity; index++){
+        for (int index = 0; index < featureQnt; index++){
             sourceCode += generateIndentation(1);
             sourceCode += generatePort(
                 "ft" + index + "_exponent",
@@ -103,7 +100,7 @@ public class ControllerGenerator extends BasicGenerator {
             sourceCode += "\n";
         }
 
-        for (int index = 0; index < featureQuantity; index++){
+        for (int index = 0; index < featureQnt; index++){
             sourceCode += generateIndentation(1);
             sourceCode += generatePort(
                     "ft" + index + "_fraction",
@@ -178,12 +175,11 @@ public class ControllerGenerator extends BasicGenerator {
             if (index == featureQnt - 1){
                 int commaPosition = processed.lastIndexOf(",");
                 processed = processed.substring(0, commaPosition);
-                sourceCode += "\n";
             }
             else {
                 processed = moduleFeatureFraction.replace("Z", Integer.toString(index));
-                sourceCode += "\n";
             }
+            sourceCode += "\n";
 
             sourceCode += ind2 + processed;
         }

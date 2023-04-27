@@ -5,14 +5,17 @@ import project.src.java.util.FileBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ApiGenerator extends BasicGenerator {
 
     public void execute(Integer featureQnt, Boolean debugMode, String dataset){
+
         String sourceCode = "";
+
+        System.out.println("generating API");
+
         sourceCode += generateImport("controller");
         sourceCode += generateIO(featureQnt);
         sourceCode += generateModuleInstantiation(featureQnt, "controller");

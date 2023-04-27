@@ -1,5 +1,6 @@
 package project.src.java.approaches.fpga.conditionalGenerator;
 
+import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.dotTreeParser.treeStructure.Comparisson;
 import project.src.java.dotTreeParser.treeStructure.Nodes.InnerNode;
 import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
@@ -14,9 +15,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class TreeGenerator {
+public class TreeGenerator extends BasicGenerator {
 
-    int BITWIDTH = 32;
 
     public void execute(List<Tree> trees, Integer classQnt, Integer featureQnt, String dataset){
 
@@ -135,8 +135,8 @@ public class TreeGenerator {
         int intIntegralThreshold = Integer.parseInt(threshold[0]);
         int intFractionalThreshold = Integer.parseInt(threshold[1]);
 
-        String binaryIntegralTh = String.format(BITWIDTH + "'b%" + BITWIDTH + "s", Integer.toBinaryString(intIntegralThreshold)).replaceAll(" ", "0");
-        String binaryFractionalTh = String.format(BITWIDTH + "'b%" + BITWIDTH + "s", Integer.toBinaryString(intFractionalThreshold)).replaceAll(" ", "0");
+        String binaryIntegralTh = String.format(FEATURE_BITWIDTH + "'b%" + FEATURE_BITWIDTH + "s", Integer.toBinaryString(intIntegralThreshold)).replaceAll(" ", "0");
+        String binaryFractionalTh = String.format(FEATURE_BITWIDTH + "'b%" + FEATURE_BITWIDTH + "s", Integer.toBinaryString(intFractionalThreshold)).replaceAll(" ", "0");
 
         String first = "";
         String second = "";

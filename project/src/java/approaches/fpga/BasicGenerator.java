@@ -1,9 +1,6 @@
 package project.src.java.approaches.fpga;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -33,17 +30,14 @@ public class BasicGenerator {
         if (Objects.equals(direction, NONE)) {
             if (bitwidth == 1){
                 io = type + " " + name;
-            }
-            else {
+            } else {
                 int aux = bitwidth - 1;
                 io = direction + type + " [" + aux + ":" + 0 + "] " + name;
             }
-        }
-        else {
+        } else {
             if (bitwidth == 1){
                 io = direction + " " + type + " " + name;
-            }
-            else {
+            } else {
                 int aux = bitwidth - 1;
                 io = direction + " " + type + " [" + aux + ":" + 0 + "] " + name;
             }
