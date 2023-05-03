@@ -13,15 +13,6 @@ import java.util.stream.IntStream;
 
 
 
-/*
-*  REFATORAR PARA SE ADEQUAR AO GERADOR DE API
-*
-* */
-
-
-
-
-
 public class ControllerGenerator extends BasicGenerator {
 
     public void execute(
@@ -45,7 +36,7 @@ public class ControllerGenerator extends BasicGenerator {
             sourceCode += generateModuleInstantiation(featureQnt, index);
         }
 
-        sourceCode += generateInitialBlock(featureQnt, classQnt, debugMode);
+//        sourceCode += generateInitialBlock(featureQnt, classQnt, debugMode);
         sourceCode += generateAlwaysBlock(featureQnt, samplesQnt, classQnt, treeQnt, debugMode);
 
         FileBuilder.execute(sourceCode, "FPGA/" + dataset + "/controller.v");
@@ -234,8 +225,7 @@ public class ControllerGenerator extends BasicGenerator {
         String counterSetup = tab2 + "counter = 0;\n\n";
 
         String classSetup = IntStream.range(0, classQnt)
-                .mapToObj(
-                        index -> tab2 + "class" + String.format("%" + bitwidth +
+                .mapToObj(index -> tab2 + "class" + String.format("%" + bitwidth +
                                 "s", Integer.toBinaryString(index)).replaceAll(" ", "0") + " = 0;"
                 )
                 .collect(Collectors.joining("\n")
@@ -257,7 +247,6 @@ public class ControllerGenerator extends BasicGenerator {
                     );
 
             return initialBlockOpen + classSetup + "\n" + counterSetup + readmemExponent + "\n" + readmemFraction + "\n\n" + initialBlockClose;
-
         }
         else {
             return initialBlockOpen + classSetup + "\n" + initialBlockClose;
@@ -265,162 +254,74 @@ public class ControllerGenerator extends BasicGenerator {
     }
 
     private String generateAlwaysBlock(Integer featuresQnt ,Integer samplesQnt, Integer classQnt, Integer treeQnt, Boolean debugMode) {
-        String tab1 = generateIndentation(1);
-        String tab2 = generateIndentation(2);
-        String tab3 = generateIndentation(3);
 
-        String alwaysBlockOpen = tab1 + "always @(posedge clock) begin\n";
-        String alwaysBlockClose = tab1 + "end\n";
-        String moduleClose = "endmodule";
+        int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
-        if (debugMode){
-            String conditionalOpen = tab2 + "if (counter < " + samplesQnt + ") begin\n";
-            String conditionalClose = tab2 + "end\n";
+        String always = ALWAYS_BLOCK;
+        String ind1 = generateIndentation(1);
+        String ind2 = generateIndentation(2);
+        String ind3 = generateIndentation(3);
 
-            String conditionalElse = tab2 + "else begin\n" + tab3 + "$finish;\n" + tab2 + "end";
-
-            String featureExponent = IntStream.range(0, featuresQnt)
-                    .mapToObj(index -> tab3 + "ft" + index + "_exponent <= mem_feature_" + index + "_e[counter];")
-                    .collect(Collectors.joining("\n")
-                    );
-
-            String featureFraction = IntStream.range(0, featuresQnt)
-                    .mapToObj(index -> tab3 + "ft" + index + "_fraction <= mem_feature_" + index + "_f[counter];")
-                    .collect(Collectors.joining("\n"));
-
-            int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
-
-            String voteAccumulator = "";
-
-            for (int index1 = 0; index1 < classQnt; index1++){
-                voteAccumulator += tab3 + "class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index1)).replaceAll(" ", "0");
-                voteAccumulator += " = ";
-
-                for (int index2 = 0; index2 < treeQnt; index2++){
-                    voteAccumulator += "voted_class" + index2 + "[" + index1 + "]" + " + ";
-
-                    if (index2 + 1 == treeQnt){
-                        voteAccumulator += "class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index1)).replaceAll(" ", "0");
-                        voteAccumulator += ";\n";
-                    }
-                }
-            }
-
-            ArrayList<String> classes = new ArrayList<>();
-            for (int index = 0; index < classQnt; index++){
-                classes.add(String.format("%" + bitwidth + "s", Integer.toBinaryString(index)).replaceAll(" ", "0"));
-            }
-
-            String teste = "";
-
-            for (int index1 = 0; index1 < classQnt; index1++) {
-
-                String comparrison = "";
+        String sourceCode = "";
 
 
-                if (index1 == 0){
-                    teste += "\n" + tab3 + "most_voted <= " + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
-                }
-                if (index1 == classQnt - 1){
-                    teste += generateIndentation(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + ";\n\n";
+
+        for (int index1 = 0; index1 < classQnt; index1++){
+
+            String voteCounter = ind2 + "class" + generateBinaryNumber(index1, bitwidth) + " <= ";
+
+            for (int index2 = 0; index2 < treeQnt; index2++){
+                if (index2 == treeQnt - 1){
+                    voteCounter += "voted_class" + index2 + "[" + index1 + "];\n";
                 }
                 else {
-                    teste += generateIndentation(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
+                    voteCounter += "voted_class" + index2 + "[" + index1 + "] + ";
                 }
-
-                for (int index2 = 0; index2 < classQnt; index2++) {
-                    if (Objects.equals(classes.get(index1), classes.get(index2))) {
-                        continue;
-                    }
-                    else {
-                        comparrison += "(class" + classes.get(index1) + " > class" + classes.get(index2) + ")";
-                    }
-                }
-
-                teste = teste.replace("x", comparrison);
-                teste = teste.replace(")(", ") & (");
             }
-
-            String counterIncrement = generateIndentation(3) + "counter <= counter + 1;\n\n";
-
-            return alwaysBlockOpen +
-                    conditionalOpen +
-                    featureExponent + "\n" +
-                    featureFraction + "\n\n" +
-                    voteAccumulator +
-                    teste +
-                    counterIncrement +
-                    conditionalClose +
-                    conditionalElse  + "\n" +
-                    alwaysBlockClose +
-                    moduleClose;
+            sourceCode += voteCounter;
         }
-        else {
 
-            int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
+//        sourceCode += "\n";
 
-            String voteAccumulator = "";
+        ArrayList<String> classes = new ArrayList<>();
+        for (int index = 0; index < classQnt; index++){
+            classes.add(String.format("%" + bitwidth + "s", Integer.toBinaryString(index)).replaceAll(" ", "0"));
+        }
 
-            for (int index1 = 0; index1 < classQnt; index1++){
-                voteAccumulator += tab3 + "class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index1)).replaceAll(" ", "0");
-                voteAccumulator += " = ";
+        for (int index1 = 0; index1 < classQnt; index1++) {
 
-                for (int index2 = 0; index2 < treeQnt; index2++){
-                    voteAccumulator += "voted_class" + index2 + "[" + index1 + "]" + " + ";
+            String conditional = CONDITIONAL;
+            String expression = "";
+            String body = "";
+            String comparrison = "";
 
-                    if (index2 + 1 == treeQnt){
-                        voteAccumulator += "class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index1)).replaceAll(" ", "0");
-                        voteAccumulator += ";\n";
-                    }
-                }
-            }
+            expression = "(x)";
 
-            ArrayList<String> classes = new ArrayList<>();
-            for (int index = 0; index < classQnt; index++){
-                classes.add(String.format("%" + bitwidth + "s", Integer.toBinaryString(index)).replaceAll(" ", "0"));
-            }
-
-            System.out.println(classes);
-            System.out.println(classQnt);
-
-            String teste = "";
-
-            for (int index1 = 0; index1 < classQnt; index1++) {
-
-                String comparrison = "";
-
-
-                if (index1 == 0){
-                    teste += "\n" + tab3 + "most_voted <= " + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
-                }
-                else if (index1 == classQnt - 1){
-                    teste += generateIndentation(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + ";\n\n";
+            for (int index2 = 0; index2 < classQnt; index2++) {
+                if (Objects.equals(classes.get(index1), classes.get(index2))) {
+                    continue;
                 }
                 else {
-                    teste += generateIndentation(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
+                    comparrison += "(class" + classes.get(index1) + " > class" + classes.get(index2) + ")";
                 }
-
-                for (int index2 = 0; index2 < classQnt; index2++) {
-                    if (Objects.equals(classes.get(index1), classes.get(index2))) {
-                        continue;
-                    }
-                    else {
-                        comparrison += "(class" + classes.get(index1) + " > class" + classes.get(index2) + ")";
-                    }
-                }
-
-                teste = teste.replace("x", comparrison);
-                teste = teste.replace(")(", ") & (");
             }
 
-            String counterIncrement = generateIndentation(3) + "counter <= counter + 1;\n\n";
+            expression = expression.replace("x", comparrison);
+            expression = expression.replace(")(", ") & (");
 
-            return alwaysBlockOpen +
-                    voteAccumulator +
-                    teste +
-                    alwaysBlockClose +
-                    moduleClose;
+            body = "voted <= " + bitwidth + "'b" + classes.get(index1) + ";";
+
+            conditional = conditional.replace("x", expression);
+            conditional = conditional.replace("y", body);
+            conditional = conditional.replace("ind2", ind3);
+            conditional = conditional.replace("ind", ind2);
+            sourceCode += conditional;
         }
+
+        always = always.replace("src", sourceCode);
+        always = always.replace("ind", ind1);
+
+        return always;
     }
 
 }
