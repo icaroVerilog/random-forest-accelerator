@@ -105,18 +105,15 @@ public class ApiGenerator extends BasicGenerator {
 
         for (int index = 0; index < featureQnt; index++){
 
+            processed = moduleFeatureFraction
+                .replace("Z", Integer.toString(index))
+                .replace("Y", Integer.toString((FEATURE_BITWIDTH * counter + FEATURE_BITWIDTH) - 1))
+                .replace("X", Integer.toString(FEATURE_BITWIDTH * counter));
+
             if (index == featureQnt - 1){
                 int commaPosition = processed.lastIndexOf(",");
                 processed = processed.substring(0, commaPosition);
-                sourceCode += "\n";
             }
-            else {
-                processed = moduleFeatureFraction
-                    .replace("Z", Integer.toString(index))
-                    .replace("Y", Integer.toString((FEATURE_BITWIDTH * counter + FEATURE_BITWIDTH) - 1))
-                    .replace("X", Integer.toString(FEATURE_BITWIDTH * counter));
-            }
-
 
             sourceCode += "\n";
             sourceCode += ind2 + processed;
@@ -129,6 +126,10 @@ public class ApiGenerator extends BasicGenerator {
                 .replace("ind", ind);
 
         return module;
+    }
+
+    public String generateAlwaysBlock(){
+        return "";
     }
 
     public String generateTab(int tab){

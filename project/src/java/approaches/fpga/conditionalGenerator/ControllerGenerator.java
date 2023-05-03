@@ -8,6 +8,20 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+
+
+
+
+
+/*
+*  REFATORAR PARA SE ADEQUAR AO GERADOR DE API
+*
+* */
+
+
+
+
+
 public class ControllerGenerator extends BasicGenerator {
 
     public void execute(
@@ -49,7 +63,7 @@ public class ControllerGenerator extends BasicGenerator {
 
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
-        String ind1 = generateTab(1);
+        String ind1 = generateIndentation(1);
 
         ArrayList<String> moduleIO = new ArrayList<>();
         String sourceCode;
@@ -82,7 +96,6 @@ public class ControllerGenerator extends BasicGenerator {
                 true
             );
         }
-
 
         sourceCode += ind1 + generatePort("clock", WIRE, INPUT, 1, true);
         sourceCode += ind1 + generatePort("most_voted", REGISTER, OUTPUT, 2, true);
@@ -133,7 +146,7 @@ public class ControllerGenerator extends BasicGenerator {
     private String generateMemoryRead(Integer featureQnt, Integer samplesQnt, Boolean debugMode) {
 
         if (debugMode) {
-            String tab = generateTab(1);
+            String tab = generateIndentation(1);
             String memRegistersExponent = IntStream.range(0, featureQnt)
                     .mapToObj(index -> tab + "reg [31:0] mem_feature_" + index + "_e" + " [0:" + (samplesQnt - 1) + "];")
                     .collect(Collectors.joining("\n"));
@@ -150,8 +163,8 @@ public class ControllerGenerator extends BasicGenerator {
 
     private String generateModuleInstantiation(Integer featureQnt, Integer treeIndex){
 
-        String ind = generateIndentation(1);
-        String ind2 = generateIndentation(2);
+        String indentation1 = generateIndentation(1);
+        String indentation2 = generateIndentation(2);
 
         String moduleFeatureExponent = ".ftZ_exponent(ftZ_exponent),";
         String moduleFeatureFraction = ".ftZ_fraction(ftZ_fraction),";
@@ -160,14 +173,14 @@ public class ControllerGenerator extends BasicGenerator {
         String processed = "";
         String module = MODULE_INSTANCE;
 
-        sourceCode += ind2 + ".clock(clock),\n";
-        sourceCode += ind2 + ".voted_class(voted_class),";
+        sourceCode += indentation2 + ".clock(clock),\n";
+        sourceCode += indentation2 + ".voted_class(voted_class),";
 
         for (int index = 0; index < featureQnt; index++){
             processed = moduleFeatureExponent.replace("Z", Integer.toString(index));
             sourceCode += "\n";
 
-            sourceCode += ind2 + processed;
+            sourceCode += indentation2 + processed;
         }
 
         for (int index = 0; index < featureQnt; index++){
@@ -181,13 +194,13 @@ public class ControllerGenerator extends BasicGenerator {
             }
             sourceCode += "\n";
 
-            sourceCode += ind2 + processed;
+            sourceCode += indentation2 + processed;
         }
 
         module = module
                 .replace("moduleName", "tree" + treeIndex.toString())
                 .replace("ports", sourceCode)
-                .replace("ind", ind);
+                .replace("ind", indentation1);
 
         return module;
 
@@ -214,8 +227,8 @@ public class ControllerGenerator extends BasicGenerator {
     }
 
     private String generateInitialBlock(Integer featureQnt, Integer classQnt, Boolean debugMode){
-        String tab1 = generateTab(1);
-        String tab2 = generateTab(2);
+        String tab1 = generateIndentation(1);
+        String tab2 = generateIndentation(2);
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
         String counterSetup = tab2 + "counter = 0;\n\n";
@@ -252,9 +265,9 @@ public class ControllerGenerator extends BasicGenerator {
     }
 
     private String generateAlwaysBlock(Integer featuresQnt ,Integer samplesQnt, Integer classQnt, Integer treeQnt, Boolean debugMode) {
-        String tab1 = generateTab(1);
-        String tab2 = generateTab(2);
-        String tab3 = generateTab(3);
+        String tab1 = generateIndentation(1);
+        String tab2 = generateIndentation(2);
+        String tab3 = generateIndentation(3);
 
         String alwaysBlockOpen = tab1 + "always @(posedge clock) begin\n";
         String alwaysBlockClose = tab1 + "end\n";
@@ -309,10 +322,10 @@ public class ControllerGenerator extends BasicGenerator {
                     teste += "\n" + tab3 + "most_voted <= " + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
                 }
                 if (index1 == classQnt - 1){
-                    teste += generateTab(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + ";\n\n";
+                    teste += generateIndentation(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + ";\n\n";
                 }
                 else {
-                    teste += generateTab(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
+                    teste += generateIndentation(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
                 }
 
                 for (int index2 = 0; index2 < classQnt; index2++) {
@@ -328,7 +341,7 @@ public class ControllerGenerator extends BasicGenerator {
                 teste = teste.replace(")(", ") & (");
             }
 
-            String counterIncrement = generateTab(3) + "counter <= counter + 1;\n\n";
+            String counterIncrement = generateIndentation(3) + "counter <= counter + 1;\n\n";
 
             return alwaysBlockOpen +
                     conditionalOpen +
@@ -367,6 +380,9 @@ public class ControllerGenerator extends BasicGenerator {
                 classes.add(String.format("%" + bitwidth + "s", Integer.toBinaryString(index)).replaceAll(" ", "0"));
             }
 
+            System.out.println(classes);
+            System.out.println(classQnt);
+
             String teste = "";
 
             for (int index1 = 0; index1 < classQnt; index1++) {
@@ -377,11 +393,11 @@ public class ControllerGenerator extends BasicGenerator {
                 if (index1 == 0){
                     teste += "\n" + tab3 + "most_voted <= " + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
                 }
-                if (index1 == classQnt - 1){
-                    teste += generateTab(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + ";\n\n";
+                else if (index1 == classQnt - 1){
+                    teste += generateIndentation(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + ";\n\n";
                 }
                 else {
-                    teste += generateTab(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
+                    teste += generateIndentation(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
                 }
 
                 for (int index2 = 0; index2 < classQnt; index2++) {
@@ -397,7 +413,7 @@ public class ControllerGenerator extends BasicGenerator {
                 teste = teste.replace(")(", ") & (");
             }
 
-            String counterIncrement = generateTab(3) + "counter <= counter + 1;\n\n";
+            String counterIncrement = generateIndentation(3) + "counter <= counter + 1;\n\n";
 
             return alwaysBlockOpen +
                     voteAccumulator +
@@ -407,10 +423,4 @@ public class ControllerGenerator extends BasicGenerator {
         }
     }
 
-    public String generateTab(int tab){
-        return IntStream.range(0, tab)
-                .mapToObj(t -> "\t")
-                .collect(Collectors.joining("")
-        );
-    }
 }

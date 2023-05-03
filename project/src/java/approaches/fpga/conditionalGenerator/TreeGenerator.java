@@ -102,7 +102,7 @@ public class TreeGenerator extends BasicGenerator {
 
         String tab = generateTab(1);
 
-        return "\n\n" + tab + "always @(clock) begin\n";
+        return "\n\n" + tab + "always @(posedge clock) begin\n";
     }
 
     public String generateConditionals(Node node, int tab){

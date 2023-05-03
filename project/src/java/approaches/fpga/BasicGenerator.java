@@ -22,6 +22,7 @@ public class BasicGenerator {
     /* */
 
     protected final String MODULE_INSTANCE = "\nind" + "moduleName moduleName(\nports \nind);\n";
+    protected final String ALWAYS_BLOCK = "\nind" + "always (posedge clk) begin \n ind2 src \n end";
 
     protected String generatePort(String name, String type, String direction, Integer bitwidth, Boolean lineBreak){
 

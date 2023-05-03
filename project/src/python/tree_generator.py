@@ -15,6 +15,7 @@ dataset = pd.read_csv(path + "/project/assets/datasets/" + dataset_name + ".csv"
 
 print("starting training")
 
+
 def remove_id(dataset):
     dataset = dataset.rename(columns=lambda name: name.lower())
     column_names = list(dataset)
