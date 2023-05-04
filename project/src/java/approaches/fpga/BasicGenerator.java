@@ -22,8 +22,8 @@ public class BasicGenerator {
     /* */
 
     protected final String MODULE_INSTANCE = "\nind" + "moduleName moduleName(\nports \nind);\n";
-    protected final String ALWAYS_BLOCK = "\nind" + "always (posedge clk) begin \nsrc \nindend";
-    protected final String CONDITIONAL = "\nind" + "if (x) begin\n ind2 y \n indend";
+    protected final String ALWAYS_BLOCK = "\nind" + "always @(posedge clk) begin \nsrc \nindend";
+    protected final String CONDITIONAL = "\nind" + "if (x) begin\nind2 y \n indend";
 
     protected String generatePort(String name, String type, String direction, Integer bitwidth, Boolean lineBreak){
 

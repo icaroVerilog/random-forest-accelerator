@@ -77,55 +77,61 @@ public class ApiGenerator extends BasicGenerator {
         String processed = "";
         String module = MODULE_INSTANCE;
 
+        ArrayList<String> exponentIO = new ArrayList<>();
+        ArrayList<String> fractionIO = new ArrayList<>();
+
         int counter = 0;
+        int numberIndexCounter = featureQnt - 1;
 
 
         sourceCode += ind2 + ".clock(clock),\n";
         sourceCode += ind2 + ".most_voted(most_voted),";
 
-        for (int index = 0; index < featureQnt; index++){
+        for (int index = 0; index < featureQnt * 2; index++){
 
-            if (index == 0){
-                processed = moduleFeatureExponent
-                        .replace("Z", Integer.toString(index))
-                        .replace("Y", Integer.toString(FEATURE_BITWIDTH - 1))
-                        .replace("X", Integer.toString(0));
+            if (index % 2 == 0){
+                if (index == 0){
+                    processed = moduleFeatureFraction
+                            .replace("Z", Integer.toString(numberIndexCounter))
+                            .replace("Y", Integer.toString(FEATURE_BITWIDTH - 1))
+                            .replace("X", Integer.toString(0));
+                }
+                else {
+                    processed = moduleFeatureFraction
+                            .replace("Z", Integer.toString(numberIndexCounter))
+                            .replace("Y", Integer.toString((FEATURE_BITWIDTH * index + FEATURE_BITWIDTH) - 1))
+                            .replace("X", Integer.toString(FEATURE_BITWIDTH * index));
+                }
+
             }
             else {
                 processed = moduleFeatureExponent
-                        .replace("Z", Integer.toString(index))
-                        .replace("Y", Integer.toString((FEATURE_BITWIDTH * index + FEATURE_BITWIDTH) - 1))
-                        .replace("X", Integer.toString(FEATURE_BITWIDTH * index));
-            }
+                        .replace("Z", Integer.toString(numberIndexCounter))
+                        .replace("Y", Integer.toString((FEATURE_BITWIDTH * counter + FEATURE_BITWIDTH) - 1))
+                        .replace("X", Integer.toString(FEATURE_BITWIDTH * counter));
 
+                if (index == (featureQnt * 2) - 1){
+                    int commaPosition = processed.lastIndexOf(",");
+                    processed = processed.substring(0, commaPosition);
+                }
+            }
             sourceCode += "\n";
             sourceCode += ind2 + processed;
             counter++;
-        }
 
-        for (int index = 0; index < featureQnt; index++){
-
-            processed = moduleFeatureFraction
-                .replace("Z", Integer.toString(index))
-                .replace("Y", Integer.toString((FEATURE_BITWIDTH * counter + FEATURE_BITWIDTH) - 1))
-                .replace("X", Integer.toString(FEATURE_BITWIDTH * counter));
-
-            if (index == featureQnt - 1){
-                int commaPosition = processed.lastIndexOf(",");
-                processed = processed.substring(0, commaPosition);
+            if (index % 2 != 0){
+                numberIndexCounter--;
             }
-
-            sourceCode += "\n";
-            sourceCode += ind2 + processed;
-            counter++;
         }
 
         module = module
                 .replace("moduleName", moduleName)
                 .replace("ports", sourceCode)
                 .replace("ind", ind);
-
+        System.out.println(module);
         return module;
+
+
     }
 
     public String generateAlwaysBlock(){

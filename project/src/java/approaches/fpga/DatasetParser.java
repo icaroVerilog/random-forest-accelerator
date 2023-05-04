@@ -5,6 +5,8 @@ import project.src.java.util.FileBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class DatasetParser {
@@ -12,8 +14,7 @@ public class DatasetParser {
     private static final int BITWIDTH = 32;
     public int readDataset(String dataset) throws IOException {
 
-        ArrayList<String> integralFeaturesVal = new ArrayList<>();
-        ArrayList<String> fractionalFeaturesVal = new ArrayList<>();
+        ArrayList<String> featuresVal = new ArrayList<>();
 
         var path = System.getProperty("user.dir") + "/project/assets/datasets/" + dataset + ".csv";
         var scanner = new Scanner(new File(path));
@@ -21,23 +22,26 @@ public class DatasetParser {
 
         int datasetDepth = 0;
 
-        for (int index = 0; index < line.length - 1; index++){
-            integralFeaturesVal.add(index, "");
-            fractionalFeaturesVal.add(index, "");
-        }
+        String data = "";
 
-        while(scanner.hasNext()){
+        while (scanner.hasNext()){
             line = scanner.nextLine().split(",");
+            ArrayList<String> lineArray = new ArrayList<>(List.of(line));
 
-            for (int index = 0; index < line.length - 1; index++){
+            lineArray.remove(lineArray.size() - 1);
+            String aux = "";
 
-                String aux = integralFeaturesVal.get(index);
-                integralFeaturesVal.remove(index);
+            for (int index = 0; index < lineArray.size(); index++){
 
-                integralFeaturesVal.add(index, aux + ValueToBinary(line[index], true) + "\n");
-                fractionalFeaturesVal.add(index, aux + ValueToBinary(line[index], false) + "\n");
+                var splitedValues = lineArray.get(index).split("\\.");
+                String exponent = valueToBinary(Integer.valueOf(splitedValues[0]), BITWIDTH);
+                String fraction = valueToBinary(Integer.valueOf(splitedValues[1]), BITWIDTH);
 
+                aux += exponent + fraction;
             }
+
+            aux+= "\n";
+            data += aux;
 
             datasetDepth++;
         }
@@ -45,38 +49,12 @@ public class DatasetParser {
         scanner.close();
 
         FileBuilder.createDir("FPGA/" + dataset + "/dataset");
-
-        for (int index = 0; index < integralFeaturesVal.size(); index++) {
-            FileBuilder.execute(integralFeaturesVal.get(index), "FPGA/" + dataset + "/dataset/" + "feature" + index + "_exponent.bin");
-            FileBuilder.execute(fractionalFeaturesVal.get(index), "FPGA/" + dataset + "/dataset/" + "feature" + index + "_fraction.bin");
-        }
+        FileBuilder.execute(data, "FPGA/" + dataset + "/dataset/" + "data.bin");
 
         return datasetDepth;
     }
 
-    private String ValueToBinary(String value, boolean integralPart){
-
-        String splitedValue = null;
-
-        if (integralPart) {
-            splitedValue = value.substring(0, value.indexOf("."));
-        }
-        else {
-            splitedValue = value.substring(value.indexOf(".") + 1);
-        }
-
-        String binaryValue = Integer.toBinaryString(Integer.parseInt(splitedValue));
-        int missedZeros = BITWIDTH - binaryValue.length();
-        if (missedZeros > 0) {
-
-            StringBuilder sb = new StringBuilder();
-
-            for (int i = 0; i < missedZeros; i++) {
-                sb.append("0");
-            }
-            sb.append(binaryValue);
-            binaryValue = sb.toString();
-        }
-        return binaryValue;
+    private String valueToBinary(Integer value, Integer bitwidth){
+        return String.format("%" + bitwidth + "s", Integer.toBinaryString(value)).replaceAll(" ", "0");
     }
 }

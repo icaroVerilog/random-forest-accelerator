@@ -30,8 +30,7 @@ public class ControllerGenerator extends BasicGenerator {
 
         sourceCode += generateImports(treeQnt);
         sourceCode += generateIO(featureQnt, classQnt, treeQnt, debugMode);
-        sourceCode += generateMemoryRead(featureQnt, samplesQnt, debugMode);
-        
+
         for (int index = 0; index < treeQnt; index++){
             sourceCode += generateModuleInstantiation(featureQnt, index);
         }
@@ -60,7 +59,7 @@ public class ControllerGenerator extends BasicGenerator {
         String sourceCode;
 
         moduleIO.add("clock");
-        moduleIO.add("most_voted");
+        moduleIO.add("voted");
 
         for (int index = 0; index < featureQnt; index++){
             moduleIO.add("ft" + index + "_exponent");
@@ -89,7 +88,7 @@ public class ControllerGenerator extends BasicGenerator {
         }
 
         sourceCode += ind1 + generatePort("clock", WIRE, INPUT, 1, true);
-        sourceCode += ind1 + generatePort("most_voted", REGISTER, OUTPUT, 2, true);
+        sourceCode += ind1 + generatePort("voted", REGISTER, OUTPUT, bitwidth, true);
         sourceCode += "\n";
 
         for (int index = 0; index < featureQnt; index++){
@@ -133,24 +132,6 @@ public class ControllerGenerator extends BasicGenerator {
 
         return sourceCode;
     }
-    
-    private String generateMemoryRead(Integer featureQnt, Integer samplesQnt, Boolean debugMode) {
-
-        if (debugMode) {
-            String tab = generateIndentation(1);
-            String memRegistersExponent = IntStream.range(0, featureQnt)
-                    .mapToObj(index -> tab + "reg [31:0] mem_feature_" + index + "_e" + " [0:" + (samplesQnt - 1) + "];")
-                    .collect(Collectors.joining("\n"));
-
-            String memRegistersFractional = IntStream.range(0, featureQnt)
-                    .mapToObj(index -> tab + "reg [31:0] mem_feature_" + index + "_f" + " [0:" + (samplesQnt - 1) + "];")
-                    .collect(Collectors.joining("\n"));
-
-            return memRegistersExponent + "\n" + memRegistersFractional + "\n\n";
-        } else {
-            return "";
-        }
-    }
 
     private String generateModuleInstantiation(Integer featureQnt, Integer treeIndex){
 
@@ -165,7 +146,7 @@ public class ControllerGenerator extends BasicGenerator {
         String module = MODULE_INSTANCE;
 
         sourceCode += indentation2 + ".clock(clock),\n";
-        sourceCode += indentation2 + ".voted_class(voted_class),";
+        sourceCode += indentation2 + ".voted_class(voted_class" + treeIndex + "),";
 
         for (int index = 0; index < featureQnt; index++){
             processed = moduleFeatureExponent.replace("Z", Integer.toString(index));
@@ -177,6 +158,7 @@ public class ControllerGenerator extends BasicGenerator {
         for (int index = 0; index < featureQnt; index++){
 
             if (index == featureQnt - 1){
+                processed = moduleFeatureFraction.replace("Z", Integer.toString(index));
                 int commaPosition = processed.lastIndexOf(",");
                 processed = processed.substring(0, commaPosition);
             }
@@ -281,8 +263,6 @@ public class ControllerGenerator extends BasicGenerator {
             sourceCode += voteCounter;
         }
 
-//        sourceCode += "\n";
-
         ArrayList<String> classes = new ArrayList<>();
         for (int index = 0; index < classQnt; index++){
             classes.add(String.format("%" + bitwidth + "s", Integer.toBinaryString(index)).replaceAll(" ", "0"));
@@ -295,7 +275,7 @@ public class ControllerGenerator extends BasicGenerator {
             String body = "";
             String comparrison = "";
 
-            expression = "(x)";
+            expression = "x";
 
             for (int index2 = 0; index2 < classQnt; index2++) {
                 if (Objects.equals(classes.get(index1), classes.get(index2))) {
@@ -318,8 +298,10 @@ public class ControllerGenerator extends BasicGenerator {
             sourceCode += conditional;
         }
 
+        always = always.replace("clk", "clock");
         always = always.replace("src", sourceCode);
         always = always.replace("ind", ind1);
+        always += "\nendmodule"; /* provisorio */
 
         return always;
     }
