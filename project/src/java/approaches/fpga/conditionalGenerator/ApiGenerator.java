@@ -77,18 +77,13 @@ public class ApiGenerator extends BasicGenerator {
         String processed = "";
         String module = MODULE_INSTANCE;
 
-        ArrayList<String> exponentIO = new ArrayList<>();
-        ArrayList<String> fractionIO = new ArrayList<>();
-
         int counter = 0;
         int numberIndexCounter = featureQnt - 1;
-
 
         sourceCode += ind2 + ".clock(clock),\n";
         sourceCode += ind2 + ".most_voted(most_voted),";
 
         for (int index = 0; index < featureQnt * 2; index++){
-
             if (index % 2 == 0){
                 if (index == 0){
                     processed = moduleFeatureFraction
@@ -102,7 +97,6 @@ public class ApiGenerator extends BasicGenerator {
                             .replace("Y", Integer.toString((FEATURE_BITWIDTH * index + FEATURE_BITWIDTH) - 1))
                             .replace("X", Integer.toString(FEATURE_BITWIDTH * index));
                 }
-
             }
             else {
                 processed = moduleFeatureExponent
@@ -115,6 +109,7 @@ public class ApiGenerator extends BasicGenerator {
                     processed = processed.substring(0, commaPosition);
                 }
             }
+
             sourceCode += "\n";
             sourceCode += ind2 + processed;
             counter++;
@@ -128,10 +123,8 @@ public class ApiGenerator extends BasicGenerator {
                 .replace("moduleName", moduleName)
                 .replace("ports", sourceCode)
                 .replace("ind", ind);
-        System.out.println(module);
+
         return module;
-
-
     }
 
     public String generateAlwaysBlock(){
