@@ -14,23 +14,25 @@ import project.src.java.util.PythonScriptCaller;
 public class Main {
 
     private static String dataset;
-    private static String path = System.getProperty("user.dir");
+    private static String path;
 
     public static void main(String[] args) throws IOException {
         dataset = "Iris";
+        path = System.getProperty("user.dir");
+
         start();
     }
 
     public static void start() throws IOException{
 
         PythonScriptCaller caller = new PythonScriptCaller();
-        caller.execute(path, "Iris");
-
-
+        caller.execute(path, dataset);
 
 
         List<Tree> trees = Parser.execute(dataset);
-        FPGA a = new FPGA(trees, dataset, Parser.getClassQuantity(), Parser.getFeatureQuantity(), true);
-        a.execute();
+        FPGA FPGAGenerator = new FPGA(trees, dataset, Parser.getClassQuantity(), Parser.getFeatureQuantity(), false);
+        FPGAGenerator.execute();
+
+        System.out.println("job finished: Success");
     }
 }

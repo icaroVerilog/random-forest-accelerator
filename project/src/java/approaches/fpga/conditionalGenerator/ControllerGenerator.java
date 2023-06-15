@@ -1,5 +1,6 @@
 package project.src.java.approaches.fpga.conditionalGenerator;
 
+import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
 
 import java.util.ArrayList;
@@ -7,30 +8,37 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ControllerGenerator {
+
+
+
+
+
+public class ControllerGenerator extends BasicGenerator {
 
     public void execute(
-            Integer treeQuantity,
-            Integer classQuantity,
-            Integer featureQuantity,
+            Integer treeQnt,
+            Integer classQnt,
+            Integer featureQnt,
             Integer samplesQnt,
-            Boolean debugMode
+            Boolean debugMode,
+            String dataset
     ){
+
+        System.out.println("generating controller");
 
         String sourceCode = "";
 
-        sourceCode += generateImports(treeQuantity);
-        sourceCode += generateIO(featureQuantity, classQuantity, treeQuantity, debugMode);
-        sourceCode += generateMemoryRead(featureQuantity, samplesQnt);
-        
-        for (int index = 0; index < treeQuantity; index++){
-            sourceCode += generateModuleInstantiation(featureQuantity, index);
+        sourceCode += generateImports(treeQnt);
+        sourceCode += generateIO(featureQnt, classQnt, treeQnt, debugMode);
+
+        for (int index = 0; index < treeQnt; index++){
+            sourceCode += generateModuleInstantiation(featureQnt, index);
         }
 
-        sourceCode += generateInitialBlock(featureQuantity, classQuantity, debugMode);
-        sourceCode += generateAlwaysBlock(featureQuantity, samplesQnt, classQuantity, treeQuantity);
+//        sourceCode += generateInitialBlock(featureQnt, classQnt, debugMode);
+        sourceCode += generateAlwaysBlock(featureQnt, samplesQnt, classQnt, treeQnt, debugMode);
 
-        FileBuilder.execute(sourceCode, "FPGA/controller.v");
+        FileBuilder.execute(sourceCode, "FPGA/" + dataset + "/controller.v");
     }
 
     private String generateImports(Integer treeQuantity){
@@ -41,92 +49,144 @@ public class ControllerGenerator {
         return imports;
     }
 
-    private String generateIO(Integer featureQuantity, Integer classQnt, Integer treeQnt, Boolean debugMode){
+    private String generateIO(Integer featureQnt, Integer classQnt, Integer treeQnt, Boolean debugMode){
 
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
-        String tab = generateTab(1);
-        String module = "";
-        String clock = "";
+        String ind1 = generateIndentation(1);
 
+        ArrayList<String> moduleIO = new ArrayList<>();
+        String sourceCode;
 
-        if (debugMode){
-            module = "module controller(clock);\n";
-            clock = "\n" + tab + "input wire clock;\n";
+        moduleIO.add("clock");
+        moduleIO.add("voted");
+
+        for (int index = 0; index < featureQnt; index++){
+            moduleIO.add("ft" + index + "_exponent");
         }
-        else {
-            module = "module controller();\n";
-            clock = "\n" + tab + "reg clock;\n";
+        for (int index = 0; index < featureQnt; index++){
+            moduleIO.add("ft" + index + "_fraction");
         }
 
+        sourceCode = "\n\n";
+        sourceCode += generateModule(
+                "controller",
+                moduleIO
+        );
 
-        String counter = tab + "integer counter;\n\n";
+        sourceCode += "\n\n";
 
-        String classes = "";
         for (int index = 0; index < classQnt; index++){
-            classes += tab + "integer class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index)).replaceAll(" ", "0") + ";\n";
+            sourceCode += generateIndentation(1);
+            sourceCode += generatePort(
+                "class" + generateBinaryNumber(index, bitwidth),
+                INTEGER,
+                NONE,
+                1,
+                true
+            );
         }
 
-        String FI = IntStream.range(0, featureQuantity)
-                .mapToObj(index -> tab + "reg [31:0] ft" + index + "_exponent;\n")
-                .collect(Collectors.joining("")
-        );
-        String FF = IntStream.range(0, featureQuantity)
-                .mapToObj(index -> tab + "reg [31:0] ft" + index + "_fraction;\n")
-                .collect(Collectors.joining("")
-        );
+        sourceCode += ind1 + generatePort("clock", WIRE, INPUT, 1, true);
+        sourceCode += ind1 + generatePort("voted", REGISTER, OUTPUT, bitwidth, true);
+        sourceCode += "\n";
 
-        String mostVoted = "\n" + tab + "reg [" + (bitwidth - 1) + ":0] most_voted;\n";
-        String votedClass = IntStream.range(0, treeQnt)
-                .mapToObj(index -> tab + "wire [" + (bitwidth) + ":0] voted_class" + index + ";")
-                .collect(Collectors.joining("\n"));
+        for (int index = 0; index < featureQnt; index++){
+            sourceCode += generateIndentation(1);
+            sourceCode += generatePort(
+                "ft" + index + "_exponent",
+                WIRE,
+                INPUT,
+                FEATURE_BITWIDTH,
+                false
+            );
+            sourceCode += "\n";
+        }
 
-        return "\n\n" + module + "\n" + classes + clock + counter + FI + FF + mostVoted + votedClass + "\n\n";
-    }
-    
-    private String generateMemoryRead(Integer featureQnt, Integer samplesQnt){
-        String tab = generateTab(1);
-        String memRegistersExponent = IntStream.range(0, featureQnt)
-                .mapToObj(index -> tab + "reg [31:0] mem_feature_" + index + "_e" + " [0:" + (samplesQnt -1) + "];")
-                .collect(Collectors.joining("\n"));
+        for (int index = 0; index < featureQnt; index++){
+            sourceCode += generateIndentation(1);
+            sourceCode += generatePort(
+                    "ft" + index + "_fraction",
+                    WIRE,
+                    INPUT,
+                    FEATURE_BITWIDTH,
+                    false
+            );
+            sourceCode += "\n";
+        }
 
-        String memRegistersFractional = IntStream.range(0, featureQnt)
-                .mapToObj(index -> tab + "reg [31:0] mem_feature_" + index + "_f" + " [0:" + (samplesQnt -1) + "];")
-                .collect(Collectors.joining("\n"));
+        sourceCode += "\n";
 
-        return memRegistersExponent + "\n" + memRegistersFractional + "\n\n";
+        for (int index = 0; index < treeQnt; index++){
+            sourceCode += generateIndentation(1);
+            sourceCode += generatePort("voted_class" + index,
+                    WIRE,
+                    NONE,
+                    3,
+                    false
+            );
+            sourceCode += "\n";
+        }
+
+        sourceCode += "\n";
+
+        return sourceCode;
     }
 
     private String generateModuleInstantiation(Integer featureQnt, Integer treeIndex){
-        String tab1 = generateTab(1);
-        String tab2 = generateTab(2);
 
-        String moduleAlias = tab1 + "tree" + treeIndex + " tree" + treeIndex + "(\n";
-        String exponent = IntStream.range(0, featureQnt)
-                .mapToObj(index -> tab2 + ".ft" + index + "_exponent(ft" + index + "_exponent),")
-                .collect(Collectors.joining("\n")
-        );
-        String fraction = IntStream.range(0, featureQnt)
-                .mapToObj(index -> tab2 + ".ft" + index + "_fraction(ft" + index + "_fraction),")
-                .collect(Collectors.joining("\n")
-        );
+        String indentation1 = generateIndentation(1);
+        String indentation2 = generateIndentation(2);
 
-        String output = "\n "+ tab2 + ".voted_class(voted_class" + treeIndex + "),\n";
-        String clock = tab2 + ".clock(clock)\n";
+        String moduleFeatureExponent = ".ftZ_exponent(ftZ_exponent),";
+        String moduleFeatureFraction = ".ftZ_fraction(ftZ_fraction),";
 
-        return moduleAlias + exponent + "\n" + fraction + output + clock + tab1 + ");\n\n";
+        String sourceCode = "";
+        String processed = "";
+        String module = MODULE_INSTANCE;
+
+        sourceCode += indentation2 + ".clock(clock),\n";
+        sourceCode += indentation2 + ".voted_class(voted_class" + treeIndex + "),";
+
+        for (int index = 0; index < featureQnt; index++){
+            processed = moduleFeatureExponent.replace("Z", Integer.toString(index));
+            sourceCode += "\n";
+
+            sourceCode += indentation2 + processed;
+        }
+
+        for (int index = 0; index < featureQnt; index++){
+
+            if (index == featureQnt - 1){
+                processed = moduleFeatureFraction.replace("Z", Integer.toString(index));
+                int commaPosition = processed.lastIndexOf(",");
+                processed = processed.substring(0, commaPosition);
+            }
+            else {
+                processed = moduleFeatureFraction.replace("Z", Integer.toString(index));
+            }
+            sourceCode += "\n";
+
+            sourceCode += indentation2 + processed;
+        }
+
+        module = module
+                .replace("moduleName", "tree" + treeIndex.toString())
+                .replace("ports", sourceCode)
+                .replace("ind", indentation1);
+
+        return module;
     }
 
     private String generateInitialBlock(Integer featureQnt, Integer classQnt, Boolean debugMode){
-        String tab1 = generateTab(1);
-        String tab2 = generateTab(2);
+        String tab1 = generateIndentation(1);
+        String tab2 = generateIndentation(2);
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
         String counterSetup = tab2 + "counter = 0;\n\n";
 
         String classSetup = IntStream.range(0, classQnt)
-                .mapToObj(
-                        index -> tab2 + "class" + String.format("%" + bitwidth +
+                .mapToObj(index -> tab2 + "class" + String.format("%" + bitwidth +
                                 "s", Integer.toBinaryString(index)).replaceAll(" ", "0") + " = 0;"
                 )
                 .collect(Collectors.joining("\n")
@@ -136,60 +196,50 @@ public class ControllerGenerator {
         String initialBlockOpen = tab1 + "initial begin\n\n";
         String initialBlockClose = tab1 + "end\n\n";
 
-        String readmemExponent = IntStream.range(0, featureQnt)
-                .mapToObj(index -> tab2 + "$readmemb(" + '"' + "dataset/feature" + index + "_exponent.bin" + '"' + ", mem_feature_" + index + "_e);")
-                .collect(Collectors.joining("\n")
-        );
+        if (debugMode) {
+            String readmemExponent = IntStream.range(0, featureQnt)
+                    .mapToObj(index -> tab2 + "$readmemb(" + '"' + "dataset/feature" + index + "_exponent.bin" + '"' + ", mem_feature_" + index + "_e);")
+                    .collect(Collectors.joining("\n")
+                    );
 
-        String readmemFraction = IntStream.range(0, featureQnt)
-                .mapToObj(index -> tab2 + "$readmemb(" + '"' + "dataset/feature" + index + "_fraction.bin" + '"' + ", mem_feature_" + index + "_f);")
-                .collect(Collectors.joining("\n")
-        );
+            String readmemFraction = IntStream.range(0, featureQnt)
+                    .mapToObj(index -> tab2 + "$readmemb(" + '"' + "dataset/feature" + index + "_fraction.bin" + '"' + ", mem_feature_" + index + "_f);")
+                    .collect(Collectors.joining("\n")
+                    );
 
-        return initialBlockOpen + classSetup + "\n" + counterSetup + readmemExponent + "\n" + readmemFraction + "\n\n" + initialBlockClose;
-
+            return initialBlockOpen + classSetup + "\n" + counterSetup + readmemExponent + "\n" + readmemFraction + "\n\n" + initialBlockClose;
+        }
+        else {
+            return initialBlockOpen + classSetup + "\n" + initialBlockClose;
+        }
     }
 
-    private String generateAlwaysBlock(Integer featuresQnt ,Integer samplesQnt, Integer classQnt, Integer treeQnt) {
-        String tab1 = generateTab(1);
-        String tab2 = generateTab(2);
-        String tab3 = generateTab(3);
-
-        String alwaysBlockOpen = tab1 + "always @(posedge clock) begin\n";
-        String alwaysBlockClose = tab1 + "end\n";
-        String moduleClose = "endmodule";
-
-        String conditionalOpen = tab2 + "if (counter < " + samplesQnt + ") begin\n";
-        String conditionalClose = tab2 + "end\n";
-
-        String conditionalElse = tab2 + "else begin\n" + tab3 + "$finish;\n" + tab2 + "end";
-
-        String featureExponent = IntStream.range(0, featuresQnt)
-                .mapToObj(index -> tab3 + "ft" + index + "_exponent <= mem_feature_" + index + "_e[counter];")
-                .collect(Collectors.joining("\n")
-        );
-
-        String featureFraction = IntStream.range(0, featuresQnt)
-                .mapToObj(index -> tab3 + "ft" + index + "_fraction <= mem_feature_" + index + "_f[counter];")
-                .collect(Collectors.joining("\n")
-        );
+    private String generateAlwaysBlock(Integer featuresQnt ,Integer samplesQnt, Integer classQnt, Integer treeQnt, Boolean debugMode) {
 
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
-        String voteAccumulator = "";
+        String always = ALWAYS_BLOCK;
+        String ind1 = generateIndentation(1);
+        String ind2 = generateIndentation(2);
+        String ind3 = generateIndentation(3);
+
+        String sourceCode = "";
+
+
 
         for (int index1 = 0; index1 < classQnt; index1++){
-            voteAccumulator += tab3 + "class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index1)).replaceAll(" ", "0");
-            voteAccumulator += " = ";
+
+            String voteCounter = ind2 + "class" + generateBinaryNumber(index1, bitwidth) + " <= ";
 
             for (int index2 = 0; index2 < treeQnt; index2++){
-                voteAccumulator += "voted_class" + index2 + "[" + index1 + "]" + " + ";
-
-                if (index2 + 1 == treeQnt){
-                    voteAccumulator += "class" + String.format("%" + bitwidth + "s", Integer.toBinaryString(index1)).replaceAll(" ", "0");
-                    voteAccumulator += ";\n";
+                if (index2 == treeQnt - 1){
+                    voteCounter += "voted_class" + index2 + "[" + index1 + "];\n";
+                }
+                else {
+                    voteCounter += "voted_class" + index2 + "[" + index1 + "] + ";
                 }
             }
+            sourceCode += voteCounter;
         }
 
         ArrayList<String> classes = new ArrayList<>();
@@ -197,22 +247,14 @@ public class ControllerGenerator {
             classes.add(String.format("%" + bitwidth + "s", Integer.toBinaryString(index)).replaceAll(" ", "0"));
         }
 
-        String teste = "";
-
         for (int index1 = 0; index1 < classQnt; index1++) {
 
+            String conditional = CONDITIONAL;
+            String expression = "";
+            String body = "";
             String comparrison = "";
 
-
-            if (index1 == 0){
-                teste += "\n" + tab3 + "most_voted <= " + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
-            }
-            if (index1 == classQnt - 1){
-                teste += generateTab(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + ";\n\n";
-            }
-            else {
-                teste += generateTab(7) + "(x) * " + classes.get(index1).length() + "'b" + classes.get(index1) + " + \n";
-            }
+            expression = "x";
 
             for (int index2 = 0; index2 < classQnt; index2++) {
                 if (Objects.equals(classes.get(index1), classes.get(index2))) {
@@ -223,29 +265,23 @@ public class ControllerGenerator {
                 }
             }
 
-            teste = teste.replace("x", comparrison);
-            teste = teste.replace(")(", ") & (");
+            expression = expression.replace("x", comparrison);
+            expression = expression.replace(")(", ") & (");
+
+            body = "voted <= " + bitwidth + "'b" + classes.get(index1) + ";";
+
+            conditional = conditional.replace("x", expression);
+            conditional = conditional.replace("y", body);
+            conditional = conditional.replace("ind2", ind3);
+            conditional = conditional.replace("ind", ind2);
+            sourceCode += conditional;
         }
 
-        String counterIncrement = generateTab(3) + "counter <= counter + 1;\n\n";
+        always = always.replace("clk", "clock");
+        always = always.replace("src", sourceCode);
+        always = always.replace("ind", ind1);
+        always += "\nendmodule"; /* provisorio */
 
-        return alwaysBlockOpen +
-               conditionalOpen +
-               featureExponent + "\n" +
-               featureFraction + "\n\n" +
-               voteAccumulator +
-               teste +
-               counterIncrement +
-               conditionalClose +
-               conditionalElse  + "\n" +
-               alwaysBlockClose +
-               moduleClose;
-    }
-
-    public String generateTab(int tab){
-        return IntStream.range(0, tab)
-                .mapToObj(t -> "\t")
-                .collect(Collectors.joining("")
-        );
+        return always;
     }
 }
