@@ -16,31 +16,14 @@ dataset = pd.read_csv(path + "/project/assets/datasets/" + dataset_name + ".csv"
 print("starting training")
 
 
-def remove_id(dataset):
-    dataset = dataset.rename(columns=lambda name: name.lower())
-    column_names = list(dataset)
-
-    for index in range(len(column_names)):
-        if column_names[index] == "id":
-            dataset = dataset.drop(columns="id", axis=1)
-            break
-
-    return dataset
-
-
-def parse_qualitative_variables(dataset):
-    dataset = pd.get_dummies(dataset, drop_first=True)
-    return dataset
 
 
 column_names = list(dataset)
 target_column_name = column_names[len(column_names) - 1]
 dataset.rename(columns={target_column_name: "target"}, inplace=True)
 
-dataset = remove_id(dataset)
 
 X = dataset.drop(["target"], axis=1)
-X = parse_qualitative_variables(X)
 Y = dataset["target"]
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)  # 70% training and 30% test
 

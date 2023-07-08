@@ -48,6 +48,8 @@ public class DatasetParser {
 
         scanner.close();
 
+        FileBuilder.createDir("FPGA");
+        FileBuilder.createDir("FPGA/" + dataset);
         FileBuilder.createDir("FPGA/" + dataset + "/dataset");
         FileBuilder.execute(data, "FPGA/" + dataset + "/dataset/" + "data.bin");
 
