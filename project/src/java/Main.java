@@ -13,7 +13,7 @@ public class Main {
     private static String path;
 
     public static void main(String[] args) throws IOException {
-        dataset = "wine";
+        dataset = "iris";
         path = System.getProperty("user.dir");
 
         start();

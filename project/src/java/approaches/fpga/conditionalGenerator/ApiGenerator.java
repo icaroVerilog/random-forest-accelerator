@@ -66,8 +66,8 @@ public class ApiGenerator extends BasicGenerator {
 
     private String generateModuleInstantiation(Integer featureQnt, String moduleName){
 
-        String ind = generateIndentation(1);
-        String ind2 = generateIndentation(2);
+        String ind = tab(1);
+        String ind2 = tab(2);
 
         String moduleFeatureExponent = ".ftZ_exponent(features[Y:X]),";
         String moduleFeatureFraction = ".ftZ_fraction(features[Y:X]),";
@@ -217,7 +217,7 @@ public class ApiGenerator extends BasicGenerator {
                 .replace("ind", ind2);
 
         always = always.replace("clk", "clock");
-        always = always.replace("ind", generateIndentation(1));
+        always = always.replace("ind", tab(1));
         always = always.replace("src", resetBlock + startBlock);
         always += "\nendmodule"; /* provisorio */
 

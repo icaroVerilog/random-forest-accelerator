@@ -75,11 +75,9 @@ public class TreeBuilder {
             .collect(Collectors.toList());
         
         node.setValues(values);
-        node.setClassNumber(values
-            .indexOf(values
+        node.setClassNumber(values.indexOf(values
                 .stream()
-                .filter(value-> value != 0)
-                .findFirst()
+                .max(Integer::compareTo)
                 .get()));
         node.setClassName(classesNames.get(node.getClassNumber()));
         tree.newOuterNode(node);

@@ -53,7 +53,7 @@ public class ControllerGenerator extends BasicGenerator {
 
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
-        String ind1 = generateIndentation(1);
+        String ind1 = tab(1);
 
         ArrayList<String> moduleIO = new ArrayList<>();
         String sourceCode;
@@ -77,7 +77,7 @@ public class ControllerGenerator extends BasicGenerator {
         sourceCode += "\n\n";
 
         for (int index = 0; index < classQnt; index++){
-            sourceCode += generateIndentation(1);
+            sourceCode += tab(1);
             sourceCode += generatePort(
                 "class" + generateBinaryNumber(index, bitwidth),
                 INTEGER,
@@ -92,7 +92,7 @@ public class ControllerGenerator extends BasicGenerator {
         sourceCode += "\n";
 
         for (int index = 0; index < featureQnt; index++){
-            sourceCode += generateIndentation(1);
+            sourceCode += tab(1);
             sourceCode += generatePort(
                 "ft" + index + "_exponent",
                 WIRE,
@@ -104,7 +104,7 @@ public class ControllerGenerator extends BasicGenerator {
         }
 
         for (int index = 0; index < featureQnt; index++){
-            sourceCode += generateIndentation(1);
+            sourceCode += tab(1);
             sourceCode += generatePort(
                     "ft" + index + "_fraction",
                     WIRE,
@@ -118,7 +118,7 @@ public class ControllerGenerator extends BasicGenerator {
         sourceCode += "\n";
 
         for (int index = 0; index < treeQnt; index++){
-            sourceCode += generateIndentation(1);
+            sourceCode += tab(1);
             sourceCode += generatePort("voted_class" + index,
                     WIRE,
                     NONE,
@@ -135,8 +135,8 @@ public class ControllerGenerator extends BasicGenerator {
 
     private String generateModuleInstantiation(Integer featureQnt, Integer treeIndex){
 
-        String indentation1 = generateIndentation(1);
-        String indentation2 = generateIndentation(2);
+        String indentation1 = tab(1);
+        String indentation2 = tab(2);
 
         String moduleFeatureExponent = ".ftZ_exponent(ftZ_exponent),";
         String moduleFeatureFraction = ".ftZ_fraction(ftZ_fraction),";
@@ -179,8 +179,8 @@ public class ControllerGenerator extends BasicGenerator {
     }
 
     private String generateInitialBlock(Integer featureQnt, Integer classQnt, Boolean debugMode){
-        String tab1 = generateIndentation(1);
-        String tab2 = generateIndentation(2);
+        String tab1 = tab(1);
+        String tab2 = tab(2);
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
         String counterSetup = tab2 + "counter = 0;\n\n";
@@ -219,9 +219,9 @@ public class ControllerGenerator extends BasicGenerator {
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
         String always = ALWAYS_BLOCK;
-        String ind1 = generateIndentation(1);
-        String ind2 = generateIndentation(2);
-        String ind3 = generateIndentation(3);
+        String ind1 = tab(1);
+        String ind2 = tab(2);
+        String ind3 = tab(3);
 
         String sourceCode = "";
 

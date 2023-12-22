@@ -2,6 +2,7 @@ package project.src.java.approaches.fpga;
 
 
 import project.src.java.approaches.fpga.conditionalGenerator.ConditionalFPGAGenerator;
+import project.src.java.approaches.fpga.tableGenerator.TableFPGAGenerator;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 
 import java.io.IOException;
@@ -28,7 +29,8 @@ public class FPGA {
         System.out.println("\n========================================\n");
         System.out.println("starting FPGA random forest generator");
 
-        executeConditionalApproach();
+//        executeConditionalApproach();
+        executeTableApproach();
 
         System.out.println("\nfinishing FPGA random forest generator");
         System.out.println("\n========================================\n");
@@ -42,5 +44,13 @@ public class FPGA {
 
         int samplesQnt = datasetParser.readDataset(dataset);
         conditionalGen.execute(treeList, classQnt, featureQnt, samplesQnt, debugMode, dataset);
+    }
+
+    private void executeTableApproach() throws  IOException {
+        System.out.println("table approach\n");
+
+        var tableGen = new TableFPGAGenerator();
+
+        tableGen.execute(treeList, classQnt, featureQnt, debugMode, dataset);
     }
 }
