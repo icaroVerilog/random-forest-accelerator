@@ -26,6 +26,7 @@ public class BasicGenerator {
     protected final String CONDITIONAL = "\nind" + "if (x) begin\nind2y \n indend";
 
     protected final String CONDITIONAL_ELSE = "\nind" + "else begin\ny indend";
+    protected final String ALWAYS_BLOCK2 = "\nind" + "always @(border signal) begin \nsrc \nindend";
     protected final String CONDITIONAL2 = "ind" + "if (x) begin\ny indend";
 
     protected String generatePort(String name, String type, String direction, Integer bitwidth, Boolean lineBreak){

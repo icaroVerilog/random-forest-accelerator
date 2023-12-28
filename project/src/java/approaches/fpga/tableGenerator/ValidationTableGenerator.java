@@ -10,20 +10,21 @@ public class ValidationTableGenerator extends BasicGenerator {
     public void execute(){
 
         String SRC = "";
-        SRC += generateHeader("table");
+        SRC += generateHeader("validation_table");
         SRC += generatePortInstantiation(48, 48, 10);
         SRC += generateInternalVariables(14, 3, 8);
-        SRC += generateMainAlways(3, 16);
+//        SRC += generateMainAlways(3, 8);
+//        SRC += generateComputeTreeVoteAlways(3, 8);
 
         FileBuilder.createDir("FPGA/table");
         FileBuilder.execute(SRC, "FPGA/table/validation.v");
     }
 
     private String generateHeader(String module_name){
-        String[] IoNames = {"clock", "reset", "forest_vote", "read_new_sample", "ft_exponent", "ft_fraction"};
+        String[] IoNames = {"clock", "reset", "forest_vote", "read_new_sample", "ft_exponent", "ft_fraction", "new_table_entry", "new_table_entry_counter", "compute_vote_flag"};
 
         String header = String.format("module %s (\n", module_name);
-        String IO = IntStream.range(0, IoNames.length-1)
+        String IO = IntStream.range(0, IoNames.length)
             .mapToObj(index -> tab(1) + IoNames[index])
             .collect(Collectors.joining(",\n")
         );
@@ -170,5 +171,67 @@ public class ValidationTableGenerator extends BasicGenerator {
 
 
         return mainAlways;
+    }
+
+    private String generateComputeTreeVoteAlways(int classQuantity, int classBitwidth){
+        String nextPositionVerifierBlock = CONDITIONAL2;
+        String nextPositionVerifierBlockExpr = "next == 13'b0000000000000";
+        String nextPositionVerifierBlockBody = "read_new_sample <= 1'b1;";
+
+        nextPositionVerifierBlock = nextPositionVerifierBlock
+                .replace("x", nextPositionVerifierBlockExpr)
+                .replace("y", tab(3) + nextPositionVerifierBlockBody + "\n")
+                .replace("ind", tab(2));
+
+        String treeVoteBlocks = "";
+
+        for (int index = 1; index <= classQuantity; index++){
+            String treeVoteBlock = CONDITIONAL2;
+            String treeVoteBlockExpr = String.format("tree_vote == %d'b%s", classBitwidth, decimalToBinary(index, classBitwidth));
+            String treeVoteBlockBody = String.format("%sclass%d <= class%d + 1'b1;\n",tab(3), index, index);
+
+            treeVoteBlock = treeVoteBlock
+                    .replace("x", treeVoteBlockExpr)
+                    .replace("y", treeVoteBlockBody)
+                    .replace("ind", tab(2));
+
+            if (index == classQuantity){
+                treeVoteBlocks += treeVoteBlock;
+            }
+            else {
+                treeVoteBlocks += treeVoteBlock + "\n";
+            }
+        }
+
+        String posedgeComputeVoteAlwaysBlock = ALWAYS_BLOCK2;
+        String negedgeComputeVoteAlwaysBlock = ALWAYS_BLOCK2;
+
+        posedgeComputeVoteAlwaysBlock = posedgeComputeVoteAlwaysBlock
+                .replace("border", "posedge")
+                .replace("signal", "compute_vote_flag")
+                .replace("src", nextPositionVerifierBlock + "\n" + treeVoteBlocks)
+                .replace("ind", tab(1));
+
+        negedgeComputeVoteAlwaysBlock = negedgeComputeVoteAlwaysBlock
+                .replace("border", "negedge")
+                .replace("signal", "compute_vote_flag")
+                .replace("src", nextPositionVerifierBlock + "\n" + treeVoteBlocks)
+                .replace("ind", tab(1));
+
+        return posedgeComputeVoteAlwaysBlock + negedgeComputeVoteAlwaysBlock;
+    }
+
+//    private String generateComputeForestVoteAlways(){
+//
+//    }
+
+    public static String decimalToBinary(int decimalValue, int numberOfBits) {
+        StringBuilder binaryValue = new StringBuilder();
+
+        for (int i = numberOfBits - 1; i >= 0; i--) {
+            int bit = (decimalValue >> i) & 1;
+            binaryValue.append(bit);
+        }
+        return binaryValue.toString();
     }
 }
