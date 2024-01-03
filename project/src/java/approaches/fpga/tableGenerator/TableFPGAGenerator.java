@@ -5,9 +5,15 @@ import project.src.java.dotTreeParser.treeStructure.Tree;
 import java.util.List;
 
 public class TableFPGAGenerator {
-    public void execute(List<Tree> treeList, Integer classQnt, Integer featureQnt, Boolean debugMode, String dataset){
+    public void execute(
+        List<Tree> treeList,
+        Integer classQnt,
+        Integer featureQnt,
+        Boolean debugMode,
+        String dataset
+    ){
         var validationTableGenerator = new ValidationTableGenerator();
 
-        validationTableGenerator.execute();
+        validationTableGenerator.execute(treeList, classQnt, featureQnt, dataset);
     }
 }

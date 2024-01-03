@@ -8,7 +8,6 @@ import java.util.stream.IntStream;
 
 public class ConditionalFPGAGenerator {
     public void execute(List<Tree> treeList, Integer classQnt, Integer featureQnt, Integer samplesQnt, Boolean debugMode, String dataset){
-
         var controllerGenerator = new ControllerGenerator();
         var treeGenerator       = new TreeGenerator();
         var apiGenerator        = new ApiGenerator();

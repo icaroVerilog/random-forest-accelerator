@@ -23,6 +23,5 @@ public class PythonScriptCaller {
             e.printStackTrace();
             return 1;
         }
-
     }
 }

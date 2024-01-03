@@ -26,8 +26,16 @@ public class Main {
 
 
         List<Tree> trees = Parser.execute(dataset);
-        FPGA FPGAGenerator = new FPGA(trees, dataset, Parser.getClassQuantity(), Parser.getFeatureQuantity(), false);
-        FPGAGenerator.execute();
+
+        FPGA FPGAGenerator = new FPGA(
+            trees,
+            dataset,
+            Parser.getClassQuantity(),
+            Parser.getFeatureQuantity(),
+            false
+        );
+
+        FPGAGenerator.execute("table");
 
         System.out.println("job finished: Success");
     }
