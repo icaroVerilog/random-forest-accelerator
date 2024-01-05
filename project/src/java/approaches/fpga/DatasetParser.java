@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 public class DatasetParser {
 
-    private static final int BITWIDTH = 32;
+    private static final int BITWIDTH = 12;
     public int readDataset(String dataset) throws IOException {
 
         ArrayList<String> featuresVal = new ArrayList<>();

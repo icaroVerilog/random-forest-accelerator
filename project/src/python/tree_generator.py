@@ -9,19 +9,15 @@ import os
 
 
 dataset_name = sys.argv[1]
-path = sys.argv[2]
+dataset_path = sys.argv[2]
 
-dataset = pd.read_csv(path + "/project/assets/datasets/" + dataset_name + ".csv")
+dataset = pd.read_csv(dataset_path + "/project/assets/datasets/" + dataset_name + ".csv")
 
 print("starting training")
-
-
-
 
 column_names = list(dataset)
 target_column_name = column_names[len(column_names) - 1]
 dataset.rename(columns={target_column_name: "target"}, inplace=True)
-
 
 X = dataset.drop(["target"], axis=1)
 Y = dataset["target"]
@@ -35,7 +31,7 @@ y_pred = clf.predict(X_test)
 print("accuracy:", metrics.accuracy_score(Y_test, y_pred))
 
 directory = dataset_name
-tree_path = path + "/project/assets/trees/" + dataset_name
+tree_path = dataset_path + "/project/assets/trees/" + dataset_name
 
 if os.path.exists(tree_path):
     pass

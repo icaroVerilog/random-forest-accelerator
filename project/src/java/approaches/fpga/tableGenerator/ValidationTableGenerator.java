@@ -11,42 +11,53 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ValidationTableGenerator extends BasicGenerator {
-    public void execute(List<Tree> trees, Integer classQnt, Integer featureQnt, String dataset){
 
-        /*
-        *  a variavel classbitwidth deverá ser ajustada de forma a se encaixar com o numero
-        *  de classes que o dataset tem
-        *
-        *   nodeQnt tambem deverá ser ajustado deacordo com o numero de árvores
-        *
-        * */
+    public void execute(Integer classQuantity, Integer featureQuantity, Integer classBitwidth, Integer voteCounterBitwidth, String datasetName){
+        System.out.println("generating validation table");
+        var configs = new Configurations();
 
-        String SRC = "";
-        SRC += generateHeader("validation_table");
-        SRC += generatePortInstantiation(featureQnt, 12, 8);
-        SRC += generateInternalVariables(14, classQnt, 16);
-        SRC += "\n";
-        SRC += generateWireAssign();
-        SRC += generateMainAlways(classQnt, 16);
-        SRC += "\n";
-        SRC += generateComputeForestVoteAlways(classQnt, 8);
-        SRC += "\n" + "endmodule";
+        String src = "";
 
-        FileBuilder.createDir(String.format("FPGA/table/%s", dataset));
-        FileBuilder.execute(SRC, String.format("FPGA/table/%s/validation_table.v", dataset));
+        src += generateHeader("validation_table");
+        src += generatePortInstantiation(
+            featureQuantity,
+            configs.INTEGER_PART_BITWIDTH,
+            configs.DECIMAL_PART_BITWIDTH,
+            classBitwidth
+        );
+
+        src += generateInternalVariables(
+            14,
+            classQuantity,
+            configs.INDEX_BITWIDTH,
+            configs.INTEGER_PART_BITWIDTH,
+            configs.DECIMAL_PART_BITWIDTH,
+            configs.COMPARATED_COLUMN_BITWIDTH,
+            voteCounterBitwidth
+        );
+
+        src += "\n";
+        src += generateWireAssign();
+        src += generateMainAlways(classQuantity, configs.INDEX_BITWIDTH, voteCounterBitwidth);
+        src += "\n";
+        src += generateComputeForestVoteAlways(classQuantity, classBitwidth);
+        src += "\n" + "endmodule";
+
+        FileBuilder.createDir(String.format("FPGA/table/%s", datasetName));
+        FileBuilder.execute(src, String.format("FPGA/table/%s/validation_table.v", datasetName));
     }
 
     private String generateHeader(String module_name){
         String[] IoNames = {
-                "clock",
-                "reset",
-                "forest_vote",
-                "read_new_sample",
-                "ft_exponent",
-                "ft_fraction",
-                "new_table_entry",
-                "new_table_entry_counter",
-                "compute_vote_flag"
+            "clock",
+            "reset",
+            "forest_vote",
+            "read_new_sample",
+            "feature_integer_part",
+            "feature_decimal_part",
+            "new_table_entry",
+            "new_table_entry_counter",
+            "compute_vote_flag"
         };
 
         String header = String.format("module %s (\n", module_name);
@@ -54,79 +65,108 @@ public class ValidationTableGenerator extends BasicGenerator {
             .mapToObj(index -> tab(1) + IoNames[index])
             .collect(Collectors.joining(",\n")
         );
-
         IO += "\n);\n";
 
         return header + IO;
     }
 
-    private String generatePortInstantiation(int featureQnt, int featureBitwidth, int forestVoteBitwidth){
+    private String generatePortInstantiation(
+        int featureQnt,
+        int exponentFeatureBitwidth,
+        int fractionFeatureBitwidth,
+        int classBitwidth
+    ){
+        int exponentValueBitwidth = featureQnt * exponentFeatureBitwidth;
+        int fractionValueBitwidth = featureQnt * fractionFeatureBitwidth;
 
-        int valueBitwidth = featureQnt * featureBitwidth;
+        String src = "";
+        src += tab(1) + "/* ************************ IO ************************ */\n\n";
+        src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
+        src += tab(1) + generatePort("reset", WIRE, INPUT, 1, true);
+        src += "\n";
+        src += tab(1) + generatePort("feature_integer_part", WIRE, INPUT, exponentValueBitwidth, true);
+        src += tab(1) + generatePort("feature_decimal_part", WIRE, INPUT, fractionValueBitwidth, true);
+        src += tab(1) + generatePort("new_table_entry", WIRE, INPUT, 64, true);
+        src += tab(1) + generatePort("new_table_entry_counter", WIRE, INPUT, 13, true);
+        src += "\n";
+        src += tab(1) + generatePort("forest_vote", REGISTER, OUTPUT, classBitwidth, true);
+        src += tab(1) + generatePort("read_new_sample", REGISTER, OUTPUT, 1, true);
+        src += tab(1) + generatePort("compute_vote_flag", REGISTER, OUTPUT, 1, true);
 
-        String SRC = "";
-        SRC += tab(1) + "/* ************************ IO ************************ */\n\n";
-        SRC += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
-        SRC += tab(1) + generatePort("reset", WIRE, INPUT, 1, true);
-        SRC += "\n";
-        SRC += tab(1) + generatePort("ft_exponent", WIRE, INPUT, valueBitwidth, true);
-        SRC += tab(1) + generatePort("ft_fraction", WIRE, INPUT, valueBitwidth, true);
-        SRC += tab(1) + generatePort("new_table_entry", WIRE, INPUT, 64, true);
-        SRC += tab(1) + generatePort("new_table_entry_counter", WIRE, INPUT, 13, true);
-        SRC += "\n";
-        SRC += tab(1) + generatePort("forest_vote", REGISTER, OUTPUT, forestVoteBitwidth, true);
-        SRC += tab(1) + generatePort("read_new_sample", REGISTER, OUTPUT, 1, true);
-        SRC += tab(1) + generatePort("compute_vote_flag", REGISTER, OUTPUT, 1, true);
-
-        return SRC;
+        return src;
     }
 
-    private String generateInternalVariables(int nodeQnt, int classQnt, int classBitwidth){
-        String SRC = "";
-        SRC += "\n" + tab(1) + "/* *************************************************** */\n\n";
-        SRC += tab(1) + generatePortBus("nodes_table", REGISTER, NONE, 64, nodeQnt, true);
-        SRC += tab(1) + generatePort("next", REGISTER, NONE, 13, true);
-        SRC += "\n";
+    private String generateInternalVariables(
+        int nodeQuantity,
+        int classQuantity,
+        int tableIndexerBitwidth,
+        int integerPartFeatureBitwidth,
+        int fractionFeatureBitwidth,
+        int comparatedColumnBitwidth,
+        int voteCounterBitwidth
+    ){
+        String src = "";
+        src += "\n" + tab(1) + "/* *************************************************** */\n\n";
+        src += tab(1) + generatePortBus("nodes_table", REGISTER, NONE, 64, nodeQuantity, true);
+        src += tab(1) + generatePort("next", REGISTER, NONE, tableIndexerBitwidth, true);
+        src += "\n";
 
-        for (int index = 0; index <= classQnt - 1; index++){
-            SRC += tab(1) + generatePort("class" + (index+1), REGISTER, NONE, classBitwidth, true);
+        for (int index = 0; index <= classQuantity - 1; index++){
+            src += tab(1) + generatePort("class" + (index+1), REGISTER, NONE, voteCounterBitwidth, true);
         }
 
-        SRC += "\n";
-        SRC += tab(1) + generatePort("tree_vote_wire", WIRE, NONE, 13, true);
-        SRC += tab(1) + generatePort("th_exponent_wire", WIRE, NONE, 12, true);
-        SRC += tab(1) + generatePort("ft_exponent_wire", WIRE, NONE, 12, true);
-        SRC += tab(1) + generatePort("column_wire", WIRE, NONE, 13, true);
-        SRC += tab(1) + generatePort("column_value_wire", WIRE, NONE, 12, true);
+        src += "\n";
+        src += tab(1) + generatePort("tree_vote_wire", WIRE, NONE, tableIndexerBitwidth, true);
+        src += tab(1) + generatePort("threshold_integer_part_wire", WIRE, NONE, integerPartFeatureBitwidth, true);
+        src += tab(1) + generatePort("feature_integer_part_wire", WIRE, NONE, integerPartFeatureBitwidth, true);
+        src += tab(1) + generatePort("column_wire", WIRE, NONE, comparatedColumnBitwidth, true);
+        src += tab(1) + generatePort("column_value_wire", WIRE, NONE, integerPartFeatureBitwidth, true);
 
-        return SRC;
+        return src;
     }
 
     private String generateWireAssign(){
-        String SRC = "";
-        SRC += tab(1) + "assign tree_vote_wire = nodes_table[next][12:0];\n";
-        SRC += tab(1) + "assign th_exponent_wire = nodes_table[next][63:52];\n";
-        SRC += tab(1) + "assign column_wire = nodes_table[next][38:26];\n";
-        SRC += tab(1) + """
-                        assign column_value_wire = {
-                                ft_exponent[(column_wire * 12) + 11],
-                                ft_exponent[(column_wire * 12) + 10],
-                                ft_exponent[(column_wire * 12) + 9],
-                                ft_exponent[(column_wire * 12) + 8],
-                                ft_exponent[(column_wire * 12) + 7],
-                                ft_exponent[(column_wire * 12) + 6],
-                                ft_exponent[(column_wire * 12) + 5],
-                                ft_exponent[(column_wire * 12) + 4],
-                                ft_exponent[(column_wire * 12) + 3],
-                                ft_exponent[(column_wire * 12) + 2],
-                                ft_exponent[(column_wire * 12) + 1],
-                                ft_exponent[(column_wire * 12) + 0]
+        String src = "";
+        src += tab(1) + "assign tree_vote_wire = nodes_table[next][12:0];\n";
+        src += tab(1) + "assign threshold_integer_part_wire = nodes_table[next][63:52];\n";
+        src += tab(1) + "assign threshold_decimal_part_wire = nodes_table[next][51:40];\n";
+        src += tab(1) + "assign column_wire = nodes_table[next][38:26];\n";
+        src += tab(1) + """
+                        assign column_integer_value_wire = {
+                                feature_integer_part[(column_wire * 12) + 11],
+                                feature_integer_part[(column_wire * 12) + 10],
+                                feature_integer_part[(column_wire * 12) + 9],
+                                feature_integer_part[(column_wire * 12) + 8],
+                                feature_integer_part[(column_wire * 12) + 7],
+                                feature_integer_part[(column_wire * 12) + 6],
+                                feature_integer_part[(column_wire * 12) + 5],
+                                feature_integer_part[(column_wire * 12) + 4],
+                                feature_integer_part[(column_wire * 12) + 3],
+                                feature_integer_part[(column_wire * 12) + 2],
+                                feature_integer_part[(column_wire * 12) + 1],
+                                feature_integer_part[(column_wire * 12) + 0]
                             };
                         """;
-        return SRC;
+        src += tab(1) + """
+                        assign column_decimal_value_wire = {
+                                feature_decimal_part[(column_wire * 12) + 11],
+                                feature_decimal_part[(column_wire * 12) + 10],
+                                feature_decimal_part[(column_wire * 12) + 9],
+                                feature_decimal_part[(column_wire * 12) + 8],
+                                feature_decimal_part[(column_wire * 12) + 7],
+                                feature_decimal_part[(column_wire * 12) + 6],
+                                feature_decimal_part[(column_wire * 12) + 5],
+                                feature_decimal_part[(column_wire * 12) + 4],
+                                feature_decimal_part[(column_wire * 12) + 3],
+                                feature_decimal_part[(column_wire * 12) + 2],
+                                feature_decimal_part[(column_wire * 12) + 1],
+                                feature_decimal_part[(column_wire * 12) + 0]
+                            };
+                        """;
+        return src;
     }
 
-    private String generateMainAlways(int classQnt, int classBitwidth){
+    private String generateMainAlways(int classQuantity, int tableIndexerBitwidth, int voteCounterBitwidth){
 
         /*************************** RESET BLOCK ****************************/
 
@@ -136,13 +176,13 @@ public class ValidationTableGenerator extends BasicGenerator {
 
         resetBlockBody += tab(3) + "nodes_table[new_table_entry_counter - 1'b1] <= new_table_entry;\n\n";
 
-        for (int index = 1; index <= classQnt; index++){
+        for (int index = 1; index <= classQuantity; index++){
             String bits = "";
 
-            for (int index2 = 0; index2 <= classBitwidth - 1; index2++){
+            for (int index2 = 0; index2 <= voteCounterBitwidth - 1; index2++){
                 bits += "0";
             }
-            resetBlockBody += tab(3) + String.format("class%d <= %d'b%s;\n", index, classBitwidth, bits);
+            resetBlockBody += tab(3) + String.format("class%d <= %d'b%s;\n", index, voteCounterBitwidth, bits);
         }
 
         resetBlockBody += "\n";
@@ -158,7 +198,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         /******************* INNER NODE PROCESSING BLOCK ********************/
 
         String thGreaterThanValueBlock = CONDITIONAL2;
-        String thGreaterThanValueBlockExpr = "th_exponent_wire >= column_value_wire";
+        String thGreaterThanValueBlockExpr = "(threshold_integer_part_wire > column_integer_value_wire) || ((threshold_integer_part_wire == column_integer_value_wire) && (threshold_decimal_part_wire >= column_decimal_part_wire))";
         String thGreaterThanValueBlockBody = tab(6) + "next <= nodes_table[next][25:13];\n";
 
         thGreaterThanValueBlock = thGreaterThanValueBlock
@@ -186,9 +226,9 @@ public class ValidationTableGenerator extends BasicGenerator {
 
         String voteCounterBlocks = "";
 
-        for (int index = 1; index <= classQnt; index++){
+        for (int index = 1; index <= classQuantity; index++){
             String voteCounterBlock = CONDITIONAL2;
-            String voteCounterBlockExpr = String.format("tree_vote_wire == %d'b%s", classBitwidth, decimalToBinary(index, classBitwidth));
+            String voteCounterBlockExpr = String.format("tree_vote_wire == %d'b%s", tableIndexerBitwidth, decimalToBinary(index, tableIndexerBitwidth));
             String voteCounterBlockBody = String.format("%sclass%d <= class%d + 1'b1;\n",tab(6), index, index);
 
             voteCounterBlock = voteCounterBlock
@@ -196,10 +236,9 @@ public class ValidationTableGenerator extends BasicGenerator {
                     .replace("y", voteCounterBlockBody)
                     .replace("ind", tab(5));
 
-            if (index == classQnt){
+            if (index == classQuantity){
                 voteCounterBlocks += voteCounterBlock;
-            }
-            else {
+            } else {
                 voteCounterBlocks += voteCounterBlock + "\n";
             }
         }
@@ -228,7 +267,6 @@ public class ValidationTableGenerator extends BasicGenerator {
                 .replace("y",outerNodeBlockBody)
                 .replace("ind", tab(4));
 
-
         String sampleProcessingBlock = CONDITIONAL2;
         String sampleProcessingBlockExpr = "read_new_sample == 1'b0";
         String sampleProcessingBlockBody = innerNodeBlock + outerNodeBlock + "\n";
@@ -244,12 +282,12 @@ public class ValidationTableGenerator extends BasicGenerator {
         String resetCounterBlockExpr = "compute_vote_flag";
         String resetCounterBlockBody = "";
 
-        for (int index = 1; index <= classQnt; index++){
+        for (int index = 1; index <= classQuantity; index++){
             String bits = "";
-            for (int index2 = 0; index2 <= classBitwidth - 1; index2++){
+            for (int index2 = 0; index2 <= voteCounterBitwidth - 1; index2++){
                 bits += "0";
             }
-            resetCounterBlockBody += tab(4) + String.format("class%d <= %d'b%s;\n", index, classBitwidth, bits);
+            resetCounterBlockBody += tab(4) + String.format("class%d <= %d'b%s;\n", index, voteCounterBitwidth, bits);
         }
 
         resetCounterBlock = resetCounterBlock
@@ -257,7 +295,6 @@ public class ValidationTableGenerator extends BasicGenerator {
             .replace("y", resetCounterBlockBody)
             .replace("ind", tab(3)
         );
-
 
         String validationBlock = CONDITIONAL_ELSE;
         String validationBlockBody = "";
@@ -282,22 +319,22 @@ public class ValidationTableGenerator extends BasicGenerator {
         return mainAlways;
     }
 
-    private String generateComputeForestVoteAlways(int classQnt, int forestVoteBitwidth){
+    private String generateComputeForestVoteAlways(int classQuantity, int classBitwidth){
 
-        String SRC = "";
+        String src = "";
 
         ArrayList<String> classes = new ArrayList<>();
-        for (int index = 0; index < classQnt; index++){
+        for (int index = 0; index < classQuantity; index++){
             classes.add(String.format("class%d", index + 1));
         }
 
-        for (int index1 = 0; index1 < classQnt; index1++) {
+        for (int index1 = 0; index1 < classQuantity; index1++) {
 
             String computeMajorClassBlock = CONDITIONAL2;
             String computeMajorClassBlockExpr = "";
             String computeMajorClassBlockBody = "";
 
-            for (int index2 = 0; index2 < classQnt; index2++) {
+            for (int index2 = 0; index2 < classQuantity; index2++) {
                 if (Objects.equals(classes.get(index1), classes.get(index2))) {
                     continue;
                 }
@@ -305,15 +342,15 @@ public class ValidationTableGenerator extends BasicGenerator {
                     computeMajorClassBlockExpr += String.format("(%s > %s) && ", classes.get(index1), classes.get(index2));
                 }
             }
-            System.out.println(computeMajorClassBlockExpr);
+
             int position = computeMajorClassBlockExpr.lastIndexOf("&&");
             computeMajorClassBlockExpr = computeMajorClassBlockExpr.substring(0, position-1);
 
             computeMajorClassBlockBody = String.format(
-                "%sforest_vote == %d'b%s;\n",
+                "%sforest_vote = %d'b%s;\n",
                 tab(3),
-                forestVoteBitwidth,
-                decimalToBinary(index1+1, forestVoteBitwidth)
+                classBitwidth,
+                decimalToBinary(index1+1, classBitwidth)
             );
 
             computeMajorClassBlock = computeMajorClassBlock
@@ -321,10 +358,10 @@ public class ValidationTableGenerator extends BasicGenerator {
                     .replace("y", computeMajorClassBlockBody)
                     .replace("ind", tab(2));;
 
-            if (index1 == classQnt-1){
-                SRC += computeMajorClassBlock;
+            if (index1 == classQuantity-1){
+                src += computeMajorClassBlock;
             } else {
-                SRC += computeMajorClassBlock + "\n";
+                src += computeMajorClassBlock + "\n";
             }
         }
 
@@ -332,10 +369,9 @@ public class ValidationTableGenerator extends BasicGenerator {
         alwaysBlock = alwaysBlock
             .replace("border", "negedge")
             .replace("signal", "read_new_sample")
-            .replace("src", SRC)
+            .replace("src", src)
             .replace("ind", tab(1)
         );
-
         return alwaysBlock;
     }
 

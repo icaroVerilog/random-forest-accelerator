@@ -8,11 +8,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-
-
-
-
-
 public class ControllerGenerator extends BasicGenerator {
 
     public void execute(
@@ -23,22 +18,21 @@ public class ControllerGenerator extends BasicGenerator {
             Boolean debugMode,
             String dataset
     ){
-
         System.out.println("generating controller");
 
-        String sourceCode = "";
+        String SRC = "";
 
-        sourceCode += generateImports(treeQnt);
-        sourceCode += generateIO(featureQnt, classQnt, treeQnt, debugMode);
+        SRC += generateImports(treeQnt);
+        SRC += generateIO(featureQnt, classQnt, treeQnt, debugMode);
 
         for (int index = 0; index < treeQnt; index++){
-            sourceCode += generateModuleInstantiation(featureQnt, index);
+            SRC += generateModuleInstantiation(featureQnt, index);
         }
 
 //        sourceCode += generateInitialBlock(featureQnt, classQnt, debugMode);
-        sourceCode += generateAlwaysBlock(featureQnt, samplesQnt, classQnt, treeQnt, debugMode);
+        SRC += generateAlwaysBlock(featureQnt, samplesQnt, classQnt, treeQnt, debugMode);
 
-        FileBuilder.execute(sourceCode, "FPGA/" + dataset + "/controller.v");
+        FileBuilder.execute(SRC, "FPGA/" + dataset + "/controller.v");
     }
 
     private String generateImports(Integer treeQuantity){
@@ -224,8 +218,6 @@ public class ControllerGenerator extends BasicGenerator {
         String ind3 = tab(3);
 
         String sourceCode = "";
-
-
 
         for (int index1 = 0; index1 < classQnt; index1++){
 

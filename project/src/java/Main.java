@@ -5,6 +5,7 @@ import java.util.List;
 import project.src.java.approaches.fpga.FPGA;
 import project.src.java.dotTreeParser.Parser;
 import project.src.java.dotTreeParser.treeStructure.Tree;
+import project.src.java.util.PythonDatasetParserCaller;
 import project.src.java.util.PythonScriptCaller;
 
 public class Main {
@@ -24,7 +25,6 @@ public class Main {
         PythonScriptCaller caller = new PythonScriptCaller();
         caller.execute(path, dataset);
 
-
         List<Tree> trees = Parser.execute(dataset);
 
         FPGA FPGAGenerator = new FPGA(
@@ -36,6 +36,9 @@ public class Main {
         );
 
         FPGAGenerator.execute("table");
+
+        PythonDatasetParserCaller a = new PythonDatasetParserCaller();
+        a.execute(path, dataset);
 
         System.out.println("job finished: Success");
     }

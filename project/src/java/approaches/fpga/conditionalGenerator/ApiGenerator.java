@@ -12,16 +12,16 @@ public class ApiGenerator extends BasicGenerator {
 
     public void execute(Integer featureQnt, Integer classQnt, Boolean debugMode, String dataset){
 
-        String sourceCode = "";
+        String SRC = "";
 
         System.out.println("generating API");
 
-        sourceCode += generateImport("controller");
-        sourceCode += generateIO(featureQnt);
-        sourceCode += generateModuleInstantiation(featureQnt, "controller");
-        sourceCode += generateAlwaysBlock(featureQnt, classQnt);
+        SRC += generateImport("controller");
+        SRC += generateIO(featureQnt);
+        SRC += generateModuleInstantiation(featureQnt, "controller");
+        SRC += generateAlwaysBlock(featureQnt, classQnt);
 
-        FileBuilder.execute(sourceCode, "FPGA/" + dataset + "/api.v");
+        FileBuilder.execute(SRC, "FPGA/" + dataset + "/api.v");
     }
 
     private String generateImport(String moduleName){
@@ -30,7 +30,7 @@ public class ApiGenerator extends BasicGenerator {
 
     private String generateIO(Integer featureQnt){
         String tab = generateTab(1);
-        String sourceCode = "";
+        String SRC = "";
 
         ArrayList<String> moduleIO = new ArrayList<>(
                 Arrays.asList(
@@ -39,29 +39,29 @@ public class ApiGenerator extends BasicGenerator {
                 )
         );
 
-        sourceCode += generateModule("api", moduleIO);
-        sourceCode += "\n";
-        sourceCode += tab + generatePort("clock", WIRE,      INPUT, 1, true);
-        sourceCode += tab + generatePort("start", WIRE,      INPUT, 1, true);
-        sourceCode += tab + generatePort("reset", WIRE,      INPUT, 1, true);
-        sourceCode += tab + generatePort("done" , REGISTER, OUTPUT, 1, true);
-        sourceCode += "\n";
-        sourceCode += tab + generatePort("data_read_done",  WIRE, INPUT, featureQnt, true);
-        sourceCode += tab + generatePort("data_write_done", WIRE, INPUT, featureQnt, true);
-        sourceCode += tab + generatePort("available_write", WIRE, INPUT, featureQnt, true);
-        sourceCode += tab + generatePort("data_read_valid", WIRE, INPUT, featureQnt, true);
-        sourceCode += tab + generatePort("data_read_request",  REGISTER, OUTPUT, featureQnt, true);
-        sourceCode += tab + generatePort("data_write_request", REGISTER, OUTPUT, featureQnt, true);
-        sourceCode += "\n";
-        sourceCode += tab + generatePort("data_read", WIRE, INPUT, featureQnt * FEATURE_BITWIDTH, true);
-        sourceCode += tab + generatePort("data_write", REGISTER, OUTPUT, featureQnt * FEATURE_BITWIDTH, true);
-        sourceCode += "\n";
-        sourceCode += tab + generatePort("voted", WIRE, NONE, 2, true);
-        sourceCode += tab + generatePort("read_request", REGISTER, NONE, 2, true);
-        sourceCode += tab + generatePort("write_request", REGISTER, NONE, 2, true);
-        sourceCode += tab + generatePort("features", REGISTER, NONE, featureQnt * FEATURE_BITWIDTH, true);
+        SRC += generateModule("api", moduleIO);
+        SRC += "\n";
+        SRC += tab + generatePort("clock", WIRE,      INPUT, 1, true);
+        SRC += tab + generatePort("start", WIRE,      INPUT, 1, true);
+        SRC += tab + generatePort("reset", WIRE,      INPUT, 1, true);
+        SRC += tab + generatePort("done" , REGISTER, OUTPUT, 1, true);
+        SRC += "\n";
+        SRC += tab + generatePort("data_read_done",  WIRE, INPUT, featureQnt, true);
+        SRC += tab + generatePort("data_write_done", WIRE, INPUT, featureQnt, true);
+        SRC += tab + generatePort("available_write", WIRE, INPUT, featureQnt, true);
+        SRC += tab + generatePort("data_read_valid", WIRE, INPUT, featureQnt, true);
+        SRC += tab + generatePort("data_read_request",  REGISTER, OUTPUT, featureQnt, true);
+        SRC += tab + generatePort("data_write_request", REGISTER, OUTPUT, featureQnt, true);
+        SRC += "\n";
+        SRC += tab + generatePort("data_read", WIRE, INPUT, featureQnt * FEATURE_BITWIDTH, true);
+        SRC += tab + generatePort("data_write", REGISTER, OUTPUT, featureQnt * FEATURE_BITWIDTH, true);
+        SRC += "\n";
+        SRC += tab + generatePort("voted", WIRE, NONE, 2, true);
+        SRC += tab + generatePort("read_request", REGISTER, NONE, 2, true);
+        SRC += tab + generatePort("write_request", REGISTER, NONE, 2, true);
+        SRC += tab + generatePort("features", REGISTER, NONE, featureQnt * FEATURE_BITWIDTH, true);
 
-        return sourceCode;
+        return SRC;
     }
 
     private String generateModuleInstantiation(Integer featureQnt, String moduleName){
