@@ -12,8 +12,26 @@ import java.util.stream.IntStream;
 
 public class ValidationTableGenerator extends BasicGenerator {
 
-    public void execute(Integer classQuantity, Integer featureQuantity, Integer classBitwidth, Integer voteCounterBitwidth, String datasetName){
+    private final Integer VOTE_COUNTER_BITWIDTH = 16;
+
+    public void execute(
+        Integer classQuantity,
+        Integer featureQuantity,
+        Integer classBitwidth,
+        String datasetName,
+        String mode
+    ){
         System.out.println("generating validation table");
+
+        /*
+         *  the expression calculate the needed bitwidth to hold the votes
+         *  the counter can reach the maximum value of votes given by the quantity of trees
+         *  because is one vote for each tree
+         */
+//        int voteCounterBitwidth = (int) Math.ceil(Math.log(treeList.size()) / Math.log(2));
+
+
+
         var configs = new Configurations();
 
         String src = "";
@@ -27,18 +45,17 @@ public class ValidationTableGenerator extends BasicGenerator {
         );
 
         src += generateInternalVariables(
-            14,
+            201,
             classQuantity,
             configs.INDEX_BITWIDTH,
             configs.INTEGER_PART_BITWIDTH,
             configs.DECIMAL_PART_BITWIDTH,
-            configs.COMPARATED_COLUMN_BITWIDTH,
-            voteCounterBitwidth
+            configs.COMPARATED_COLUMN_BITWIDTH
         );
 
         src += "\n";
         src += generateWireAssign();
-        src += generateMainAlways(classQuantity, configs.INDEX_BITWIDTH, voteCounterBitwidth);
+        src += generateMainAlways(classQuantity, configs.INDEX_BITWIDTH, VOTE_COUNTER_BITWIDTH);
         src += "\n";
         src += generateComputeForestVoteAlways(classQuantity, classBitwidth);
         src += "\n" + "endmodule";
@@ -48,26 +65,33 @@ public class ValidationTableGenerator extends BasicGenerator {
     }
 
     private String generateHeader(String module_name){
-        String[] IoNames = {
+        String[] ioPorts = {
             "clock",
             "reset",
             "forest_vote",
             "read_new_sample",
-            "feature_integer_part",
-            "feature_decimal_part",
+            "feature_integer",
+            "feature_decimal",
             "new_table_entry",
             "new_table_entry_counter",
             "compute_vote_flag"
         };
 
         String header = String.format("module %s (\n", module_name);
-        String IO = IntStream.range(0, IoNames.length)
-            .mapToObj(index -> tab(1) + IoNames[index])
-            .collect(Collectors.joining(",\n")
-        );
-        IO += "\n);\n";
+        String ports = "";
 
-        return header + IO;
+        for (int index = 0; index <= ioPorts.length; index++){
+            if (index == ioPorts.length){
+                ports += ");\n\n";
+            }
+            else if (index == ioPorts.length - 1){
+                ports += tab(1) + ioPorts[index] + "\n";
+            }
+            else {
+                ports += tab(1) + ioPorts[index] + ",\n";
+            }
+        }
+        return header + ports;
     }
 
     private String generatePortInstantiation(
@@ -84,12 +108,14 @@ public class ValidationTableGenerator extends BasicGenerator {
         src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
         src += tab(1) + generatePort("reset", WIRE, INPUT, 1, true);
         src += "\n";
-        src += tab(1) + generatePort("feature_integer_part", WIRE, INPUT, exponentValueBitwidth, true);
-        src += tab(1) + generatePort("feature_decimal_part", WIRE, INPUT, fractionValueBitwidth, true);
+        src += tab(1) + generatePort("feature_integer", WIRE, INPUT, exponentValueBitwidth, true);
+        src += tab(1) + generatePort("feature_decimal", WIRE, INPUT, fractionValueBitwidth, true);
+        src += tab(1) + "\n";
         src += tab(1) + generatePort("new_table_entry", WIRE, INPUT, 64, true);
-        src += tab(1) + generatePort("new_table_entry_counter", WIRE, INPUT, 13, true);
+        src += tab(1) + generatePort("new_table_entry_counter", WIRE, INPUT, 16, true);
         src += "\n";
         src += tab(1) + generatePort("forest_vote", REGISTER, OUTPUT, classBitwidth, true);
+        src += tab(1) + "\n";
         src += tab(1) + generatePort("read_new_sample", REGISTER, OUTPUT, 1, true);
         src += tab(1) + generatePort("compute_vote_flag", REGISTER, OUTPUT, 1, true);
 
@@ -101,26 +127,28 @@ public class ValidationTableGenerator extends BasicGenerator {
         int classQuantity,
         int tableIndexerBitwidth,
         int integerPartFeatureBitwidth,
-        int fractionFeatureBitwidth,
-        int comparatedColumnBitwidth,
-        int voteCounterBitwidth
+        int decimalPartFeatureBitwidth,
+        int comparatedColumnBitwidth
     ){
         String src = "";
+
         src += "\n" + tab(1) + "/* *************************************************** */\n\n";
         src += tab(1) + generatePortBus("nodes_table", REGISTER, NONE, 64, nodeQuantity, true);
         src += tab(1) + generatePort("next", REGISTER, NONE, tableIndexerBitwidth, true);
         src += "\n";
 
         for (int index = 0; index <= classQuantity - 1; index++){
-            src += tab(1) + generatePort("class" + (index+1), REGISTER, NONE, voteCounterBitwidth, true);
+            src += tab(1) + generatePort("class" + (index+1), REGISTER, NONE, VOTE_COUNTER_BITWIDTH, true);
         }
 
         src += "\n";
         src += tab(1) + generatePort("tree_vote_wire", WIRE, NONE, tableIndexerBitwidth, true);
-        src += tab(1) + generatePort("threshold_integer_part_wire", WIRE, NONE, integerPartFeatureBitwidth, true);
-        src += tab(1) + generatePort("feature_integer_part_wire", WIRE, NONE, integerPartFeatureBitwidth, true);
+        src += tab(1) + generatePort("threshold_integer_wire", WIRE, NONE, integerPartFeatureBitwidth, true);
+        src += tab(1) + generatePort("threshold_decimal_wire", WIRE, NONE, decimalPartFeatureBitwidth, true);
         src += tab(1) + generatePort("column_wire", WIRE, NONE, comparatedColumnBitwidth, true);
-        src += tab(1) + generatePort("column_value_wire", WIRE, NONE, integerPartFeatureBitwidth, true);
+        src += "\n";
+        src += tab(1) + generatePort("feature_integer_wire", WIRE, NONE, integerPartFeatureBitwidth, true);
+        src += tab(1) + generatePort("feature_decimal_wire", WIRE, NONE, decimalPartFeatureBitwidth, true);
 
         return src;
     }
@@ -128,39 +156,41 @@ public class ValidationTableGenerator extends BasicGenerator {
     private String generateWireAssign(){
         String src = "";
         src += tab(1) + "assign tree_vote_wire = nodes_table[next][12:0];\n";
-        src += tab(1) + "assign threshold_integer_part_wire = nodes_table[next][63:52];\n";
-        src += tab(1) + "assign threshold_decimal_part_wire = nodes_table[next][51:40];\n";
+        src += tab(1) + "assign threshold_integer_wire = nodes_table[next][63:52];\n";
+        src += tab(1) + "assign threshold_decimal_wire = nodes_table[next][51:40];\n";
         src += tab(1) + "assign column_wire = nodes_table[next][38:26];\n";
+        src += "\n";
         src += tab(1) + """
-                        assign column_integer_value_wire = {
-                                feature_integer_part[(column_wire * 12) + 11],
-                                feature_integer_part[(column_wire * 12) + 10],
-                                feature_integer_part[(column_wire * 12) + 9],
-                                feature_integer_part[(column_wire * 12) + 8],
-                                feature_integer_part[(column_wire * 12) + 7],
-                                feature_integer_part[(column_wire * 12) + 6],
-                                feature_integer_part[(column_wire * 12) + 5],
-                                feature_integer_part[(column_wire * 12) + 4],
-                                feature_integer_part[(column_wire * 12) + 3],
-                                feature_integer_part[(column_wire * 12) + 2],
-                                feature_integer_part[(column_wire * 12) + 1],
-                                feature_integer_part[(column_wire * 12) + 0]
+                        assign feature_integer_wire = {
+                                feature_integer[(column_wire * 12) + 11],
+                                feature_integer[(column_wire * 12) + 10],
+                                feature_integer[(column_wire * 12) + 9],
+                                feature_integer[(column_wire * 12) + 8],
+                                feature_integer[(column_wire * 12) + 7],
+                                feature_integer[(column_wire * 12) + 6],
+                                feature_integer[(column_wire * 12) + 5],
+                                feature_integer[(column_wire * 12) + 4],
+                                feature_integer[(column_wire * 12) + 3],
+                                feature_integer[(column_wire * 12) + 2],
+                                feature_integer[(column_wire * 12) + 1],
+                                feature_integer[(column_wire * 12) + 0]
                             };
                         """;
+        src += "\n";
         src += tab(1) + """
-                        assign column_decimal_value_wire = {
-                                feature_decimal_part[(column_wire * 12) + 11],
-                                feature_decimal_part[(column_wire * 12) + 10],
-                                feature_decimal_part[(column_wire * 12) + 9],
-                                feature_decimal_part[(column_wire * 12) + 8],
-                                feature_decimal_part[(column_wire * 12) + 7],
-                                feature_decimal_part[(column_wire * 12) + 6],
-                                feature_decimal_part[(column_wire * 12) + 5],
-                                feature_decimal_part[(column_wire * 12) + 4],
-                                feature_decimal_part[(column_wire * 12) + 3],
-                                feature_decimal_part[(column_wire * 12) + 2],
-                                feature_decimal_part[(column_wire * 12) + 1],
-                                feature_decimal_part[(column_wire * 12) + 0]
+                        assign feature_decimal_wire = {
+                                feature_decimal[(column_wire * 12) + 11],
+                                feature_decimal[(column_wire * 12) + 10],
+                                feature_decimal[(column_wire * 12) + 9],
+                                feature_decimal[(column_wire * 12) + 8],
+                                feature_decimal[(column_wire * 12) + 7],
+                                feature_decimal[(column_wire * 12) + 6],
+                                feature_decimal[(column_wire * 12) + 5],
+                                feature_decimal[(column_wire * 12) + 4],
+                                feature_decimal[(column_wire * 12) + 3],
+                                feature_decimal[(column_wire * 12) + 2],
+                                feature_decimal[(column_wire * 12) + 1],
+                                feature_decimal[(column_wire * 12) + 0]
                             };
                         """;
         return src;
@@ -176,6 +206,11 @@ public class ValidationTableGenerator extends BasicGenerator {
 
         resetBlockBody += tab(3) + "nodes_table[new_table_entry_counter - 1'b1] <= new_table_entry;\n\n";
 
+        resetBlockBody += tab(3) + "next              <= 13'b0000000000000;\n";
+        resetBlockBody += tab(3) + "read_new_sample   <= 1'b1;\n";
+        resetBlockBody += tab(3) + "compute_vote_flag <= 1'b0;\n";
+        resetBlockBody += "\n";
+
         for (int index = 1; index <= classQuantity; index++){
             String bits = "";
 
@@ -185,11 +220,6 @@ public class ValidationTableGenerator extends BasicGenerator {
             resetBlockBody += tab(3) + String.format("class%d <= %d'b%s;\n", index, voteCounterBitwidth, bits);
         }
 
-        resetBlockBody += "\n";
-        resetBlockBody += tab(3) + "next              <= 13'b0000000000000;\n";
-        resetBlockBody += tab(3) + "read_new_sample   <= 1'b1;\n";
-        resetBlockBody += tab(3) + "compute_vote_flag <= 1'b0;\n";
-
         resetBlock = resetBlock
                 .replace("x", resetBlockExpr)
                 .replace("y", resetBlockBody)
@@ -198,7 +228,13 @@ public class ValidationTableGenerator extends BasicGenerator {
         /******************* INNER NODE PROCESSING BLOCK ********************/
 
         String thGreaterThanValueBlock = CONDITIONAL2;
-        String thGreaterThanValueBlockExpr = "(threshold_integer_part_wire > column_integer_value_wire) || ((threshold_integer_part_wire == column_integer_value_wire) && (threshold_decimal_part_wire >= column_decimal_part_wire))";
+        String thGreaterThanValueBlockExpr = "\n";
+        thGreaterThanValueBlockExpr += tab(6) + "(threshold_integer_wire > feature_integer_wire) ||\n";
+        thGreaterThanValueBlockExpr += tab(6) + "(\n";
+        thGreaterThanValueBlockExpr += tab(7) + "(threshold_integer_wire == feature_integer_wire) && \n";
+        thGreaterThanValueBlockExpr += tab(7) + "(threshold_decimal_wire >= feature_decimal_wire) \n";
+        thGreaterThanValueBlockExpr += tab(6) + ")\n" + tab(5);
+
         String thGreaterThanValueBlockBody = tab(6) + "next <= nodes_table[next][25:13];\n";
 
         thGreaterThanValueBlock = thGreaterThanValueBlock
@@ -303,7 +339,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         validationBlockBody += tab(3) + "compute_vote_flag <= read_new_sample;\n\n";
 
         validationBlock = validationBlock
-            .replace("y", validationBlockBody + resetCounterBlock + "\n" + sampleProcessingBlock + "\n")
+            .replace("y", resetCounterBlock + "\n" + validationBlockBody + sampleProcessingBlock + "\n")
             .replace("ind", tab(2)
         );
 
@@ -347,7 +383,7 @@ public class ValidationTableGenerator extends BasicGenerator {
             computeMajorClassBlockExpr = computeMajorClassBlockExpr.substring(0, position-1);
 
             computeMajorClassBlockBody = String.format(
-                "%sforest_vote = %d'b%s;\n",
+                "%sforest_vote <= %d'b%s;\n",
                 tab(3),
                 classBitwidth,
                 decimalToBinary(index1+1, classBitwidth)

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ControllerGenerator extends BasicGenerator {
-    public void execute(Integer classBitwidth, Integer featureQuantity, String datasetName){
+    public void execute(Integer classBitwidth, Integer featureQuantity, String datasetName, String mode){
         System.out.println("generating controller");
 
         var configs = new Configurations();
@@ -34,7 +34,7 @@ public class ControllerGenerator extends BasicGenerator {
     }
 
     private String generateHeader(String module_name){
-        String[] IoNames = {
+        String[] ioPorts = {
             "clock",
             "reset",
             "features",
@@ -46,13 +46,17 @@ public class ControllerGenerator extends BasicGenerator {
         };
 
         String header = String.format("module %s (\n", module_name);
-
         String ports = "";
-        for (int index = 0; index <= IoNames.length; index++){
-            if (index == IoNames.length){
+
+        for (int index = 0; index <= ioPorts.length; index++){
+            if (index == ioPorts.length){
                 ports += ");\n\n";
-            } else {
-                ports += tab(1) + IoNames[index] + "\n";
+            }
+            else if (index == ioPorts.length - 1){
+                ports += tab(1) + ioPorts[index] + "\n";
+            }
+            else {
+                ports += tab(1) + ioPorts[index] + ",\n";
             }
         }
         return header + ports;
@@ -104,14 +108,14 @@ public class ControllerGenerator extends BasicGenerator {
 
         src += tab(2) + String.format(
                 ".%s(%s[%d:%d]),\n",
-                "feature_integer_part",
+                "feature_integer",
                 "features",
                 (featureDecimalBusBitwidth - 1) + featureIntegerBusBitwidth,
                 featureDecimalBusBitwidth
         );
         src += tab(2) + String.format(
                 ".%s(%s[%d:%d])\n",
-                "feature_decimal_part",
+                "feature_decimal",
                 "features",
                 featureDecimalBusBitwidth - 1,
                 0

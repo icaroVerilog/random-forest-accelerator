@@ -50,15 +50,22 @@ public class Parser {
     private static List<Tree> readDatasetSamples(String dataset) throws IOException {
         var path = System.getProperty("user.dir") + "/project/assets/trees/" + dataset;
         var files = listFiles(path);
-        return files
-            .stream()
-            .sorted()
-            .map(file -> parseFromDot(path, file))
-            .collect(Collectors.toList());
-
+//        return files
+//            .stream()
+//            .sorted()
+//            .map(file -> parseFromDot(path, file))
+//            .collect(Collectors.toList());
+        var a = files
+                .stream()
+                .sorted()
+                .map(file -> parseFromDot(path, file))
+                .collect(Collectors.toList());
+        System.out.println(a);
+        return a;
     }
 
     private static Tree parseFromDot(String path, String file){
+        System.out.printf("arquivo: %s\n", file);
         try {
             return TreeBuilder.execute(path+"/"+file, featuresNames, classesNames);
         } catch (Exception e) {
