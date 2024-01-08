@@ -6,6 +6,7 @@ public class RawTableEntryOuterNode extends RawTableEntry {
     public RawTableEntryOuterNode(Integer id, Integer nodeClass) {
         this.id = id;
         this.nodeClass = nodeClass;
+
     }
 
     public Integer getNodeClass(){ return this.nodeClass; }
