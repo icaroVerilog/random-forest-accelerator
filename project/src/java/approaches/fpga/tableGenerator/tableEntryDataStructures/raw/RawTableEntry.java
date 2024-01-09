@@ -1,4 +1,4 @@
-package project.src.java.approaches.fpga.tableGenerator.tableBuilder;
+package project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.raw;
 
 public abstract class RawTableEntry {
     protected Integer id;

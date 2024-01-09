@@ -1,6 +1,5 @@
 package project.src.java.approaches.fpga.tableGenerator;
 
-import project.src.java.approaches.fpga.tableGenerator.tableBuilder.TableBuilder;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 
 import java.util.List;
@@ -23,7 +22,7 @@ public class TableFPGAGenerator {
 
         var validationTableGenerator = new ValidationTableGenerator();
         var controllerGenerator      = new ControllerGenerator();
-        var buildNodesTable = new TableBuilder();
+        var buildNodesTable = new TableEntryGenerator();
 
         buildNodesTable.execute(treeList);
 

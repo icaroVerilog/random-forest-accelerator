@@ -1,4 +1,6 @@
-package project.src.java.approaches.fpga.tableGenerator.tableBuilder;
+package project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.raw;
+
+import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.raw.RawTableEntry;
 
 public class RawTableEntryOuterNode extends RawTableEntry {
     private Integer nodeClass;
@@ -6,8 +8,6 @@ public class RawTableEntryOuterNode extends RawTableEntry {
     public RawTableEntryOuterNode(Integer id, Integer nodeClass) {
         this.id = id;
         this.nodeClass = nodeClass;
-
     }
-
     public Integer getNodeClass(){ return this.nodeClass; }
 }
