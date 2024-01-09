@@ -1,6 +1,7 @@
 package project.src.java.approaches.fpga.tableGenerator;
 
 import project.src.java.approaches.fpga.BasicGenerator;
+import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 
@@ -15,11 +16,12 @@ public class ValidationTableGenerator extends BasicGenerator {
     private final Integer VOTE_COUNTER_BITWIDTH = 16;
 
     public void execute(
-        Integer classQuantity,
-        Integer featureQuantity,
-        Integer classBitwidth,
+        int classQuantity,
+        int featureQuantity,
+        int classBitwidth,
+        ArrayList<BinaryTableEntry> tableEntries,
         String datasetName,
-        String mode
+        boolean offlineMode
     ){
         System.out.println("generating validation table");
 
@@ -30,13 +32,11 @@ public class ValidationTableGenerator extends BasicGenerator {
          */
 //        int voteCounterBitwidth = (int) Math.ceil(Math.log(treeList.size()) / Math.log(2));
 
-
-
         var configs = new Configurations();
 
         String src = "";
 
-        src += generateHeader("validation_table");
+        src += generateHeader("validation_table", offlineMode);
         src += generatePortInstantiation(
             featureQuantity,
             configs.INTEGER_PART_BITWIDTH,
@@ -55,7 +55,7 @@ public class ValidationTableGenerator extends BasicGenerator {
 
         src += "\n";
         src += generateWireAssign();
-        src += generateMainAlways(classQuantity, configs.INDEX_BITWIDTH, VOTE_COUNTER_BITWIDTH);
+        src += generateMainAlways(classQuantity, configs.INDEX_BITWIDTH, VOTE_COUNTER_BITWIDTH, tableEntries, offlineMode);
         src += "\n";
         src += generateComputeForestVoteAlways(classQuantity, classBitwidth);
         src += "\n" + "endmodule";
@@ -64,7 +64,8 @@ public class ValidationTableGenerator extends BasicGenerator {
         FileBuilder.execute(src, String.format("FPGA/table/%s/validation_table.v", datasetName));
     }
 
-    private String generateHeader(String module_name){
+    private String generateHeader(String module_name, boolean offlineMode){
+
         String[] ioPorts = {
             "clock",
             "reset",
@@ -76,6 +77,18 @@ public class ValidationTableGenerator extends BasicGenerator {
             "new_table_entry_counter",
             "compute_vote_flag"
         };
+
+        if (offlineMode) {
+            ioPorts = new String[]{
+                "clock",
+                "reset",
+                "forest_vote",
+                "read_new_sample",
+                "feature_integer",
+                "feature_decimal",
+                "compute_vote_flag"
+            };
+        }
 
         String header = String.format("module %s (\n", module_name);
         String ports = "";
@@ -94,7 +107,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         return header + ports;
     }
 
-    private String generatePortInstantiation(
+    private String generatePortInstantiation (
         int featureQnt,
         int exponentFeatureBitwidth,
         int fractionFeatureBitwidth,
@@ -196,7 +209,13 @@ public class ValidationTableGenerator extends BasicGenerator {
         return src;
     }
 
-    private String generateMainAlways(int classQuantity, int tableIndexerBitwidth, int voteCounterBitwidth){
+    private String generateMainAlways(
+        int classQuantity,
+        int tableIndexerBitwidth,
+        int voteCounterBitwidth,
+        ArrayList<BinaryTableEntry> tableEntries,
+        boolean offlineMode
+    ){
 
         /*************************** RESET BLOCK ****************************/
 
@@ -204,7 +223,13 @@ public class ValidationTableGenerator extends BasicGenerator {
         String resetBlockExpr = "reset == 1'b1";
         String resetBlockBody = "";
 
-        resetBlockBody += tab(3) + "nodes_table[new_table_entry_counter - 1'b1] <= new_table_entry;\n\n";
+        if (offlineMode){
+            for (int index = 0; index < tableEntries.size(); index++){
+                resetBlockBody += String.format("%snodes_table[%d] <= 64'b%s;\n", tab(3), index, tableEntries.get(index).value());
+            }
+        } else {
+            resetBlockBody += tab(3) + "nodes_table[new_table_entry_counter - 1'b1] <= new_table_entry;\n\n";
+        }
 
         resetBlockBody += tab(3) + "next              <= 13'b0000000000000;\n";
         resetBlockBody += tab(3) + "read_new_sample   <= 1'b1;\n";

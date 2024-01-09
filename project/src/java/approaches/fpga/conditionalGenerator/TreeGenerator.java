@@ -8,8 +8,6 @@ import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 
-import java.sql.SQLOutput;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;

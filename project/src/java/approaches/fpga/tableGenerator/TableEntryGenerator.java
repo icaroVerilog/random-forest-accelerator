@@ -9,6 +9,7 @@ import project.src.java.dotTreeParser.treeStructure.Nodes.InnerNode;
 import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
 import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.dotTreeParser.treeStructure.Tree;
+import project.src.java.util.FileBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,17 +22,30 @@ public class TableEntryGenerator extends BasicGenerator {
     private final ArrayList<RawTableEntry>    rawTableEntries    = new ArrayList<>();
     private final ArrayList<BinaryTableEntry> binaryTableEntries = new ArrayList<>();
 
-    public void execute(List<Tree> treeList){
+    public ArrayList<BinaryTableEntry> execute(List<Tree> treeList, String datasetName, boolean offlineMode){
         Node teste;
-        Integer offset = 0;
+        int offset = 0;
 
         for (int index = 0; index < treeList.size(); index++) {
             teste = treeList.get(index).getRoot();
-
             generateNodeRawTableEntry(teste);
-            offset = generateBinaryTableEntry(offset);
+
+            if (index == treeList.size() - 1){
+                offset = generateBinaryTableEntry(offset, true);
+            } else {
+                offset = generateBinaryTableEntry(offset, false);
+            }
             this.rawTableEntries.clear();
         }
+        if (offlineMode){
+            String table = "";
+            for (int index = 0; index < this.binaryTableEntries.size(); index++){
+                table += this.binaryTableEntries.get(index).value() + "\n";
+            }
+            FileBuilder.execute(table, String.format("FPGA/table/%s/table_entries.bin", datasetName));
+        }
+
+        return this.binaryTableEntries;
     }
 
     private void generateNodeRawTableEntry(Node node){
@@ -67,7 +81,7 @@ public class TableEntryGenerator extends BasicGenerator {
         }
     }
 
-    private Integer generateBinaryTableEntry(int offset){
+    private Integer generateBinaryTableEntry(int offset, boolean lastTreeFlag){
         var identifiers = new ArrayList<Integer>();
 
         for (int index = 0; index < this.rawTableEntries.size(); index++){
@@ -103,14 +117,17 @@ public class TableEntryGenerator extends BasicGenerator {
                 }
                 if (this.rawTableEntries.get(index2) instanceof RawTableEntryOuterNode) {
                     if (this.rawTableEntries.get(index2).getId() == index){
-
-                        leftNodeIndex = uniqueIdentifiers.size() + offset;
+                        if (lastTreeFlag){
+                            leftNodeIndex = 0;
+                        } else {
+                            leftNodeIndex = uniqueIdentifiers.size() + offset;
+                        }
                         leftValueReadFLag = true;
-                        rightNodeIndex = ((RawTableEntryOuterNode) this.rawTableEntries.get(index2)).getNodeClass();
+                        rightNodeIndex = ((RawTableEntryOuterNode) this.rawTableEntries.get(index2)).getNodeClass() + 1;
                         thresholdInteger = 0;
                         thresholdDecimal = 0;
                         outerNodeFlag = true;
-                        comparedColumn = 8192; /* valor maximo capaz de armazenar em 13 bits */
+                        comparedColumn = 8191; /* valor maximo capaz de armazenar em 13 bits */
 
                         this.rawTableEntries.remove(index2);
                     }

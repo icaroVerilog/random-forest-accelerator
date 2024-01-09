@@ -1,12 +1,12 @@
 package project.src.java.approaches.fpga.tableGenerator;
 
+import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TableFPGAGenerator {
-
-    String MODE = "offline";
 
     public void execute(
         List<Tree> treeList,
@@ -22,11 +22,10 @@ public class TableFPGAGenerator {
 
         var validationTableGenerator = new ValidationTableGenerator();
         var controllerGenerator      = new ControllerGenerator();
-        var buildNodesTable = new TableEntryGenerator();
+        var tableEntryGenerator      = new TableEntryGenerator();
 
-        buildNodesTable.execute(treeList);
-
-//        validationTableGenerator.execute(classQuantity, featureQuantity, classBitwidth, datasetName, MODE);
+        var tableEntries = tableEntryGenerator.execute(treeList, datasetName, true);
+        validationTableGenerator.execute(classQuantity, featureQuantity, classBitwidth, tableEntries, datasetName, true);
 //        controllerGenerator.execute(classBitwidth, featureQuantity, datasetName, MODE);
     }
 }

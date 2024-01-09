@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ControllerGenerator extends BasicGenerator {
-    public void execute(Integer classBitwidth, Integer featureQuantity, String datasetName, String mode){
+    public void execute(int classBitwidth, int featureQuantity, String datasetName, String mode){
         System.out.println("generating controller");
 
         var configs = new Configurations();
