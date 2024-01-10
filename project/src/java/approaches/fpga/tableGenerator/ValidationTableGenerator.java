@@ -14,6 +14,7 @@ import java.util.stream.IntStream;
 public class ValidationTableGenerator extends BasicGenerator {
 
     private final Integer VOTE_COUNTER_BITWIDTH = 16;
+    private final String MODULE_NAME = "validation_table";
 
     public void execute(
         int classQuantity,
@@ -36,7 +37,11 @@ public class ValidationTableGenerator extends BasicGenerator {
 
         String src = "";
 
-        src += generateHeader("validation_table", offlineMode);
+        src += generateHeader(
+            MODULE_NAME,
+            offlineMode
+        );
+
         src += generatePortInstantiation(
             featureQuantity,
             configs.INTEGER_PART_BITWIDTH,

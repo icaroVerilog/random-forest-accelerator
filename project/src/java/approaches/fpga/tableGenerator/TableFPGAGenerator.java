@@ -26,6 +26,6 @@ public class TableFPGAGenerator {
 
         var tableEntries = tableEntryGenerator.execute(treeList, datasetName, true);
         validationTableGenerator.execute(classQuantity, featureQuantity, classBitwidth, tableEntries, datasetName, true);
-//        controllerGenerator.execute(classBitwidth, featureQuantity, datasetName, MODE);
+        controllerGenerator.execute(classBitwidth, featureQuantity, datasetName, true);
     }
 }

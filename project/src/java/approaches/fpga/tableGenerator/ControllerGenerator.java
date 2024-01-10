@@ -7,25 +7,27 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ControllerGenerator extends BasicGenerator {
-    public void execute(int classBitwidth, int featureQuantity, String datasetName, String mode){
+    public void execute(int classBitwidth, int featureQuantity, String datasetName, boolean offlineMode){
         System.out.println("generating controller");
 
         var configs = new Configurations();
 
         String src = "";
-        src += generateHeader("controller");
+        src += generateHeader("controller", offlineMode);
 
         src += generatePortInstantiation(
             configs.INTEGER_PART_BITWIDTH,
             configs.DECIMAL_PART_BITWIDTH,
             featureQuantity,
-            classBitwidth
+            classBitwidth,
+            offlineMode
         );
 
         src += generateValidationTableInstantiation(
             configs.INTEGER_PART_BITWIDTH,
             configs.DECIMAL_PART_BITWIDTH,
-            featureQuantity
+            featureQuantity,
+            offlineMode
         );
 
         src += "endmodule";
@@ -33,7 +35,7 @@ public class ControllerGenerator extends BasicGenerator {
         FileBuilder.execute(src, String.format("FPGA/table/%s/controller.v", datasetName));
     }
 
-    private String generateHeader(String module_name){
+    private String generateHeader(String module_name, boolean offlineMode){
         String[] ioPorts = {
             "clock",
             "reset",
@@ -44,6 +46,16 @@ public class ControllerGenerator extends BasicGenerator {
             "new_table_entry_counter",
             "compute_vote_flag"
         };
+        if (offlineMode) {
+            ioPorts = new String[]{
+                "clock",
+                "reset",
+                "features",
+                "voted",
+                "read_new_sample",
+                "compute_vote_flag"
+            };
+        }
 
         String header = String.format("module %s (\n", module_name);
         String ports = "";
@@ -66,7 +78,8 @@ public class ControllerGenerator extends BasicGenerator {
         int integerPartFeatureBitwidth,
         int decimalPartFeatureBitwidth,
         int featureQuantity,
-        int classBitwidth
+        int classBitwidth,
+        boolean offlineMode
     ){
         String src = "";
 
@@ -76,10 +89,12 @@ public class ControllerGenerator extends BasicGenerator {
         int featuresBusBitwidth = (integerPartFeatureBitwidth + decimalPartFeatureBitwidth) * featureQuantity;
 
         src += tab(1) + generatePort("features", WIRE, INPUT, featuresBusBitwidth, true);
-        src += tab(1) + generatePort("new_table_entry", WIRE, INPUT, 64, true);
-        src += tab(1) + generatePort("new_table_entry_counter", WIRE, INPUT, 16, true);
-        src += "\n";
 
+        if (!offlineMode){
+            src += tab(1) + generatePort("new_table_entry", WIRE, INPUT, 64, true);
+            src += tab(1) + generatePort("new_table_entry_counter", WIRE, INPUT, 16, true);
+        }
+        src += "\n";
         src += tab(1) + generatePort("voted", WIRE, OUTPUT, classBitwidth, true);
         src += tab(1) + generatePort("compute_vote_flag", WIRE, OUTPUT, 1, true);
         src += tab(1) + generatePort("read_new_sample", WIRE, OUTPUT, 1, true);
@@ -91,7 +106,8 @@ public class ControllerGenerator extends BasicGenerator {
     private String generateValidationTableInstantiation(
         int integerPartFeatureBitwidth,
         int decimalPartFeatureBitwidth,
-        int featureQuantity
+        int featureQuantity,
+        boolean offlineMode
     ){
         int featureIntegerBusBitwidth = integerPartFeatureBitwidth * featureQuantity;
         int featureDecimalBusBitwidth = decimalPartFeatureBitwidth * featureQuantity;
@@ -102,8 +118,11 @@ public class ControllerGenerator extends BasicGenerator {
         src += tab(2) + String.format(".%s(%s),\n", "clock", "clock");
         src += tab(2) + String.format(".%s(%s),\n", "reset", "reset");
         src += tab(2) + String.format(".%s(%s),\n", "forest_vote", "voted");
-        src += tab(2) + String.format(".%s(%s),\n", "read_new_sample", "read_new_sample");
-        src += tab(2) + String.format(".%s(%s),\n", "new_table_entry", "new_table_entry");
+
+        if (!offlineMode){
+            src += tab(2) + String.format(".%s(%s),\n", "read_new_sample", "read_new_sample");
+            src += tab(2) + String.format(".%s(%s),\n", "new_table_entry", "new_table_entry");
+        }
         src += tab(2) + String.format(".%s(%s),\n", "compute_vote_flag", "compute_vote_flag");
 
         src += tab(2) + String.format(
