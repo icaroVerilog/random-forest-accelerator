@@ -133,7 +133,7 @@ public class TableEntryGenerator extends BasicGenerator {
                     }
                 }
             }
-            System.out.printf("node %d | th inteiro: %d | th decimal: %d | flag: %b | coluna: %d | esquerdo: %d | direito: %d\n", index + offset, thresholdInteger, thresholdDecimal, outerNodeFlag, comparedColumn, leftNodeIndex, rightNodeIndex);
+//            System.out.printf("node %d | th inteiro: %d | th decimal: %d | flag: %b | coluna: %d | esquerdo: %d | direito: %d\n", index + offset, thresholdInteger, thresholdDecimal, outerNodeFlag, comparedColumn, leftNodeIndex, rightNodeIndex);
             BinaryTableEntry entry = new BinaryTableEntry(
                 generateBinaryNumber(thresholdInteger, 12),
                 generateBinaryNumber(thresholdDecimal, 12),

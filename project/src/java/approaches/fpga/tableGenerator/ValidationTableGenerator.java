@@ -69,8 +69,10 @@ public class ValidationTableGenerator extends BasicGenerator {
         FileBuilder.execute(src, String.format("FPGA/table/%s/validation_table.v", datasetName));
     }
 
-    private String generateHeader(String module_name, boolean offlineMode){
-
+    private String generateHeader(
+        String module_name,
+        boolean offlineMode
+    ){
         String[] ioPorts = {
             "clock",
             "reset",
@@ -385,7 +387,10 @@ public class ValidationTableGenerator extends BasicGenerator {
         return mainAlways;
     }
 
-    private String generateComputeForestVoteAlways(int classQuantity, int classBitwidth){
+    private String generateComputeForestVoteAlways(
+        int classQuantity,
+        int classBitwidth
+    ){
 
         String src = "";
 
@@ -441,7 +446,10 @@ public class ValidationTableGenerator extends BasicGenerator {
         return alwaysBlock;
     }
 
-    private String decimalToBinary(int decimalValue, int numberOfBits) {
+    private String decimalToBinary(
+        int decimalValue,
+        int numberOfBits
+    ) {
         StringBuilder binaryValue = new StringBuilder();
 
         for (int i = numberOfBits - 1; i >= 0; i--) {
