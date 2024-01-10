@@ -50,7 +50,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         );
 
         src += generateInternalVariables(
-            201,
+            tableEntries.size(),
             classQuantity,
             configs.INDEX_BITWIDTH,
             configs.INTEGER_PART_BITWIDTH,

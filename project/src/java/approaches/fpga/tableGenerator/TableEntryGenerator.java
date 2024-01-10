@@ -40,7 +40,11 @@ public class TableEntryGenerator extends BasicGenerator {
         if (offlineMode){
             String table = "";
             for (int index = 0; index < this.binaryTableEntries.size(); index++){
-                table += this.binaryTableEntries.get(index).value() + "\n";
+                if (index == binaryTableEntries.size() - 1){
+                    table += this.binaryTableEntries.get(index).value();
+                } else {
+                    table += this.binaryTableEntries.get(index).value() + "\n";
+                }
             }
             FileBuilder.execute(table, String.format("FPGA/table/%s/table_entries.bin", datasetName));
         }
