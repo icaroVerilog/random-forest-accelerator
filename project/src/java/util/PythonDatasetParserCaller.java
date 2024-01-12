@@ -13,18 +13,18 @@ public class PythonDatasetParserCaller {
     private static final String runtime = "python3";
 
     public int execute(String basePath, String datasetName) {
-
         String pythonScriptPath = String.format("%s/project/src/python/%s.py", basePath, scriptName);
+        System.out.println(basePath);
         try {
             Process process = Runtime
                     .getRuntime()
                     .exec(String.format(
-                            "%s %s %s %s %s %d",
+                            "%s %s %s %s %b %d",
                             runtime,
                             pythonScriptPath,
                             basePath,
                             datasetName,
-                            "Species",
+                            true,
                             12
                     ));
 

@@ -32,11 +32,15 @@ print("accuracy:", metrics.accuracy_score(Y_test, y_pred))
 
 directory = dataset_name
 tree_path = dataset_path + "/project/assets/trees/" + dataset_name
+tree_folder_path = dataset_path + "/project/assets/trees"
 
-if os.path.exists(tree_path):
-    pass
+if (os.path.exists(tree_folder_path)):
+    if os.path.exists(tree_path):
+        pass
+    else:
+        os.mkdir(tree_path)
 else:
-    os.mkdir(tree_path)
+    os.mkdir(tree_folder_path)
 
 i = 0
 for t in clf.estimators_:

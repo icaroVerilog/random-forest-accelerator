@@ -2,13 +2,21 @@ import pandas as pd
 import sys
 
 DATASET = sys.argv[2]
-CLASS_COLUMN = sys.argv[3]
+CLASS_DATASET_LAST_COLUMN = True if sys.argv[3] == "true" else False
 BITWIDTH = int(sys.argv[4])
 DATASET_PATH = sys.argv[1]
 
 dataset = pd.read_csv(DATASET_PATH + "/project/assets/datasets/" + DATASET + ".csv")
-dataset = dataset.drop(CLASS_COLUMN, axis=1)
+dataset_columns = list(dataset.columns)
 
+COLUMNS = dataset.shape[1]
+
+if (CLASS_DATASET_LAST_COLUMN):
+    class_column = dataset_columns[COLUMNS - 1]
+else:
+    class_column = dataset_columns[0]
+
+dataset = dataset.drop(class_column, axis=1)
 COLUMNS = dataset.shape[1]
 LINES = dataset.shape[0]
 
@@ -16,6 +24,7 @@ exponent_part_list = []
 fraction_part_list = []
 exponent_part_list_bin = []
 fraction_part_list_bin = []
+
 
 def to_bin(decimal_value, num_bits):
     binary_value = bin(decimal_value)[2:]
@@ -25,6 +34,7 @@ def to_bin(decimal_value, num_bits):
     elif len(binary_value) < num_bits:
         binary_value = '0' * (num_bits - len(binary_value)) + binary_value
     return binary_value
+
 
 def build_binary_dataset(exponent_array, fraction_array):
     binary_dataset = []
@@ -45,6 +55,7 @@ def build_binary_dataset(exponent_array, fraction_array):
 
     return binary_dataset
 
+
 for line in dataset.values:
     line = line.tolist()
 
@@ -62,6 +73,6 @@ for value in fraction_part_list:
 
 binary_dataset = build_binary_dataset(exponent_part_list_bin, fraction_part_list_bin)
 
-with open(f"project/target/FPGA/table/{DATASET}/dataset.bin", "w") as file:
+with open(f"{DATASET_PATH}/project/target/FPGA/table/{DATASET}/dataset.bin", "w") as file:
     for entry in binary_dataset:
         file.write(entry + "\n")

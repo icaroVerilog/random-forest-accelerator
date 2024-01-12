@@ -21,9 +21,8 @@ public class Main {
     }
 
     public static void start() throws IOException{
-
-//        PythonScriptCaller caller = new PythonScriptCaller();
-//        caller.execute(path, dataset);
+        PythonScriptCaller caller = new PythonScriptCaller();
+        caller.execute(path, dataset);
 
         List<Tree> trees = Parser.execute(dataset);
 

@@ -9,7 +9,6 @@ public record BinaryTableEntry(
         String rightNodeIndex
 ) {
     public String value(){
-        System.out.println(integerThreshold + decimalThreshold + nodeFlag + comparedColumn + leftNodeIndex + rightNodeIndex);
         return integerThreshold + decimalThreshold + nodeFlag + comparedColumn + leftNodeIndex + rightNodeIndex;
     }
 }

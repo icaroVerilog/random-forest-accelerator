@@ -139,6 +139,8 @@ public class TreeGenerator extends BasicGenerator {
         String first = "";
         String second = "";
 
+        System.out.println(c.getComparissonType());
+
         first += "(" + "ft" + c.getColumn() + "_exponent " + c.getComparissonType() + " " + binaryIntegralTh + ")";
         second += "((" + "ft" + c.getColumn() + "_exponent == " + binaryIntegralTh + ") & ft" + c.getColumn() + "_fraction " + c.getComparissonType() + " " + binaryFractionalTh + ")";
 

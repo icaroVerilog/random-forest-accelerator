@@ -43,7 +43,6 @@ public class Parser {
             line = scanner.nextLine().split(",");
             classesNames.add(line[line.length - 1]);
         }
-
         scanner.close();
     }
 
@@ -60,12 +59,10 @@ public class Parser {
                 .sorted()
                 .map(file -> parseFromDot(path, file))
                 .collect(Collectors.toList());
-        System.out.println(a);
         return a;
     }
 
     private static Tree parseFromDot(String path, String file){
-        System.out.printf("arquivo: %s\n", file);
         try {
             return TreeBuilder.execute(path+"/"+file, featuresNames, classesNames);
         } catch (Exception e) {

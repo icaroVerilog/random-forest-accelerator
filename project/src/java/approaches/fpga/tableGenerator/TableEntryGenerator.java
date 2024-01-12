@@ -18,7 +18,6 @@ import java.util.List;
 
 
 public class TableEntryGenerator extends BasicGenerator {
-
     private final ArrayList<RawTableEntry>    rawTableEntries    = new ArrayList<>();
     private final ArrayList<BinaryTableEntry> binaryTableEntries = new ArrayList<>();
 
@@ -35,37 +34,35 @@ public class TableEntryGenerator extends BasicGenerator {
             } else {
                 offset = generateBinaryTableEntry(offset, false);
             }
-            this.rawTableEntries.clear();
+            rawTableEntries.clear();
         }
-        if (offlineMode){
+        if (!offlineMode){
             String table = "";
-            for (int index = 0; index < this.binaryTableEntries.size(); index++){
+            for (int index = 0; index < binaryTableEntries.size(); index++){
                 if (index == binaryTableEntries.size() - 1){
-                    table += this.binaryTableEntries.get(index).value();
+                    table += binaryTableEntries.get(index).value();
                 } else {
-                    table += this.binaryTableEntries.get(index).value() + "\n";
+                    table += binaryTableEntries.get(index).value() + "\n";
                 }
             }
             FileBuilder.execute(table, String.format("FPGA/table/%s/table_entries.bin", datasetName));
         }
-
-        return this.binaryTableEntries;
+        return binaryTableEntries;
     }
 
     private void generateNodeRawTableEntry(Node node){
         if (node instanceof OuterNode){
             OuterNode newNode = (OuterNode) node;
-            this.rawTableEntries.add(
+            rawTableEntries.add(
                 new RawTableEntryOuterNode(
                     newNode.getId(),
                     newNode.getClassNumber()
                 )
             );
-        }
-        else {
+        } else {
             InnerNode newNode = (InnerNode) node;
 
-            this.rawTableEntries.add(
+            rawTableEntries.add(
                 new RawTableEntryInnerNode(
                     newNode.getId(),
                     newNode.getComparisson().getThreshold().toString(),
@@ -74,7 +71,7 @@ public class TableEntryGenerator extends BasicGenerator {
             );
             generateNodeRawTableEntry(newNode.getLeftNode());
 
-            this.rawTableEntries.add(
+            rawTableEntries.add(
                 new RawTableEntryInnerNode(
                     newNode.getId(),
                     newNode.getComparisson().getThreshold().toString(),
@@ -146,7 +143,7 @@ public class TableEntryGenerator extends BasicGenerator {
                 generateBinaryNumber(leftNodeIndex, 13),
                 generateBinaryNumber(rightNodeIndex, 13)
             );
-            this.binaryTableEntries.add(entry);
+            binaryTableEntries.add(entry);
         }
         return uniqueIdentifiers.size() + offset;
     }
