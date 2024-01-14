@@ -1,12 +1,11 @@
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn import metrics
-from sklearn import tree
+import os
+import sys
 
 import pandas as pd
-import sys
-import os
-
+from sklearn import metrics
+from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
 
 dataset_name = sys.argv[1]
 dataset_path = sys.argv[2]

@@ -1,15 +1,11 @@
 package project.src.java.dotTreeParser.treeStructure;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import project.src.java.dotTreeParser.treeStructure.Nodes.InnerNode;
 import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
+
+import java.io.File;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TreeBuilder {
 

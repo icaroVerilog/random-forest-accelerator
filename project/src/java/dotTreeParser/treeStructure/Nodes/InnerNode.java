@@ -1,7 +1,8 @@
 package project.src.java.dotTreeParser.treeStructure.Nodes;
 
-import java.util.ArrayList;
 import project.src.java.dotTreeParser.treeStructure.Comparisson;
+
+import java.util.ArrayList;
 
 public class InnerNode extends Node {
     private Comparisson comparisson;

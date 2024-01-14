@@ -1,13 +1,13 @@
 package project.src.java.dotTreeParser;
 
+import project.src.java.dotTreeParser.treeStructure.Tree;
+import project.src.java.dotTreeParser.treeStructure.TreeBuilder;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import project.src.java.dotTreeParser.treeStructure.Tree;
-import project.src.java.dotTreeParser.treeStructure.TreeBuilder;
 
 public class Parser {
 

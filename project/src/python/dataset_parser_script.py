@@ -1,10 +1,14 @@
-import pandas as pd
 import sys
 
+import pandas as pd
+
+#TODO: em alguns datasets como o do vinho, o valor decimal é muito grande, fazendo com que exceda o numero de bits necessarios
+
+DATASET_PATH = sys.argv[1]
 DATASET = sys.argv[2]
 CLASS_DATASET_LAST_COLUMN = True if sys.argv[3] == "true" else False
 BITWIDTH = int(sys.argv[4])
-DATASET_PATH = sys.argv[1]
+APPROACH = sys.argv[5]
 
 dataset = pd.read_csv(DATASET_PATH + "/project/assets/datasets/" + DATASET + ".csv")
 dataset_columns = list(dataset.columns)
@@ -30,7 +34,8 @@ def to_bin(decimal_value, num_bits):
     binary_value = bin(decimal_value)[2:]
 
     if len(binary_value) > num_bits:
-        raise ValueError("O número de bits especificado é menor que a representação binária do valor decimal.")
+        sys.exit(10)
+        # raise ValueError("O número de bits especificado é menor que a representação binária do valor decimal.")
     elif len(binary_value) < num_bits:
         binary_value = '0' * (num_bits - len(binary_value)) + binary_value
     return binary_value
@@ -72,7 +77,6 @@ for value in fraction_part_list:
     fraction_part_list_bin.append(to_bin(int(value), BITWIDTH))
 
 binary_dataset = build_binary_dataset(exponent_part_list_bin, fraction_part_list_bin)
-
-with open(f"{DATASET_PATH}/project/target/FPGA/table/{DATASET}/dataset.bin", "w") as file:
+with open(f"{DATASET_PATH}/project/target/FPGA/{APPROACH}/{DATASET}/dataset.bin", "w") as file:
     for entry in binary_dataset:
         file.write(entry + "\n")

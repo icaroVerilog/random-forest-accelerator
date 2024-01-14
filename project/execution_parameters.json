@@ -1,5 +1,11 @@
 {
   "configurations": {
-
+    "basic-parameters": {
+      "dataset": "iris",
+      "approach": "table"
+    },
+    "advanced-parameters": {
+      "a": 2
+    }
   }
 }

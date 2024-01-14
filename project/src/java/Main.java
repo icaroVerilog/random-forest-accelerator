@@ -1,28 +1,39 @@
 package project.src.java;
 
-import java.io.IOException;
-import java.util.List;
 import project.src.java.approaches.fpga.FPGA;
 import project.src.java.dotTreeParser.Parser;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.PythonDatasetParserCaller;
-import project.src.java.util.PythonScriptCaller;
+import project.src.java.util.pythonTreeGeneratorCaller;
+
+import java.io.IOException;
+import java.util.List;
 
 public class Main {
 
     private static String dataset;
     private static String path;
+    private static String approach;
+    private static String mode;
+    private static String precision;
 
     public static void main(String[] args) throws IOException {
-        dataset = "iris";
         path = System.getProperty("user.dir");
+
+        dataset = "iris";
+        approach = "table";
+        mode = "synthesis";
+        precision = "integer";
 
         start();
     }
 
     public static void start() throws IOException{
-        PythonScriptCaller caller = new PythonScriptCaller();
+        pythonTreeGeneratorCaller caller = new pythonTreeGeneratorCaller();
         caller.execute(path, dataset);
+
+        PythonDatasetParserCaller datasetParser = new PythonDatasetParserCaller();
+        datasetParser.execute(path, dataset, approach);
 
         List<Tree> trees = Parser.execute(dataset);
 
@@ -34,10 +45,7 @@ public class Main {
             false
         );
 
-        FPGAGenerator.execute("table");
-
-        PythonDatasetParserCaller a = new PythonDatasetParserCaller();
-        a.execute(path, dataset);
+        FPGAGenerator.execute(approach);
 
         System.out.println("job finished: Success");
     }

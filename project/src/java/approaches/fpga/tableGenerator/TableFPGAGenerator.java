@@ -1,9 +1,7 @@
 package project.src.java.approaches.fpga.tableGenerator;
 
-import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TableFPGAGenerator {

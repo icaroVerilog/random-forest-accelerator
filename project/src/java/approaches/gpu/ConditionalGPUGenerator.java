@@ -1,15 +1,18 @@
 package project.src.java.approaches.gpu;
 
+import project.src.java.dotTreeParser.Parser;
+import project.src.java.dotTreeParser.treeStructure.Comparisson;
+import project.src.java.dotTreeParser.treeStructure.Nodes.InnerNode;
+import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
+import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
+import project.src.java.dotTreeParser.treeStructure.Tree;
+import project.src.java.util.FileBuilder;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import project.src.java.dotTreeParser.Parser;
-import project.src.java.dotTreeParser.treeStructure.Comparisson;
-import project.src.java.dotTreeParser.treeStructure.Tree;
-import project.src.java.dotTreeParser.treeStructure.Nodes.*;
-import project.src.java.util.FileBuilder;
 
 
 

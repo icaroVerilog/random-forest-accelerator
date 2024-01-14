@@ -3,9 +3,6 @@ package project.src.java.approaches.fpga.tableGenerator;
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
 
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 public class ControllerGenerator extends BasicGenerator {
     public void execute(int classBitwidth, int featureQuantity, String datasetName, boolean offlineMode){
         System.out.println("generating controller");

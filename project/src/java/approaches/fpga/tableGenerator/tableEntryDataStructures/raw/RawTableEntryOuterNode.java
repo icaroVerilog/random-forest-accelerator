@@ -1,7 +1,5 @@
 package project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.raw;
 
-import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.raw.RawTableEntry;
-
 public class RawTableEntryOuterNode extends RawTableEntry {
     private Integer nodeClass;
 
