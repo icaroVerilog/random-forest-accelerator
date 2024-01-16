@@ -18,9 +18,9 @@ public class TableFPGAGenerator {
 //        int classBitwidth = (int) Math.ceil(Math.log(classQuantity) / Math.log(2));
         int classBitwidth = 13;
 
+        var tableEntryGenerator      = new TableEntryGenerator();
         var validationTableGenerator = new ValidationTableGenerator();
         var controllerGenerator      = new ControllerGenerator();
-        var tableEntryGenerator      = new TableEntryGenerator();
 
         var tableEntries = tableEntryGenerator.execute(treeList, datasetName, true);
         validationTableGenerator.execute(classQuantity, featureQuantity, classBitwidth, tableEntries, datasetName, true);

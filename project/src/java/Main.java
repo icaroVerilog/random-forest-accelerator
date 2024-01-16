@@ -17,6 +17,9 @@ public class Main {
     private static String mode;
     private static String precision;
 
+    private static Integer datasetTestPercent = 30;
+    private static Integer treeQuantity = 100;
+
     public static void main(String[] args) throws IOException {
         path = System.getProperty("user.dir");
 
@@ -30,7 +33,7 @@ public class Main {
 
     public static void start() throws IOException{
         pythonTreeGeneratorCaller caller = new pythonTreeGeneratorCaller();
-        caller.execute(path, dataset);
+        caller.execute(path, dataset, datasetTestPercent, treeQuantity, precision);
 
         PythonDatasetParserCaller datasetParser = new PythonDatasetParserCaller();
         datasetParser.execute(path, dataset, approach);

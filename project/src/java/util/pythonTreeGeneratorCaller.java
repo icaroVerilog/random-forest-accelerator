@@ -9,17 +9,21 @@ public class pythonTreeGeneratorCaller {
     private static final String scriptName = "tree_generator_script";
     private static final String runtime = "python3";
 
-    public int execute(String basePath, String dataset) {
+    public int execute(String basePath, String dataset, int datasetTestPercent, int treeQuantity, String precision) {
         String pythonScriptPath = String.format("%s/project/src/python/%s.py", basePath, scriptName);
+        System.out.println(datasetTestPercent);
         try {
             Process process = Runtime
                 .getRuntime()
                 .exec(String.format(
-                     "%s %s %s %s",
+                     "%s %s %s %s %d %d %s",
                      runtime,
                      pythonScriptPath,
                      dataset,
-                     basePath
+                     basePath,
+                     datasetTestPercent,
+                     treeQuantity,
+                     precision
                 ));
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;

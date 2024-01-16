@@ -7,10 +7,41 @@ from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-dataset_name = sys.argv[1]
-dataset_path = sys.argv[2]
+DATASET_NAME = sys.argv[1]
+DATASET_PATH = sys.argv[2]
+DATASET_TEST_PERCENT = int(sys.argv[3])
+TREE_QUANTITY = int(sys.argv[4])
+PRECISION = sys.argv[5]
 
-dataset = pd.read_csv(dataset_path + "/project/assets/datasets/" + dataset_name + ".csv")
+dataset = pd.read_csv(f"{DATASET_PATH}/project/assets/datasets/{DATASET_NAME}.csv")
+
+
+def max_decimal_places(value):
+    # Esta função retorna o número máximo de casas decimais em um valor
+    if isinstance(value, float):
+        decimal_part = str(value).split('.')[-1]
+        return len(decimal_part)
+    return 0
+
+
+def process_column(column):
+    # Esta função processa uma única coluna
+    max_decimals = column.apply(max_decimal_places).max()
+    multiplier = 10 ** max_decimals
+    return (column * multiplier).astype(int), max_decimals
+
+
+def process_df(df):
+    for column in df.columns:
+        if df[column].dtype in ['float64', 'float32']:
+            df[column], max_decimals = process_column(df[column])
+            print(f"Coluna '{column}' processada com {max_decimals} casas decimais")
+    df.to_csv("a.csv", index=False)
+    return df
+
+
+if PRECISION == "integer":
+    dataset = process_df(dataset)
 
 print("starting training")
 
@@ -20,20 +51,20 @@ dataset.rename(columns={target_column_name: "target"}, inplace=True)
 
 X = dataset.drop(["target"], axis=1)
 Y = dataset["target"]
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)  # 70% training and 30% test
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=(DATASET_TEST_PERCENT / 100))
 
-clf = RandomForestClassifier(n_estimators=100)
+clf = RandomForestClassifier(n_estimators=TREE_QUANTITY)
 
 clf.fit(X_train, Y_train)
-y_pred = clf.predict(X_test)
+Y_pred = clf.predict(X_test)
 
-print("accuracy:", metrics.accuracy_score(Y_test, y_pred))
+print("accuracy:", metrics.accuracy_score(Y_test, Y_pred))
 
-directory = dataset_name
-tree_path = dataset_path + "/project/assets/trees/" + dataset_name
-tree_folder_path = dataset_path + "/project/assets/trees"
+directory = DATASET_NAME
+tree_path = DATASET_PATH + "/project/assets/trees/" + DATASET_NAME
+tree_folder_path = DATASET_PATH + "/project/assets/trees"
 
-if (os.path.exists(tree_folder_path)):
+if os.path.exists(tree_folder_path):
     if os.path.exists(tree_path):
         pass
     else:
@@ -41,12 +72,12 @@ if (os.path.exists(tree_folder_path)):
 else:
     os.mkdir(tree_folder_path)
 
-i = 0
-for t in clf.estimators_:
-    text = tree.export_graphviz(t)
-    fileName = "tree" + str(i) + ".txt"
+counter = 0
+for a in clf.estimators_:
+    text = tree.export_graphviz(a)
+    fileName = "tree" + str(counter) + ".txt"
     fileTree = open(tree_path + "/" + fileName, 'w')
     fileTree.write(text)
     fileTree.close()
-    print(f"generating decision tree{i}")
-    i += 1
+    print(f"generating decision tree{counter}")
+    counter += 1

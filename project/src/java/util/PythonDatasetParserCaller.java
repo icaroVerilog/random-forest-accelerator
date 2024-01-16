@@ -14,19 +14,6 @@ public class PythonDatasetParserCaller {
     public int execute(String basePath, String datasetName, String approach) {
         String pythonScriptPath = String.format("%s/project/src/python/%s.py", basePath, scriptName);
         try {
-//            Process process = Runtime
-//                    .getRuntime()
-//                    .exec(String.format(
-//                            "%s %s %s %s %b %d %s",
-//                            runtime,
-//                            pythonScriptPath,
-//                            basePath,
-//                            datasetName,
-//                            true,
-//                            12,
-//                            approach
-//                    ));
-
             ProcessBuilder processBuilder = new ProcessBuilder(
                     runtime,
                     pythonScriptPath,
@@ -34,17 +21,8 @@ public class PythonDatasetParserCaller {
                     datasetName,
                     Boolean.toString(true),
                     Integer.toString(12),
-                    approach
-//                    String.format(
-//                            "%s %s %s %s %b %d %s",
-//                            runtime,
-//                            pythonScriptPath,
-//                            basePath,
-//                            datasetName,
-//                            true,
-//                            12,
-//                            approach
-//                    )
+                    approach,
+                    "decimal"
             );
 
             processBuilder.redirectErrorStream(true);
