@@ -35,9 +35,6 @@ public class Main {
         pythonTreeGeneratorCaller caller = new pythonTreeGeneratorCaller();
         caller.execute(path, dataset, datasetTestPercent, treeQuantity, precision);
 
-        PythonDatasetParserCaller datasetParser = new PythonDatasetParserCaller();
-        datasetParser.execute(path, dataset, approach);
-
         List<Tree> trees = Parser.execute(dataset);
 
         FPGA FPGAGenerator = new FPGA(
@@ -48,7 +45,10 @@ public class Main {
             false
         );
 
-        FPGAGenerator.execute(approach);
+        FPGAGenerator.execute(approach, precision);
+
+        PythonDatasetParserCaller datasetParser = new PythonDatasetParserCaller();
+        datasetParser.execute(path, dataset, approach, precision);
 
         System.out.println("job finished: Success");
     }

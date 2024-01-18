@@ -30,7 +30,7 @@ public class FPGA {
         this.debugMode = debugMode;
     }
 
-    public void execute(String approach) throws IOException {
+    public void execute(String approach, String precision) throws IOException {
 
         System.out.println("\n========================================\n");
         System.out.println("starting FPGA random forest generator");
@@ -39,7 +39,7 @@ public class FPGA {
             executeConditionalApproach();
         }
         if (approach.equals("table")){
-            executeTableApproach();
+            executeTableApproach(precision);
         }
 
         System.out.println("\nfinishing FPGA random forest generator");
@@ -62,7 +62,7 @@ public class FPGA {
         );
     }
 
-    private void executeTableApproach() throws  IOException {
+    private void executeTableApproach(String precision) throws  IOException {
         System.out.println("table approach\n");
 
         var tableGenerator = new TableFPGAGenerator();
@@ -72,7 +72,8 @@ public class FPGA {
             this.classQuantity,
             this.featureQuantity,
             this.debugMode,
-            this.datasetName
+            this.datasetName,
+            precision
         );
     }
 }

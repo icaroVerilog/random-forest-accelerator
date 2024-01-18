@@ -11,7 +11,8 @@ public class TableFPGAGenerator {
         Integer classQuantity,
         Integer featureQuantity,
         Boolean debugMode,
-        String datasetName
+        String datasetName,
+        String precision
     ){
 
         /* calculate the needed bitwidth to represent each class */
@@ -22,7 +23,7 @@ public class TableFPGAGenerator {
         var validationTableGenerator = new ValidationTableGenerator();
         var controllerGenerator      = new ControllerGenerator();
 
-        var tableEntries = tableEntryGenerator.execute(treeList, datasetName, true);
+        var tableEntries = tableEntryGenerator.execute(treeList, datasetName, precision,true);
         validationTableGenerator.execute(classQuantity, featureQuantity, classBitwidth, tableEntries, datasetName, true);
         controllerGenerator.execute(classBitwidth, featureQuantity, datasetName, true);
     }

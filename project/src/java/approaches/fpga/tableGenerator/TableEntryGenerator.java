@@ -2,8 +2,11 @@ package project.src.java.approaches.fpga.tableGenerator;
 
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
+import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntryDecimalPrecision;
+import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntryIntegerPrecision;
 import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.raw.RawTableEntry;
-import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.raw.RawTableEntryInnerNode;
+import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.raw.RawTableEntryInnerNodeDecimalPrecision;
+import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.raw.RawTableEntryInnerNodeIntegerPrecision;
 import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.raw.RawTableEntryOuterNode;
 import project.src.java.dotTreeParser.treeStructure.Nodes.InnerNode;
 import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
@@ -21,23 +24,42 @@ public class TableEntryGenerator extends BasicGenerator {
     private final ArrayList<RawTableEntry>    rawTableEntries    = new ArrayList<>();
     private final ArrayList<BinaryTableEntry> binaryTableEntries = new ArrayList<>();
 
-    public ArrayList<BinaryTableEntry> execute(List<Tree> treeList, String datasetName, boolean offlineMode){
-        Node teste;
+    public ArrayList<BinaryTableEntry> execute(List<Tree> treeList, String datasetName, String precision, boolean offlineMode){
+        Node root;
         int offset = 0;
 
-        for (int index = 0; index < treeList.size(); index++) {
-            teste = treeList.get(index).getRoot();
-            generateNodeRawTableEntry(teste);
+        if (precision.equals("decimal")) {
+            for (int index = 0; index < treeList.size(); index++) {
+                root = treeList.get(index).getRoot();
+                generateNodeRawTableEntryDecimalPrecision(root);
 
-            if (index == treeList.size() - 1){
-                offset = generateBinaryTableEntry(offset, true);
-            } else {
-                offset = generateBinaryTableEntry(offset, false);
+                if (index == treeList.size() - 1) {
+                    offset = generateBinaryTableEntryDecimalPrecision(offset, true);
+                } else {
+                    offset = generateBinaryTableEntryDecimalPrecision(offset, false);
+                }
+                rawTableEntries.clear();
             }
-            rawTableEntries.clear();
         }
+
+        else if (precision.equals("integer")){
+            for (int index = 0; index < treeList.size(); index++) {
+                root = treeList.get(index).getRoot();
+                generateNodeRawTableEntryIntegerPrecision(root);
+
+                if (index == treeList.size() - 1) {
+                    offset = generateBinaryTableEntryIntegerPrecision(offset, true);
+                } else {
+                    offset = generateBinaryTableEntryIntegerPrecision(offset, false);
+                }
+                rawTableEntries.clear();
+            }
+        }
+
+
         if (!offlineMode){
             String table = "";
+
             for (int index = 0; index < binaryTableEntries.size(); index++){
                 if (index == binaryTableEntries.size() - 1){
                     table += binaryTableEntries.get(index).value();
@@ -50,7 +72,7 @@ public class TableEntryGenerator extends BasicGenerator {
         return binaryTableEntries;
     }
 
-    private void generateNodeRawTableEntry(Node node){
+    private void generateNodeRawTableEntryDecimalPrecision(Node node){
         if (node instanceof OuterNode){
             OuterNode newNode = (OuterNode) node;
             rawTableEntries.add(
@@ -61,28 +83,59 @@ public class TableEntryGenerator extends BasicGenerator {
             );
         } else {
             InnerNode newNode = (InnerNode) node;
-
             rawTableEntries.add(
-                new RawTableEntryInnerNode(
+                new RawTableEntryInnerNodeDecimalPrecision(
                     newNode.getId(),
                     newNode.getComparisson().getThreshold().toString(),
                     newNode.getComparisson().getColumn()
                 )
             );
-            generateNodeRawTableEntry(newNode.getLeftNode());
+            generateNodeRawTableEntryDecimalPrecision(newNode.getLeftNode());
 
             rawTableEntries.add(
-                new RawTableEntryInnerNode(
+                new RawTableEntryInnerNodeDecimalPrecision(
                     newNode.getId(),
                     newNode.getComparisson().getThreshold().toString(),
                     newNode.getComparisson().getColumn()
                 )
             );
-            generateNodeRawTableEntry(newNode.getRightNode());
+            generateNodeRawTableEntryDecimalPrecision(newNode.getRightNode());
         }
     }
 
-    private Integer generateBinaryTableEntry(int offset, boolean lastTreeFlag){
+    private void generateNodeRawTableEntryIntegerPrecision(Node node){
+        if (node instanceof OuterNode){
+            OuterNode newNode = (OuterNode) node;
+
+            rawTableEntries.add(
+                    new RawTableEntryOuterNode(
+                            newNode.getId(),
+                            newNode.getClassNumber()
+                    )
+            );
+        } else {
+            InnerNode newNode = (InnerNode) node;
+            rawTableEntries.add(
+                    new RawTableEntryInnerNodeIntegerPrecision(
+                            newNode.getId(),
+                            (int) Math.floor(newNode.getComparisson().getThreshold()),
+                            newNode.getComparisson().getColumn()
+                    )
+            );
+            generateNodeRawTableEntryIntegerPrecision(newNode.getLeftNode());
+
+            rawTableEntries.add(
+                    new RawTableEntryInnerNodeIntegerPrecision(
+                            newNode.getId(),
+                            (int) Math.floor(newNode.getComparisson().getThreshold()),
+                            newNode.getComparisson().getColumn()
+                    )
+            );
+            generateNodeRawTableEntryIntegerPrecision(newNode.getRightNode());
+        }
+    }
+
+    private Integer generateBinaryTableEntryDecimalPrecision(int offset, boolean lastTreeFlag){
         var identifiers = new ArrayList<Integer>();
 
         for (int index = 0; index < this.rawTableEntries.size(); index++){
@@ -101,14 +154,14 @@ public class TableEntryGenerator extends BasicGenerator {
             int     rightNodeIndex   = 0;
 
             for (int index2 = 0; index2 < this.rawTableEntries.size(); index2++){
-                if (this.rawTableEntries.get(index2) instanceof RawTableEntryInnerNode){
+                if (this.rawTableEntries.get(index2) instanceof RawTableEntryInnerNodeDecimalPrecision){
                     if (this.rawTableEntries.get(index2).getId() == index){
                         if (!leftValueReadFLag){
 
                             leftNodeIndex = this.rawTableEntries.get(index2+1).getId() + offset;
-                            thresholdInteger = ((RawTableEntryInnerNode) this.rawTableEntries.get(index2)).getIntegerThreshold();
-                            thresholdDecimal = ((RawTableEntryInnerNode) this.rawTableEntries.get(index2)).getDecimalThreshold();
-                            comparedColumn = ((RawTableEntryInnerNode) this.rawTableEntries.get(index2)).getColumn();
+                            thresholdInteger = ((RawTableEntryInnerNodeDecimalPrecision) this.rawTableEntries.get(index2)).getIntegerThreshold();
+                            thresholdDecimal = ((RawTableEntryInnerNodeDecimalPrecision) this.rawTableEntries.get(index2)).getDecimalThreshold();
+                            comparedColumn   = ((RawTableEntryInnerNodeDecimalPrecision) this.rawTableEntries.get(index2)).getColumn();
 
                             leftValueReadFLag = true;
                         } else {
@@ -134,14 +187,74 @@ public class TableEntryGenerator extends BasicGenerator {
                     }
                 }
             }
-//            System.out.printf("node %d | th inteiro: %d | th decimal: %d | flag: %b | coluna: %d | esquerdo: %d | direito: %d\n", index + offset, thresholdInteger, thresholdDecimal, outerNodeFlag, comparedColumn, leftNodeIndex, rightNodeIndex);
-            BinaryTableEntry entry = new BinaryTableEntry(
-                generateBinaryNumber(thresholdInteger, 12),
-                generateBinaryNumber(thresholdDecimal, 12),
+            BinaryTableEntryDecimalPrecision entry = new BinaryTableEntryDecimalPrecision(
                 generateBinaryNumber(outerNodeFlag ? 1 : 0, 1),
                 generateBinaryNumber(comparedColumn, 13),
                 generateBinaryNumber(leftNodeIndex, 13),
-                generateBinaryNumber(rightNodeIndex, 13)
+                generateBinaryNumber(rightNodeIndex, 13),
+                generateBinaryNumber(thresholdInteger, 12),
+                generateBinaryNumber(thresholdDecimal, 12)
+            );
+            binaryTableEntries.add(entry);
+        }
+        return uniqueIdentifiers.size() + offset;
+    }
+
+    private Integer generateBinaryTableEntryIntegerPrecision(int offset, boolean lastTreeFlag){
+        var identifiers = new ArrayList<Integer>();
+
+        for (int index = 0; index < this.rawTableEntries.size(); index++){
+            identifiers.add(this.rawTableEntries.get(index).getId());
+        }
+        var uniqueIdentifiers = new HashSet<>(Arrays.stream((identifiers.toArray())).toList());
+
+        for (int index = 0; index < this.rawTableEntries.size(); index++){
+            boolean leftValueReadFLag = false;
+
+            int     threshold = 0;
+            boolean outerNodeFlag    = false;
+            int     comparedColumn   = 0;
+            int     leftNodeIndex    = 0;
+            int     rightNodeIndex   = 0;
+
+            for (int index2 = 0; index2 < this.rawTableEntries.size(); index2++){
+                if (this.rawTableEntries.get(index2) instanceof RawTableEntryInnerNodeIntegerPrecision){
+                    if (this.rawTableEntries.get(index2).getId() == index){
+                        if (!leftValueReadFLag){
+
+                            leftNodeIndex = this.rawTableEntries.get(index2+1).getId() + offset;
+                            threshold = ((RawTableEntryInnerNodeIntegerPrecision) this.rawTableEntries.get(index2)).getThreshold();
+                            comparedColumn = ((RawTableEntryInnerNodeIntegerPrecision) this.rawTableEntries.get(index2)).getColumn();
+
+                            leftValueReadFLag = true;
+                        } else {
+                            rightNodeIndex = this.rawTableEntries.get(index2+1).getId() + offset;
+                        }
+                    }
+                }
+                if (this.rawTableEntries.get(index2) instanceof RawTableEntryOuterNode) {
+                    if (this.rawTableEntries.get(index2).getId() == index){
+                        if (lastTreeFlag){
+                            leftNodeIndex = 0;
+                        } else {
+                            leftNodeIndex = uniqueIdentifiers.size() + offset;
+                        }
+                        leftValueReadFLag = true;
+                        rightNodeIndex = ((RawTableEntryOuterNode) this.rawTableEntries.get(index2)).getNodeClass() + 1;
+                        threshold = 0;
+                        outerNodeFlag = true;
+                        comparedColumn = 8191; /* valor maximo capaz de armazenar em 13 bits */
+
+                        this.rawTableEntries.remove(index2);
+                    }
+                }
+            }
+            BinaryTableEntryIntegerPrecision entry = new BinaryTableEntryIntegerPrecision(
+                    generateBinaryNumber(outerNodeFlag ? 1 : 0, 1),
+                    generateBinaryNumber(comparedColumn, 13),
+                    generateBinaryNumber(leftNodeIndex, 13),
+                    generateBinaryNumber(rightNodeIndex, 13),
+                    generateBinaryNumber(threshold, 24)
             );
             binaryTableEntries.add(entry);
         }

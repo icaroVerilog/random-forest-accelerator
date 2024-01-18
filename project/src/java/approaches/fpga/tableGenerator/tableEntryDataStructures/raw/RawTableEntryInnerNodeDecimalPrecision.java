@@ -1,11 +1,11 @@
 package project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.raw;
 
-public class RawTableEntryInnerNode extends RawTableEntry {
+public class RawTableEntryInnerNodeDecimalPrecision extends RawTableEntry {
     private Integer integerThreshold;
     private Integer decimalThreshold;
     private Integer column;
 
-    public RawTableEntryInnerNode (
+    public RawTableEntryInnerNodeDecimalPrecision(
         Integer id,
         String threshold,
         Integer column

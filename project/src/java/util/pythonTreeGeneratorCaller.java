@@ -11,7 +11,6 @@ public class pythonTreeGeneratorCaller {
 
     public int execute(String basePath, String dataset, int datasetTestPercent, int treeQuantity, String precision) {
         String pythonScriptPath = String.format("%s/project/src/python/%s.py", basePath, scriptName);
-        System.out.println(datasetTestPercent);
         try {
             Process process = Runtime
                 .getRuntime()

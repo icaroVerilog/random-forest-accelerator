@@ -44,9 +44,9 @@ public class TreeBuilder {
     }
 
     private static void createNewNode(Tree tree, String line) {
-        if(line.contains(INNER_NODE_INDICATOR_STRING)){
+        if (line.contains(INNER_NODE_INDICATOR_STRING)){
             createInnerNode(tree, line);
-        }else{
+        } else {
             createOuterNode(tree, line);
         }
     }
@@ -92,7 +92,7 @@ public class TreeBuilder {
         node.setId(Integer.parseInt(line.split(" ")[0]));
         var begin = line.indexOf(NVALUE_STRING);
         var end = line.length() - 1;
-        
+
         final var values = (ArrayList<Integer>)Arrays
             .asList(line.substring(begin, end)
             .replaceAll("\\[", "")
@@ -105,7 +105,7 @@ public class TreeBuilder {
             .stream()
             .map(Integer::parseInt)
             .collect(Collectors.toList());
-        
+
         node.setValues(values);
         return node;
     }

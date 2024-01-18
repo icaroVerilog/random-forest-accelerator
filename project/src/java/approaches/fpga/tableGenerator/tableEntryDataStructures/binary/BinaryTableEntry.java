@@ -1,14 +1,10 @@
 package project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary;
 
-public record BinaryTableEntry(
-        String integerThreshold,
-        String decimalThreshold,
-        String nodeFlag,
-        String comparedColumn,
-        String leftNodeIndex,
-        String rightNodeIndex
-) {
-    public String value(){
-        return integerThreshold + decimalThreshold + nodeFlag + comparedColumn + leftNodeIndex + rightNodeIndex;
-    }
+public abstract class BinaryTableEntry {
+    protected String nodeFlag;
+    protected String comparedColumn;
+    protected String leftNodeIndex;
+    protected String rightNodeIndex;
+
+    public abstract String value();
 }
