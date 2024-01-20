@@ -28,13 +28,11 @@ def process_column(column):
     return (column * multiplier).astype(int), max_decimals
 
 
-def process_df(df):
-    for column in df.columns:
-        if df[column].dtype in ['float64', 'float32']:
-            df[column], max_decimals = process_column(df[column])
-            # print(f"Coluna '{column}' processada com {max_decimals} casas decimais")
-    df.to_csv("a.csv", index=False)
-    return df
+def process_dataset(dataset):
+    for column in dataset.columns:
+        if dataset[column].dtype in ['float64', 'float32']:
+            dataset[column], max_decimals = process_column(dataset[column])
+    return dataset
 
 
 dataset_columns = list(dataset.columns)
@@ -62,22 +60,22 @@ def to_bin(decimal_value, num_bits):
     return binary_value
 
 
-def build_binary_dataset(exponent_array, fraction_array, precision):
+def build_binary_dataset(integer_array, decimal_array, precision):
     binary_dataset = []
 
     if precision == "decimal":
         for index in range(LINES):
             line = ""
             for index2 in range(COLUMNS):
-                line += exponent_array[0]
-                exponent_array = exponent_array[1:]
+                line += integer_array[0]
+                integer_array = integer_array[1:]
             binary_dataset.append(line)
 
         for index in range(LINES):
             line = ""
             for index2 in range(COLUMNS):
-                line += fraction_array[0]
-                fraction_array = fraction_array[1:]
+                line += decimal_array[0]
+                decimal_array = decimal_array[1:]
             binary_dataset[index] = binary_dataset[index] + line
         return binary_dataset
 
@@ -85,8 +83,8 @@ def build_binary_dataset(exponent_array, fraction_array, precision):
         for index in range(LINES):
             line = ""
             for index2 in range(COLUMNS):
-                line += exponent_array[0]
-                exponent_array = exponent_array[1:]
+                line += integer_array[0]
+                integer_array = integer_array[1:]
             binary_dataset.append(line)
         return binary_dataset
 
@@ -94,63 +92,63 @@ def build_binary_dataset(exponent_array, fraction_array, precision):
 binary_dataset = []
 
 if PRECISION == "integer":
-    exponent_part_list = []
-    fraction_part_list = []
-    exponent_part_list_bin = []
-    fraction_part_list_bin = []
+    integer_part_list = []
+    decimal_part_list = []
+    integer_part_list_bin = []
+    decimal_part_list_bin = []
 
-    dataset = process_df(dataset)
+    dataset = process_dataset(dataset)
 
     for line in dataset.values:
         line = line.tolist()
 
         for index in range(len(line)):
-            exponent_part = str(line[index])
-            exponent_part_list.append(exponent_part)
+            integer_part = str(line[index])
+            integer_part_list.append(integer_part)
 
-    for value in exponent_part_list:
-        exponent_part_list_bin.append(to_bin(int(value), BITWIDTH * 2))
+    for value in integer_part_list:
+        integer_part_list_bin.append(to_bin(int(value), BITWIDTH * 2))
 
     for index in range(LINES):
         line = ""
         for index2 in range(COLUMNS):
-            line += exponent_part_list_bin[0]
-            exponent_part_list_bin = exponent_part_list_bin[1:]
+            line += integer_part_list_bin[0]
+            integer_part_list_bin = integer_part_list_bin[1:]
         binary_dataset.append(line)
 
 if PRECISION == "decimal":
-    exponent_part_list = []
-    fraction_part_list = []
-    exponent_part_list_bin = []
-    fraction_part_list_bin = []
+    integer_part_list = []
+    decimal_part_list = []
+    integer_part_list_bin = []
+    decimal_part_list_bin = []
 
     for line in dataset.values:
         line = line.tolist()
 
         for index in range(len(line)):
             value = str(line[index])
-            exponent_part, fraction_part = value.split(".")
-            exponent_part_list.append(exponent_part)
-            fraction_part_list.append(fraction_part)
+            integer_part, decimal_part = value.split(".")
+            integer_part_list.append(integer_part)
+            decimal_part_list.append(decimal_part)
 
-    for value in exponent_part_list:
-        exponent_part_list_bin.append(to_bin(int(value), BITWIDTH))
+    for value in integer_part_list:
+        integer_part_list_bin.append(to_bin(int(value), BITWIDTH))
 
-    for value in fraction_part_list:
-        fraction_part_list_bin.append(to_bin(int(value), BITWIDTH))
+    for value in decimal_part_list:
+        decimal_part_list_bin.append(to_bin(int(value), BITWIDTH))
 
     for index in range(LINES):
         line = ""
         for index2 in range(COLUMNS):
-            line += exponent_part_list_bin[0]
-            exponent_part_list_bin = exponent_part_list_bin[1:]
+            line += integer_part_list_bin[0]
+            integer_part_list_bin = integer_part_list_bin[1:]
         binary_dataset.append(line)
 
     for index in range(LINES):
         line = ""
         for index2 in range(COLUMNS):
-            line += fraction_part_list_bin[0]
-            fraction_part_list_bin = fraction_part_list_bin[1:]
+            line += decimal_part_list_bin[0]
+            decimal_part_list_bin = decimal_part_list_bin[1:]
         binary_dataset[index] = binary_dataset[index] + line
 
 with open(f"{DATASET_PATH}/project/target/FPGA/{APPROACH}/{DATASET}/dataset.bin", "w") as file:

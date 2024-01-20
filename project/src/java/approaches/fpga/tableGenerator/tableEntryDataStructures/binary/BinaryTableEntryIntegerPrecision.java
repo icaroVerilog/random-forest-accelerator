@@ -19,7 +19,6 @@ public class BinaryTableEntryIntegerPrecision extends BinaryTableEntry {
 
     @Override
     public String value(){
-        System.out.println(threshold);
         return threshold + nodeFlag + comparedColumn + leftNodeIndex + rightNodeIndex;
     }
 }

@@ -31,17 +31,16 @@ def process_column(column):
     return (column * multiplier).astype(int), max_decimals
 
 
-def process_df(df):
-    for column in df.columns:
-        if df[column].dtype in ['float64', 'float32']:
-            df[column], max_decimals = process_column(df[column])
-            print(f"Coluna '{column}' processada com {max_decimals} casas decimais")
-    df.to_csv("a.csv", index=False)
-    return df
+def process_dataset(dataset):
+    for column in dataset.columns:
+        if dataset[column].dtype in ['float64', 'float32']:
+            dataset[column], max_decimals = process_column(dataset[column])
+            # print(f"Coluna '{column}' processada com {max_decimals} casas decimais")
+    return dataset
 
 
 if PRECISION == "integer":
-    dataset = process_df(dataset)
+    dataset = process_dataset(dataset)
 
 print("starting training")
 

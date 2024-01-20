@@ -4,6 +4,8 @@ import project.src.java.approaches.fpga.FPGA;
 import project.src.java.dotTreeParser.Parser;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.PythonDatasetParserCaller;
+import project.src.java.util.executionSettings.ExecutionSettingsParser;
+import project.src.java.util.executionSettings.executionSettingsData.ExecutionSettings;
 import project.src.java.util.pythonTreeGeneratorCaller;
 
 import java.io.IOException;
@@ -26,20 +28,32 @@ public class Main {
         dataset = "iris";
         approach = "table";
         mode = "synthesis";
-        precision = "integer";
+        precision = "decimal";
 
         start();
     }
 
     public static void start() throws IOException{
-        pythonTreeGeneratorCaller caller = new pythonTreeGeneratorCaller();
-        caller.execute(path, dataset, datasetTestPercent, treeQuantity, precision);
 
-        List<Tree> trees = Parser.execute(dataset);
+        ExecutionSettingsParser settingsParser = new ExecutionSettingsParser();
+        ExecutionSettings settings = settingsParser.execute(path);
+
+        pythonTreeGeneratorCaller caller = new pythonTreeGeneratorCaller();
+        caller.execute(
+            path,
+            settings.getGeneralParameters().getDataset(),
+            settings.getTrainingParameters().getTrainingPercent(),
+            settings.getTrainingParameters().getEstimatorsQuantity(),
+            settings.getGeneralParameters().getPrecision()
+        );
+
+        List<Tree> trees = Parser.execute(
+            settings.getGeneralParameters().getDataset()
+        );
 
         FPGA FPGAGenerator = new FPGA(
             trees,
-            dataset,
+            settings.getGeneralParameters().getDataset(),
             Parser.getClassQuantity(),
             Parser.getFeatureQuantity(),
             false
@@ -48,7 +62,12 @@ public class Main {
         FPGAGenerator.execute(approach, precision);
 
         PythonDatasetParserCaller datasetParser = new PythonDatasetParserCaller();
-        datasetParser.execute(path, dataset, approach, precision);
+        datasetParser.execute(
+                path,
+                settings.getGeneralParameters().getDataset(),
+                settings.getInferenceParameters().getApproach(),
+                settings.getGeneralParameters().getPrecision()
+        );
 
         System.out.println("job finished: Success");
     }

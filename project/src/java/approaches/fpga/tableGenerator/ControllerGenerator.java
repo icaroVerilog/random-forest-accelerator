@@ -121,6 +121,7 @@ public class ControllerGenerator extends BasicGenerator {
             src += tab(2) + String.format(".%s(%s),\n", "new_table_entry", "new_table_entry");
         }
         src += tab(2) + String.format(".%s(%s),\n", "compute_vote_flag", "compute_vote_flag");
+        src += tab(2) + String.format(".%s(%s),\n", "read_new_sample", "read_new_sample");
 
         src += tab(2) + String.format(
                 ".%s(%s[%d:%d]),\n",
