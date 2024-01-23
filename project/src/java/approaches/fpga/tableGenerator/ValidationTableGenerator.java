@@ -11,77 +11,58 @@ import java.util.Objects;
 
 public class ValidationTableGenerator extends BasicGenerator {
 
-    private final Integer VOTE_COUNTER_BITWIDTH = 16;
+    /*TODO: refatorar de forma que os dados muito utilizados sejam atributos da classe, e nao parametros das funções */
+
     private final String MODULE_NAME = "validation_table";
+
+    private int comparedValueBitwidth;
+    private int comparedColumnBitwidth;
+    private int tableIndexerBitwidth;
+    private int voteCounterBitwidth;
+    private String precision;
 
     public void execute(
         int classQuantity,
         int featureQuantity,
+        int estimatorsQuantity,
         int classBitwidth,
         ArrayList<BinaryTableEntry> tableEntries,
-        String datasetName,
         ExecutionSettings settings,
         boolean offlineMode
     ){
         System.out.println("generating validation table");
+
+        comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
+        comparedColumnBitwidth = settings.inferenceParameters.fieldsBitwidth.comparedColumn;
+        tableIndexerBitwidth   = settings.inferenceParameters.fieldsBitwidth.index;
+        precision              = settings.generalParameters.precision;
 
         /*
          *  the expression calculate the needed bitwidth to hold the votes
          *  the counter can reach the maximum value of votes given by the quantity of trees
          *  because is one vote for each tree
          */
-//        int voteCounterBitwidth = (int) Math.ceil(Math.log(treeList.size()) / Math.log(2));
-
+        voteCounterBitwidth = (int) Math.ceil(Math.log(estimatorsQuantity) / Math.log(2));
 
         String src = "";
 
-        src += generateHeader(
-            MODULE_NAME,
-            settings.generalParameters.precision,
-            offlineMode
-        );
+        src += generateHeader(MODULE_NAME, offlineMode);
+        src += generatePortInstantiation(featureQuantity, classBitwidth);
 
-        src += generatePortInstantiation(
-            featureQuantity,
-            classBitwidth,
-            settings.inferenceParameters.fieldsBitwidth.comparedValue,
-            settings.generalParameters.precision
-        );
-
-        src += generateInternalVariables(
-            tableEntries.size(),
-            classQuantity,
-            settings.inferenceParameters.fieldsBitwidth.comparedValue,
-            settings.inferenceParameters.fieldsBitwidth.comparedColumn,
-            settings.inferenceParameters.fieldsBitwidth.index,
-            settings.generalParameters.precision
-        );
-
+        src += generateInternalVariables(tableEntries.size(), classQuantity);
         src += "\n";
-        src += generateWireAssign(
-            settings.inferenceParameters.fieldsBitwidth.comparedValue,
-            settings.inferenceParameters.fieldsBitwidth.comparedColumn,
-            settings.inferenceParameters.fieldsBitwidth.index,
-            settings.generalParameters.precision
-        );
-        src += generateMainAlways(
-            classQuantity,
-            settings.inferenceParameters.fieldsBitwidth.index,
-            VOTE_COUNTER_BITWIDTH,
-            tableEntries,
-            offlineMode)
-        ;
+        src += generateWireAssign();
+        src += generateMainAlways(classQuantity, tableEntries, offlineMode);
         src += "\n";
         src += generateComputeForestVoteAlways(classQuantity, classBitwidth);
         src += "\n" + "endmodule";
 
-        FileBuilder.createDir(String.format("FPGA/table/%s", datasetName));
-        FileBuilder.execute(src, String.format("FPGA/table/%s/validation_table.v", datasetName));
+        FileBuilder.createDir(String.format("FPGA/table/%s", settings.generalParameters.datasetName));
+        FileBuilder.execute(src, String.format("FPGA/table/%s/validation_table.v", settings.generalParameters.datasetName));
     }
 
     private String generateHeader(
         String module_name,
-        String precision,
         boolean offlineMode
     ){
         String[] basicIOPorts = {
@@ -137,11 +118,9 @@ public class ValidationTableGenerator extends BasicGenerator {
 
     private String generatePortInstantiation (
         int featureQnt,
-        int classBitwidth,
-        int comparedValue,
-        String precision
+        int classBitwidth
     ){
-        int comparedValueBitwidth = featureQnt * comparedValue;
+        int comparedValueBitwidth = featureQnt * comparedColumnBitwidth;
 
         String src = "";
         src += tab(1) + "/* ************************ IO ************************ */\n\n";
@@ -169,23 +148,18 @@ public class ValidationTableGenerator extends BasicGenerator {
         return src;
     }
 
-    private String generateInternalVariables(
-        int nodeQuantity,
-        int classQuantity,
-        int comparedValueBitwidth,
-        int compaedColumnBitwidth,
-        int tableIndexerBitwidth,
-        String precision
-    ){
+    private String generateInternalVariables(int nodeQuantity, int classQuantity){
         String src = "";
 
+        int tableEntryBitwidth = (comparedValueBitwidth * 2) + comparedColumnBitwidth + (tableIndexerBitwidth * 2) + 1;
+        
         src += "\n" + tab(1) + "/* *************************************************** */\n\n";
-        src += tab(1) + generatePortBus("nodes_table", REGISTER, NONE, 64, nodeQuantity, true);
+        src += tab(1) + generateMemory("nodes_table", REGISTER, NONE, tableEntryBitwidth, nodeQuantity, true);
         src += tab(1) + generatePort("next", REGISTER, NONE, tableIndexerBitwidth, true);
         src += "\n";
 
         for (int index = 0; index <= classQuantity - 1; index++){
-            src += tab(1) + generatePort("class" + (index+1), REGISTER, NONE, VOTE_COUNTER_BITWIDTH, true);
+            src += tab(1) + generatePort("class" + (index+1), REGISTER, NONE, voteCounterBitwidth, true);
         }
 
         src += "\n";
@@ -193,7 +167,7 @@ public class ValidationTableGenerator extends BasicGenerator {
 
         if (precision.equals("integer")){
             src += tab(1) + generatePort("threshold_wire", WIRE, NONE, (comparedValueBitwidth * 2), true);
-            src += tab(1) + generatePort("column_wire", WIRE, NONE, compaedColumnBitwidth, true);
+            src += tab(1) + generatePort("column_wire", WIRE, NONE, comparedColumnBitwidth, true);
             src += "\n";
 
             src += tab(1) + generatePort("feature_wire", WIRE, NONE, (comparedValueBitwidth * 2), true);
@@ -201,7 +175,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         if (precision.equals("decimal")){
             src += tab(1) + generatePort("threshold_integer_wire", WIRE, NONE, comparedValueBitwidth, true);
             src += tab(1) + generatePort("threshold_decimal_wire", WIRE, NONE, comparedValueBitwidth, true);
-            src += tab(1) + generatePort("column_wire", WIRE, NONE, compaedColumnBitwidth, true);
+            src += tab(1) + generatePort("column_wire", WIRE, NONE, comparedColumnBitwidth, true);
             src += "\n";
 
             src += tab(1) + generatePort("feature_integer_wire", WIRE, NONE, comparedValueBitwidth, true);
@@ -210,12 +184,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         return src;
     }
 
-    private String generateWireAssign(
-        int comparedValueBitwidth,
-        int comparedColumnBitwidth,
-        int tableIndexerBitwidth,
-        String precision
-    ){
+    private String generateWireAssign(){
 
         int tableEntryBitwidth = (comparedValueBitwidth * 2) + comparedColumnBitwidth + (tableIndexerBitwidth * 2) + 1;
 
@@ -260,13 +229,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         return src;
     }
 
-    private String generateMainAlways(
-        int classQuantity,
-        int tableIndexerBitwidth,
-        int voteCounterBitwidth,
-        ArrayList<BinaryTableEntry> tableEntries,
-        boolean offlineMode
-    ){
+    private String generateMainAlways(int classQuantity, ArrayList<BinaryTableEntry> tableEntries, boolean offlineMode){
 
         /*************************** RESET BLOCK ****************************/
 
@@ -276,24 +239,24 @@ public class ValidationTableGenerator extends BasicGenerator {
 
         if (offlineMode){
             for (int index = 0; index < tableEntries.size(); index++){
-                resetBlockBody += String.format("%snodes_table[%d] <= 64'b%s;\n", tab(3), index, tableEntries.get(index).value());
+                int tableEntryBitwidth = (comparedValueBitwidth * 2) + comparedColumnBitwidth + (tableIndexerBitwidth * 2) + 1;
+                resetBlockBody += String.format("%snodes_table[%d] <= %d'b%s;\n", tab(3), index, tableEntryBitwidth, tableEntries.get(index).value());
             }
         } else {
             resetBlockBody += tab(3) + "nodes_table[new_table_entry_counter - 1'b1] <= new_table_entry;\n\n";
         }
 
-        resetBlockBody += tab(3) + "next              <= 13'b0000000000000;\n";
+        resetBlockBody += tab(3) + String.format(
+            "next              <= %d'b%s;\n",
+            tableIndexerBitwidth,
+            decimalToBinary(0, tableIndexerBitwidth)
+        );
         resetBlockBody += tab(3) + "read_new_sample   <= 1'b1;\n";
         resetBlockBody += tab(3) + "compute_vote_flag <= 1'b0;\n";
         resetBlockBody += "\n";
 
         for (int index = 1; index <= classQuantity; index++){
-            String bits = "";
-
-            for (int index2 = 0; index2 <= voteCounterBitwidth - 1; index2++){
-                bits += "0";
-            }
-            resetBlockBody += tab(3) + String.format("class%d <= %d'b%s;\n", index, voteCounterBitwidth, bits);
+            resetBlockBody += tab(3) + String.format("class%d <= %d'b%s;\n", index, voteCounterBitwidth, decimalToBinary(0, voteCounterBitwidth));
         }
 
         resetBlock = resetBlock
@@ -304,29 +267,49 @@ public class ValidationTableGenerator extends BasicGenerator {
         /******************* INNER NODE PROCESSING BLOCK ********************/
 
         String thGreaterThanValueBlock = CONDITIONAL2;
-        String thGreaterThanValueBlockExpr = "\n";
-        thGreaterThanValueBlockExpr += tab(6) + "(threshold_integer_wire > feature_integer_wire) ||\n";
-        thGreaterThanValueBlockExpr += tab(6) + "(\n";
-        thGreaterThanValueBlockExpr += tab(7) + "(threshold_integer_wire == feature_integer_wire) && \n";
-        thGreaterThanValueBlockExpr += tab(7) + "(threshold_decimal_wire >= feature_decimal_wire) \n";
-        thGreaterThanValueBlockExpr += tab(6) + ")\n" + tab(5);
+        String thGreaterThanValueBlockExpr = "";
 
-        String thGreaterThanValueBlockBody = tab(6) + "next <= nodes_table[next][25:13];\n";
+        if (precision.equals("integer")){
+            thGreaterThanValueBlockExpr += "threshold_wire >= feature_wire";
+        }
+        if (precision.equals("decimal")){
+            thGreaterThanValueBlockExpr += "\n";
+            thGreaterThanValueBlockExpr += tab(6) + "(threshold_integer_wire > feature_integer_wire) ||\n";
+            thGreaterThanValueBlockExpr += tab(6) + "(\n";
+            thGreaterThanValueBlockExpr += tab(7) + "(threshold_integer_wire == feature_integer_wire) && \n";
+            thGreaterThanValueBlockExpr += tab(7) + "(threshold_decimal_wire >= feature_decimal_wire) \n";
+            thGreaterThanValueBlockExpr += tab(6) + ")\n" + tab(5);
+        }
+
+
+
+        String thGreaterThanValueBlockBody = tab(6) + String.format(
+            "next <= nodes_table[next][%d:%d];\n",
+            (tableIndexerBitwidth * 2) - 1,
+            tableIndexerBitwidth
+        );
 
         thGreaterThanValueBlock = thGreaterThanValueBlock
-                .replace("x", thGreaterThanValueBlockExpr)
-                .replace("y", thGreaterThanValueBlockBody)
-                .replace("ind", tab(5));
+            .replace("x", thGreaterThanValueBlockExpr)
+            .replace("y", thGreaterThanValueBlockBody)
+            .replace("ind", tab(5));
 
         String thLessThanValueBlock = CONDITIONAL_ELSE;
-        String thLessThanValueBlockBody = tab(6) + "next <= nodes_table[next][12:0];\n";
+        String thLessThanValueBlockBody = tab(6) + String.format(
+            "next <= nodes_table[next][%d:%d];\n",
+            tableIndexerBitwidth - 1,
+            0
+        );
 
         thLessThanValueBlock = thLessThanValueBlock
                 .replace("y", thLessThanValueBlockBody)
                 .replace("ind", tab(5));
 
         String innerNodeBlock = CONDITIONAL2;
-        String innerNodeBlockExpr = "~nodes_table[next][39]";
+        String innerNodeBlockExpr = String.format(
+            "~nodes_table[next][%d]",
+            ((comparedValueBitwidth * 2) + comparedColumnBitwidth + (tableIndexerBitwidth * 2)) - (comparedValueBitwidth * 2)
+        );
         String innerNodeBlockBody = thGreaterThanValueBlock + thLessThanValueBlock + "\n";
 
         innerNodeBlock = innerNodeBlock
@@ -356,7 +339,13 @@ public class ValidationTableGenerator extends BasicGenerator {
         }
 
         String readNewSampleBlock = CONDITIONAL2;
-        String readNewSampleBlockExpr = "nodes_table[next][25:13] == 13'b0000000000000";
+        String readNewSampleBlockExpr = String.format(
+            "nodes_table[next][%d:%d] == %d'b%s",
+            (tableIndexerBitwidth * 2) - 1,
+            tableIndexerBitwidth,
+            tableIndexerBitwidth,
+            decimalToBinary(0, tableIndexerBitwidth)
+        );
         String readNewSampleBlockBody = "";
 
         readNewSampleBlockBody += tab(6) + "read_new_sample <= 1'b1;\n";
@@ -372,7 +361,11 @@ public class ValidationTableGenerator extends BasicGenerator {
         String outerNodeBlockBody = "";
 
         outerNodeBlockBody += voteCounterBlocks + "\n\n";
-        outerNodeBlockBody += tab(5) + "next <= nodes_table[next][25:13];\n\n";
+        outerNodeBlockBody += tab(5) + String.format(
+            "next <= nodes_table[next][%d:%d];\n\n",
+            (tableIndexerBitwidth * 2) - 1,
+            tableIndexerBitwidth
+        );
         outerNodeBlockBody += readNewSampleBlock + "\n";
 
         outerNodeBlock = outerNodeBlock
@@ -431,10 +424,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         return mainAlways;
     }
 
-    private String generateComputeForestVoteAlways(
-        int classQuantity,
-        int classBitwidth
-    ){
+    private String generateComputeForestVoteAlways(int classQuantity, int classBitwidth){
 
         String src = "";
 
@@ -490,10 +480,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         return alwaysBlock;
     }
 
-    private String decimalToBinary(
-        int decimalValue,
-        int numberOfBits
-    ) {
+    private String decimalToBinary(int decimalValue, int numberOfBits){
         StringBuilder binaryValue = new StringBuilder();
 
         for (int i = numberOfBits - 1; i >= 0; i--) {

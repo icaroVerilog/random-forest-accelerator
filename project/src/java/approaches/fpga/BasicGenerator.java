@@ -53,7 +53,7 @@ public class BasicGenerator {
         return io;
     }
 
-    protected String generatePortBus(String name, String type, String direction, Integer bitwidth, Integer size, Boolean linebreak){
+    protected String generateMemory(String name, String type, String direction, Integer bitwidth, Integer size, Boolean linebreak){
         String bus = "";
 
         if (Objects.equals(direction, NONE)) {

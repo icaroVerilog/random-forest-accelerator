@@ -28,7 +28,6 @@ public class TableEntryGenerator extends BasicGenerator {
 
     public ArrayList<BinaryTableEntry> execute(
             List<Tree> treeList,
-            String datasetName,
             ExecutionSettings settings,
             boolean offlineMode
     ){
@@ -97,7 +96,7 @@ public class TableEntryGenerator extends BasicGenerator {
                     table += binaryTableEntries.get(index).value() + "\n";
                 }
             }
-            FileBuilder.execute(table, String.format("FPGA/table/%s/table_entries.bin", datasetName));
+            FileBuilder.execute(table, String.format("FPGA/table/%s/table_entries.bin", settings.generalParameters.datasetName));
         }
         return binaryTableEntries;
     }

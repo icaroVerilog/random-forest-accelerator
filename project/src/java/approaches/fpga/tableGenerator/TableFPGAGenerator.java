@@ -11,15 +11,11 @@ public class TableFPGAGenerator {
         List<Tree> treeList,
         Integer classQuantity,
         Integer featureQuantity,
-        String datasetName,
         ExecutionSettings settings
     ){
 
         /* calculate the needed bitwidth to represent each class */
-//        int classBitwidth = (int) Math.ceil(Math.log(classQuantity) / Math.log(2));
-
-
-        int classBitwidth = 13;
+        int classBitwidth = (int) Math.ceil(Math.log(classQuantity) / Math.log(2));
 
         var tableEntryGenerator      = new TableEntryGenerator();
         var validationTableGenerator = new ValidationTableGenerator();
@@ -27,7 +23,6 @@ public class TableFPGAGenerator {
 
         var tableEntries = tableEntryGenerator.execute(
             treeList,
-            datasetName,
             settings,
             true
         );
@@ -35,9 +30,9 @@ public class TableFPGAGenerator {
         validationTableGenerator.execute(
             classQuantity,
             featureQuantity,
+            treeList.size(),
             classBitwidth,
             tableEntries,
-            datasetName,
             settings,
             true
         );
@@ -45,7 +40,6 @@ public class TableFPGAGenerator {
         controllerGenerator.execute(
             classBitwidth,
             featureQuantity,
-            datasetName,
             settings,
             true
         );

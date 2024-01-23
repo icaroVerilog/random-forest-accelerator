@@ -69,7 +69,6 @@ public class FPGA {
             this.treeList,
             this.classQuantity,
             this.featureQuantity,
-            this.datasetName,
             settings
         );
     }

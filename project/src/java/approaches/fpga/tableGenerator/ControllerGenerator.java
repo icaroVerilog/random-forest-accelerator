@@ -8,7 +8,7 @@ public class ControllerGenerator extends BasicGenerator {
 
     private final String MODULE_NAME = "controller";
 
-    public void execute(int classBitwidth, int featureQuantity, String datasetName, ExecutionSettings settings, boolean offlineMode){
+    public void execute(int classBitwidth, int featureQuantity, ExecutionSettings settings, boolean offlineMode){
         System.out.println("generating controller");
 
         String src = "";
@@ -31,7 +31,7 @@ public class ControllerGenerator extends BasicGenerator {
 
         src += "endmodule";
 
-        FileBuilder.execute(src, String.format("FPGA/table/%s/controller.v", datasetName));
+        FileBuilder.execute(src, String.format("FPGA/table/%s/controller.v", settings.generalParameters.datasetName));
     }
 
     private String generateHeader(String module_name, boolean offlineMode){
@@ -109,10 +109,7 @@ public class ControllerGenerator extends BasicGenerator {
         String precision
     ){
 
-        /*TODO: refatorar os nomes abaixo*/
-
-        int featureIntegerBusBitwidth = featureBitwidth * featureQuantity;
-        int featureDecimalBusBitwidth = featureBitwidth * featureQuantity;
+        int featureBusBitwidth = featureBitwidth * featureQuantity;
 
         String src = "";
 
@@ -131,19 +128,19 @@ public class ControllerGenerator extends BasicGenerator {
         if (precision.equals("integer")){
             src += tab(2) + String.format(
                     ".feature(features[%d:%d])\n",
-                    (featureDecimalBusBitwidth - 1) + featureIntegerBusBitwidth,
+                    (featureBusBitwidth - 1) + featureBusBitwidth,
                     0
             );
         }
         if (precision.equals("decimal")){
             src += tab(2) + String.format(
                     ".feature_integer(features[%d:%d]),\n",
-                    (featureDecimalBusBitwidth - 1) + featureIntegerBusBitwidth,
-                    featureDecimalBusBitwidth
+                    (featureBusBitwidth - 1) + featureBusBitwidth,
+                    featureBusBitwidth
             );
             src += tab(2) + String.format(
-                    ".feature_decimal(features[%d:%d]),\n",
-                    featureDecimalBusBitwidth - 1,
+                    ".feature_decimal(features[%d:%d])\n",
+                    featureBusBitwidth - 1,
                     0
             );
         }
