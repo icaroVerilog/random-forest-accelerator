@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class pythonTreeGeneratorCaller {
+public class PythonTreeGeneratorCaller {
 
     private static final String scriptName = "tree_generator_script";
     private static final String runtime = "python3";

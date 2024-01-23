@@ -8,24 +8,11 @@ import project.src.java.util.executionSettings.executionSettingsData.TrainingPar
 public class ExecutionSettings {
 
     @JsonProperty("general_parameters")
-    GeneralParameters generalParameters;
+    public GeneralParameters generalParameters;
 
     @JsonProperty("training_parameters")
-    TrainingParameters trainingParameters;
+    public TrainingParameters trainingParameters;
 
     @JsonProperty("inference_parameters")
-    InferenceParameters inferenceParameters;
-
-
-    public GeneralParameters getGeneralParameters() {
-        return generalParameters;
-    }
-
-    public TrainingParameters getTrainingParameters() {
-        return trainingParameters;
-    }
-
-    public InferenceParameters getInferenceParameters() {
-        return inferenceParameters;
-    }
+    public InferenceParameters inferenceParameters;
 }

@@ -4,25 +4,21 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class PythonDatasetParserCaller {
+public class PythonBitwidthValidatorCaller {
 
-    /* Substituir por configurações a partir de um JSON ou XML */
-
-    private static final String scriptName = "dataset_parser_script";
+    private static final String scriptName = "bitwidth_validator_script";
     private static final String runtime = "python3";
 
-    public int execute(String basePath, String datasetName, String approach, String precision) {
+    public int execute(String basePath, String datasetName) {
         String pythonScriptPath = String.format("%s/project/src/python/%s.py", basePath, scriptName);
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(
-                runtime,
-                pythonScriptPath,
-                basePath,
-                datasetName,
-                Boolean.toString(true),
-                Integer.toString(12),
-                approach,
-                precision
+                    runtime,
+                    pythonScriptPath,
+                    basePath,
+                    datasetName,
+                    Boolean.toString(true),
+                    Integer.toString(12)
             );
 
             processBuilder.redirectErrorStream(true);

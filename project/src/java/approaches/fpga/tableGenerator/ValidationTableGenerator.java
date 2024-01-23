@@ -3,8 +3,10 @@ package project.src.java.approaches.fpga.tableGenerator;
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
 import project.src.java.util.FileBuilder;
+import project.src.java.util.executionSettings.executionSettingsData.ExecutionSettings;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ValidationTableGenerator extends BasicGenerator {
@@ -18,6 +20,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         int classBitwidth,
         ArrayList<BinaryTableEntry> tableEntries,
         String datasetName,
+        ExecutionSettings settings,
         boolean offlineMode
     ){
         System.out.println("generating validation table");
@@ -29,34 +32,45 @@ public class ValidationTableGenerator extends BasicGenerator {
          */
 //        int voteCounterBitwidth = (int) Math.ceil(Math.log(treeList.size()) / Math.log(2));
 
-        var configs = new Configurations();
 
         String src = "";
 
         src += generateHeader(
             MODULE_NAME,
+            settings.generalParameters.precision,
             offlineMode
         );
 
         src += generatePortInstantiation(
             featureQuantity,
-            configs.INTEGER_PART_BITWIDTH,
-            configs.DECIMAL_PART_BITWIDTH,
-            classBitwidth
+            classBitwidth,
+            settings.inferenceParameters.fieldsBitwidth.comparedValue,
+            settings.generalParameters.precision
         );
 
         src += generateInternalVariables(
             tableEntries.size(),
             classQuantity,
-            configs.INDEX_BITWIDTH,
-            configs.INTEGER_PART_BITWIDTH,
-            configs.DECIMAL_PART_BITWIDTH,
-            configs.COMPARATED_COLUMN_BITWIDTH
+            settings.inferenceParameters.fieldsBitwidth.comparedValue,
+            settings.inferenceParameters.fieldsBitwidth.comparedColumn,
+            settings.inferenceParameters.fieldsBitwidth.index,
+            settings.generalParameters.precision
         );
 
         src += "\n";
-        src += generateWireAssign();
-        src += generateMainAlways(classQuantity, configs.INDEX_BITWIDTH, VOTE_COUNTER_BITWIDTH, tableEntries, offlineMode);
+        src += generateWireAssign(
+            settings.inferenceParameters.fieldsBitwidth.comparedValue,
+            settings.inferenceParameters.fieldsBitwidth.comparedColumn,
+            settings.inferenceParameters.fieldsBitwidth.index,
+            settings.generalParameters.precision
+        );
+        src += generateMainAlways(
+            classQuantity,
+            settings.inferenceParameters.fieldsBitwidth.index,
+            VOTE_COUNTER_BITWIDTH,
+            tableEntries,
+            offlineMode)
+        ;
         src += "\n";
         src += generateComputeForestVoteAlways(classQuantity, classBitwidth);
         src += "\n" + "endmodule";
@@ -67,44 +81,55 @@ public class ValidationTableGenerator extends BasicGenerator {
 
     private String generateHeader(
         String module_name,
+        String precision,
         boolean offlineMode
     ){
-        String[] ioPorts = {
+        String[] basicIOPorts = {
             "clock",
             "reset",
             "forest_vote",
             "read_new_sample",
-            "feature_integer",
-            "feature_decimal",
-            "new_table_entry",
-            "new_table_entry_counter",
             "compute_vote_flag"
         };
 
-        if (offlineMode) {
-            ioPorts = new String[]{
-                "clock",
-                "reset",
-                "forest_vote",
-                "read_new_sample",
+
+        ArrayList<String> ioPorts = new ArrayList<>();
+
+        ioPorts.addAll(List.of(basicIOPorts));
+
+        if (!offlineMode){
+            String[] onlineModeAditionalPorts = {
+                "new_table_entry",
+                "new_table_entry_counter",
+            };
+            ioPorts.addAll(List.of(onlineModeAditionalPorts));
+        }
+        if (precision.equals("integer")){
+            String[] integerPrecisionAditionalPorts = {
+                "feature",
+            };
+            ioPorts.addAll(List.of(integerPrecisionAditionalPorts));
+        }
+        if (precision.equals("decimal")){
+            String[] decimalPrecisionAditionalPorts = {
                 "feature_integer",
                 "feature_decimal",
-                "compute_vote_flag"
             };
+            ioPorts.addAll(List.of(decimalPrecisionAditionalPorts));
         }
 
         String header = String.format("module %s (\n", module_name);
         String ports = "";
 
-        for (int index = 0; index <= ioPorts.length; index++){
-            if (index == ioPorts.length){
+        for (int index = 0; index <= ioPorts.size(); index++){
+            if (index == ioPorts.size()){
                 ports += ");\n\n";
             }
-            else if (index == ioPorts.length - 1){
-                ports += tab(1) + ioPorts[index] + "\n";
+            else if (index == ioPorts.size() - 1){
+                ports += tab(1) + ioPorts.get(index) + "\n";
             }
             else {
-                ports += tab(1) + ioPorts[index] + ",\n";
+                ports += tab(1) + ioPorts.get(index) + ",\n";
             }
         }
         return header + ports;
@@ -112,20 +137,26 @@ public class ValidationTableGenerator extends BasicGenerator {
 
     private String generatePortInstantiation (
         int featureQnt,
-        int exponentFeatureBitwidth,
-        int fractionFeatureBitwidth,
-        int classBitwidth
+        int classBitwidth,
+        int comparedValue,
+        String precision
     ){
-        int exponentValueBitwidth = featureQnt * exponentFeatureBitwidth;
-        int fractionValueBitwidth = featureQnt * fractionFeatureBitwidth;
+        int comparedValueBitwidth = featureQnt * comparedValue;
 
         String src = "";
         src += tab(1) + "/* ************************ IO ************************ */\n\n";
         src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
         src += tab(1) + generatePort("reset", WIRE, INPUT, 1, true);
         src += "\n";
-        src += tab(1) + generatePort("feature_integer", WIRE, INPUT, exponentValueBitwidth, true);
-        src += tab(1) + generatePort("feature_decimal", WIRE, INPUT, fractionValueBitwidth, true);
+
+        if (precision.equals("integer")){
+            src += tab(1) + generatePort("feature", WIRE, INPUT, comparedValueBitwidth * 2, true);
+        }
+        if (precision.equals("decimal")){
+            src += tab(1) + generatePort("feature_integer", WIRE, INPUT, comparedValueBitwidth, true);
+            src += tab(1) + generatePort("feature_decimal", WIRE, INPUT, comparedValueBitwidth, true);
+        }
+
         src += tab(1) + "\n";
         src += tab(1) + generatePort("new_table_entry", WIRE, INPUT, 64, true);
         src += tab(1) + generatePort("new_table_entry_counter", WIRE, INPUT, 16, true);
@@ -141,10 +172,10 @@ public class ValidationTableGenerator extends BasicGenerator {
     private String generateInternalVariables(
         int nodeQuantity,
         int classQuantity,
+        int comparedValueBitwidth,
+        int compaedColumnBitwidth,
         int tableIndexerBitwidth,
-        int integerPartFeatureBitwidth,
-        int decimalPartFeatureBitwidth,
-        int comparatedColumnBitwidth
+        String precision
     ){
         String src = "";
 
@@ -159,56 +190,73 @@ public class ValidationTableGenerator extends BasicGenerator {
 
         src += "\n";
         src += tab(1) + generatePort("tree_vote_wire", WIRE, NONE, tableIndexerBitwidth, true);
-        src += tab(1) + generatePort("threshold_integer_wire", WIRE, NONE, integerPartFeatureBitwidth, true);
-        src += tab(1) + generatePort("threshold_decimal_wire", WIRE, NONE, decimalPartFeatureBitwidth, true);
-        src += tab(1) + generatePort("column_wire", WIRE, NONE, comparatedColumnBitwidth, true);
-        src += "\n";
-        src += tab(1) + generatePort("feature_integer_wire", WIRE, NONE, integerPartFeatureBitwidth, true);
-        src += tab(1) + generatePort("feature_decimal_wire", WIRE, NONE, decimalPartFeatureBitwidth, true);
 
+        if (precision.equals("integer")){
+            src += tab(1) + generatePort("threshold_wire", WIRE, NONE, (comparedValueBitwidth * 2), true);
+            src += tab(1) + generatePort("column_wire", WIRE, NONE, compaedColumnBitwidth, true);
+            src += "\n";
+
+            src += tab(1) + generatePort("feature_wire", WIRE, NONE, (comparedValueBitwidth * 2), true);
+        }
+        if (precision.equals("decimal")){
+            src += tab(1) + generatePort("threshold_integer_wire", WIRE, NONE, comparedValueBitwidth, true);
+            src += tab(1) + generatePort("threshold_decimal_wire", WIRE, NONE, comparedValueBitwidth, true);
+            src += tab(1) + generatePort("column_wire", WIRE, NONE, compaedColumnBitwidth, true);
+            src += "\n";
+
+            src += tab(1) + generatePort("feature_integer_wire", WIRE, NONE, comparedValueBitwidth, true);
+            src += tab(1) + generatePort("feature_decimal_wire", WIRE, NONE, comparedValueBitwidth, true);
+        }
         return src;
     }
 
-    private String generateWireAssign(){
+    private String generateWireAssign(
+        int comparedValueBitwidth,
+        int comparedColumnBitwidth,
+        int tableIndexerBitwidth,
+        String precision
+    ){
+
+        int tableEntryBitwidth = (comparedValueBitwidth * 2) + comparedColumnBitwidth + (tableIndexerBitwidth * 2) + 1;
+
         String src = "";
         src += tab(1) + "assign tree_vote_wire = nodes_table[next][12:0];\n";
-        src += tab(1) + "assign threshold_integer_wire = nodes_table[next][63:52];\n";
-        src += tab(1) + "assign threshold_decimal_wire = nodes_table[next][51:40];\n";
         src += tab(1) + "assign column_wire = nodes_table[next][38:26];\n";
-        src += "\n";
-        src += tab(1) + """
-                        assign feature_integer_wire = {
-                                feature_integer[(column_wire * 12) + 11],
-                                feature_integer[(column_wire * 12) + 10],
-                                feature_integer[(column_wire * 12) + 9],
-                                feature_integer[(column_wire * 12) + 8],
-                                feature_integer[(column_wire * 12) + 7],
-                                feature_integer[(column_wire * 12) + 6],
-                                feature_integer[(column_wire * 12) + 5],
-                                feature_integer[(column_wire * 12) + 4],
-                                feature_integer[(column_wire * 12) + 3],
-                                feature_integer[(column_wire * 12) + 2],
-                                feature_integer[(column_wire * 12) + 1],
-                                feature_integer[(column_wire * 12) + 0]
-                            };
-                        """;
-        src += "\n";
-        src += tab(1) + """
-                        assign feature_decimal_wire = {
-                                feature_decimal[(column_wire * 12) + 11],
-                                feature_decimal[(column_wire * 12) + 10],
-                                feature_decimal[(column_wire * 12) + 9],
-                                feature_decimal[(column_wire * 12) + 8],
-                                feature_decimal[(column_wire * 12) + 7],
-                                feature_decimal[(column_wire * 12) + 6],
-                                feature_decimal[(column_wire * 12) + 5],
-                                feature_decimal[(column_wire * 12) + 4],
-                                feature_decimal[(column_wire * 12) + 3],
-                                feature_decimal[(column_wire * 12) + 2],
-                                feature_decimal[(column_wire * 12) + 1],
-                                feature_decimal[(column_wire * 12) + 0]
-                            };
-                        """;
+
+        if (precision.equals("integer")){
+            src += tab(1) + "assign threshold_wire = nodes_table[next][63:40];\n";
+            src += "\n";
+
+            src += tab(1) + "assign feature_wire = {\n";
+            for (int index = (comparedValueBitwidth * 2) - 1; index >= 0; index--) {
+                src += tab(2) + String.format("feature[(column_wire * %d) + %d],\n", (comparedValueBitwidth * 2), index);
+            }
+            src += tab(1) + "};\n";
+        }
+        if (precision.equals("decimal")){
+            src += tab(1) + String.format(
+                "assign threshold_integer_wire = nodes_table[next][%d:%d];\n",
+                tableEntryBitwidth - 1,
+                tableEntryBitwidth - comparedValueBitwidth
+            );
+            src += tab(1) + String.format(
+                    "assign threshold_decimal_wire = nodes_table[next][%d:%d];\n",
+                    (tableEntryBitwidth - comparedValueBitwidth) - 1,
+                    (tableEntryBitwidth - comparedValueBitwidth) - comparedValueBitwidth
+            );
+            src += "\n";
+
+            src += tab(1) + "assign feature_integer_wire = {\n";
+            for (int index = comparedValueBitwidth - 1; index >= 0; index--) {
+                src += tab(2) + String.format("feature_integer[(column_wire * %d) + %d],\n", comparedValueBitwidth, index);
+            }
+            src += tab(1) + "};\n";
+            src += tab(1) + "assign feature_decimal_wire = {\n";
+            for (int index = comparedValueBitwidth - 1; index >= 0; index--) {
+                src += tab(2) + String.format("feature_decimal[(column_wire * %d) + %d],\n", comparedValueBitwidth, index);
+            }
+            src += tab(1) + "};\n";
+        }
         return src;
     }
 

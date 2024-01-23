@@ -1,5 +1,6 @@
 package project.src.java.approaches.fpga.tableGenerator;
 
+import project.src.java.Main;
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
 import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntryDecimalPrecision;
@@ -13,6 +14,7 @@ import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
 import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
+import project.src.java.util.executionSettings.executionSettingsData.ExecutionSettings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,33 +26,61 @@ public class TableEntryGenerator extends BasicGenerator {
     private final ArrayList<RawTableEntry>    rawTableEntries    = new ArrayList<>();
     private final ArrayList<BinaryTableEntry> binaryTableEntries = new ArrayList<>();
 
-    public ArrayList<BinaryTableEntry> execute(List<Tree> treeList, String datasetName, String precision, boolean offlineMode){
+    public ArrayList<BinaryTableEntry> execute(
+            List<Tree> treeList,
+            String datasetName,
+            ExecutionSettings settings,
+            boolean offlineMode
+    ){
+
         Node root;
         int offset = 0;
 
-        if (precision.equals("decimal")) {
+        if (settings.generalParameters.precision.equals("decimal")) {
             for (int index = 0; index < treeList.size(); index++) {
                 root = treeList.get(index).getRoot();
                 generateNodeRawTableEntryDecimalPrecision(root);
 
                 if (index == treeList.size() - 1) {
-                    offset = generateBinaryTableEntryDecimalPrecision(offset, true);
+                    offset = generateBinaryTableEntryDecimalPrecision(
+                        offset,
+                        settings.inferenceParameters.fieldsBitwidth.comparedValue,
+                        settings.inferenceParameters.fieldsBitwidth.comparedColumn,
+                        settings.inferenceParameters.fieldsBitwidth.index,
+                        true
+                    );
                 } else {
-                    offset = generateBinaryTableEntryDecimalPrecision(offset, false);
+                    offset = generateBinaryTableEntryDecimalPrecision(
+                        offset,
+                        settings.inferenceParameters.fieldsBitwidth.comparedValue,
+                        settings.inferenceParameters.fieldsBitwidth.comparedColumn,
+                        settings.inferenceParameters.fieldsBitwidth.index,
+                        false
+                    );
                 }
                 rawTableEntries.clear();
             }
         }
 
-        else if (precision.equals("integer")){
+        else if (settings.generalParameters.precision.equals("integer")){
             for (int index = 0; index < treeList.size(); index++) {
                 root = treeList.get(index).getRoot();
                 generateNodeRawTableEntryIntegerPrecision(root);
 
                 if (index == treeList.size() - 1) {
-                    offset = generateBinaryTableEntryIntegerPrecision(offset, true);
+                    offset = generateBinaryTableEntryIntegerPrecision(
+                        offset,
+                        settings.inferenceParameters.fieldsBitwidth.comparedValue,
+                        settings.inferenceParameters.fieldsBitwidth.comparedColumn,
+                        settings.inferenceParameters.fieldsBitwidth.index,
+                        true
+                    );
                 } else {
-                    offset = generateBinaryTableEntryIntegerPrecision(offset, false);
+                    offset = generateBinaryTableEntryIntegerPrecision(offset,
+                    settings.inferenceParameters.fieldsBitwidth.comparedValue,
+                    settings.inferenceParameters.fieldsBitwidth.comparedColumn,
+                    settings.inferenceParameters.fieldsBitwidth.index,
+                    false);
                 }
                 rawTableEntries.clear();
             }
@@ -135,7 +165,14 @@ public class TableEntryGenerator extends BasicGenerator {
         }
     }
 
-    private Integer generateBinaryTableEntryDecimalPrecision(int offset, boolean lastTreeFlag){
+    private Integer generateBinaryTableEntryDecimalPrecision(
+        int offset,
+        int comparedValueBitwidth,
+        int comparedColumnBitwidth,
+        int tableIndexerBitwidth,
+        boolean lastTreeFlag
+    ){
+
         var identifiers = new ArrayList<Integer>();
 
         for (int index = 0; index < this.rawTableEntries.size(); index++){
@@ -181,26 +218,32 @@ public class TableEntryGenerator extends BasicGenerator {
                         thresholdInteger = 0;
                         thresholdDecimal = 0;
                         outerNodeFlag = true;
-                        comparedColumn = 8191; /* valor maximo capaz de armazenar em 13 bits */
-
+                        /* calc the maximum value what the bitfield can represent */
+                        comparedColumn = ((int) Math.pow(2, comparedColumnBitwidth)) - 1;
                         this.rawTableEntries.remove(index2);
                     }
                 }
             }
             BinaryTableEntryDecimalPrecision entry = new BinaryTableEntryDecimalPrecision(
                 generateBinaryNumber(outerNodeFlag ? 1 : 0, 1),
-                generateBinaryNumber(comparedColumn, 13),
-                generateBinaryNumber(leftNodeIndex, 13),
-                generateBinaryNumber(rightNodeIndex, 13),
-                generateBinaryNumber(thresholdInteger, 12),
-                generateBinaryNumber(thresholdDecimal, 12)
+                generateBinaryNumber(comparedColumn,   comparedColumnBitwidth),
+                generateBinaryNumber(leftNodeIndex,    tableIndexerBitwidth),
+                generateBinaryNumber(rightNodeIndex,   tableIndexerBitwidth),
+                generateBinaryNumber(thresholdInteger, comparedValueBitwidth),
+                generateBinaryNumber(thresholdDecimal, comparedValueBitwidth)
             );
             binaryTableEntries.add(entry);
         }
         return uniqueIdentifiers.size() + offset;
     }
 
-    private Integer generateBinaryTableEntryIntegerPrecision(int offset, boolean lastTreeFlag){
+    private Integer generateBinaryTableEntryIntegerPrecision(
+            int offset,
+            int comparedValueBitwidth,
+            int comparedColumnBitwidth,
+            int tableIndexerBitwidth,
+            boolean lastTreeFlag
+    ){
         var identifiers = new ArrayList<Integer>();
 
         for (int index = 0; index < this.rawTableEntries.size(); index++){
@@ -211,11 +254,11 @@ public class TableEntryGenerator extends BasicGenerator {
         for (int index = 0; index < this.rawTableEntries.size(); index++){
             boolean leftValueReadFLag = false;
 
-            int     threshold = 0;
-            boolean outerNodeFlag    = false;
-            int     comparedColumn   = 0;
-            int     leftNodeIndex    = 0;
-            int     rightNodeIndex   = 0;
+            int     threshold      = 0;
+            boolean outerNodeFlag  = false;
+            int     comparedColumn = 0;
+            int     leftNodeIndex  = 0;
+            int     rightNodeIndex = 0;
 
             for (int index2 = 0; index2 < this.rawTableEntries.size(); index2++){
                 if (this.rawTableEntries.get(index2) instanceof RawTableEntryInnerNodeIntegerPrecision){
@@ -243,7 +286,8 @@ public class TableEntryGenerator extends BasicGenerator {
                         rightNodeIndex = ((RawTableEntryOuterNode) this.rawTableEntries.get(index2)).getNodeClass() + 1;
                         threshold = 0;
                         outerNodeFlag = true;
-                        comparedColumn = 8191; /* valor maximo capaz de armazenar em 13 bits */
+                        /* calc the maximum value what the bitfield can represent */
+                        comparedColumn = ((int) Math.pow(2, comparedColumnBitwidth)) - 1;
 
                         this.rawTableEntries.remove(index2);
                     }
@@ -251,10 +295,10 @@ public class TableEntryGenerator extends BasicGenerator {
             }
             BinaryTableEntryIntegerPrecision entry = new BinaryTableEntryIntegerPrecision(
                     generateBinaryNumber(outerNodeFlag ? 1 : 0, 1),
-                    generateBinaryNumber(comparedColumn, 13),
-                    generateBinaryNumber(leftNodeIndex, 13),
-                    generateBinaryNumber(rightNodeIndex, 13),
-                    generateBinaryNumber(threshold, 24)
+                    generateBinaryNumber(comparedColumn, comparedColumnBitwidth),
+                    generateBinaryNumber(leftNodeIndex, tableIndexerBitwidth),
+                    generateBinaryNumber(rightNodeIndex, tableIndexerBitwidth),
+                    generateBinaryNumber(threshold, comparedValueBitwidth * 2)
             );
             binaryTableEntries.add(entry);
         }

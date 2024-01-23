@@ -5,24 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class FieldsBitwidth {
 
     @JsonProperty("threshold")
-    private int threshold;
+    public int comparedValue;
 
     @JsonProperty("compared_column")
-    private int comparedColumn;
+    public int comparedColumn;
 
     @JsonProperty("index")
-    private int index;
-
-
-    public int getThreshold() {
-        return threshold;
-    }
-
-    public int getComparedColumn() {
-        return comparedColumn;
-    }
-
-    public int getIndex() {
-        return index;
-    }
+    public int index;
 }

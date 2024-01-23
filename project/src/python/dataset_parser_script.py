@@ -13,6 +13,17 @@ PRECISION = sys.argv[6]
 dataset = pd.read_csv(DATASET_PATH + "/project/assets/datasets/" + DATASET + ".csv")
 
 
+def to_bin(decimal_value, num_bits):
+    binary_value = bin(decimal_value)[2:]
+
+    if len(binary_value) > num_bits:
+        sys.exit(10)
+        # raise ValueError("O número de bits especificado é menor que a representação binária do valor decimal.")
+    elif len(binary_value) < num_bits:
+        binary_value = '0' * (num_bits - len(binary_value)) + binary_value
+    return binary_value
+
+
 def max_decimal_places(value):
     # Esta função retorna o número máximo de casas decimais em um valor
     if isinstance(value, float):
@@ -47,47 +58,6 @@ else:
 dataset = dataset.drop(class_column, axis=1)
 COLUMNS = dataset.shape[1]
 LINES = dataset.shape[0]
-
-
-def to_bin(decimal_value, num_bits):
-    binary_value = bin(decimal_value)[2:]
-
-    if len(binary_value) > num_bits:
-        sys.exit(10)
-        # raise ValueError("O número de bits especificado é menor que a representação binária do valor decimal.")
-    elif len(binary_value) < num_bits:
-        binary_value = '0' * (num_bits - len(binary_value)) + binary_value
-    return binary_value
-
-
-def build_binary_dataset(integer_array, decimal_array, precision):
-    binary_dataset = []
-
-    if precision == "decimal":
-        for index in range(LINES):
-            line = ""
-            for index2 in range(COLUMNS):
-                line += integer_array[0]
-                integer_array = integer_array[1:]
-            binary_dataset.append(line)
-
-        for index in range(LINES):
-            line = ""
-            for index2 in range(COLUMNS):
-                line += decimal_array[0]
-                decimal_array = decimal_array[1:]
-            binary_dataset[index] = binary_dataset[index] + line
-        return binary_dataset
-
-    elif precision == "integer":
-        for index in range(LINES):
-            line = ""
-            for index2 in range(COLUMNS):
-                line += integer_array[0]
-                integer_array = integer_array[1:]
-            binary_dataset.append(line)
-        return binary_dataset
-
 
 binary_dataset = []
 

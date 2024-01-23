@@ -6,24 +6,11 @@ import project.src.java.util.executionSettings.executionSettingsData.FieldsBitwi
 public class InferenceParameters {
 
     @JsonProperty("approach")
-    private String approach;
+    public String approach;
 
     @JsonProperty("mode")
-    private String mode;
+    public String mode;
 
     @JsonProperty("fields_bitwidth")
-    private FieldsBitwidth fieldsBitwidth;
-
-
-    public String getApproach() {
-        return approach;
-    }
-
-    public String getMode() {
-        return mode;
-    }
-
-    public FieldsBitwidth getFieldsBitwidth() {
-        return fieldsBitwidth;
-    }
+    public FieldsBitwidth fieldsBitwidth;
 }

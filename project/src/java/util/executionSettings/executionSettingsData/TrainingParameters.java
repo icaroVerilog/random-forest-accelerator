@@ -5,24 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class TrainingParameters {
 
     @JsonProperty("estimators")
-    private int estimatorsQuantity;
+    public int estimatorsQuantity;
 
     @JsonProperty("training_percent")
-    private int trainingPercent;
+    public int trainingPercent;
 
     @JsonProperty("max_depth")
-    private String maxDepth;
-
-
-    public int getEstimatorsQuantity() {
-        return estimatorsQuantity;
-    }
-
-    public int getTrainingPercent() {
-        return trainingPercent;
-    }
-
-    public String getMaxDepth() {
-        return maxDepth;
-    }
+    public String maxDepth;
 }

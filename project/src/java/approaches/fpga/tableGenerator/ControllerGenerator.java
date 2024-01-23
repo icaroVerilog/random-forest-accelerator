@@ -2,29 +2,31 @@ package project.src.java.approaches.fpga.tableGenerator;
 
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
+import project.src.java.util.executionSettings.executionSettingsData.ExecutionSettings;
 
 public class ControllerGenerator extends BasicGenerator {
-    public void execute(int classBitwidth, int featureQuantity, String datasetName, boolean offlineMode){
+
+    private final String MODULE_NAME = "controller";
+
+    public void execute(int classBitwidth, int featureQuantity, String datasetName, ExecutionSettings settings, boolean offlineMode){
         System.out.println("generating controller");
 
-        var configs = new Configurations();
-
         String src = "";
-        src += generateHeader("controller", offlineMode);
+        src += generateHeader(MODULE_NAME, offlineMode);
 
         src += generatePortInstantiation(
-            configs.INTEGER_PART_BITWIDTH,
-            configs.DECIMAL_PART_BITWIDTH,
+            settings.inferenceParameters.fieldsBitwidth.comparedValue,
             featureQuantity,
             classBitwidth,
-            offlineMode
+            offlineMode,
+            settings.generalParameters.precision
         );
 
         src += generateValidationTableInstantiation(
-            configs.INTEGER_PART_BITWIDTH,
-            configs.DECIMAL_PART_BITWIDTH,
+            settings.inferenceParameters.fieldsBitwidth.comparedValue,
             featureQuantity,
-            offlineMode
+            offlineMode,
+            settings.generalParameters.precision
         );
 
         src += "endmodule";
@@ -72,18 +74,18 @@ public class ControllerGenerator extends BasicGenerator {
     }
 
     private String generatePortInstantiation(
-        int integerPartFeatureBitwidth,
-        int decimalPartFeatureBitwidth,
+        int featureBitwidth,
         int featureQuantity,
         int classBitwidth,
-        boolean offlineMode
+        boolean offlineMode,
+        String precision
     ){
         String src = "";
 
         src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
         src += tab(1) + generatePort("reset", WIRE, INPUT, 1, true);
         src += "\n";
-        int featuresBusBitwidth = (integerPartFeatureBitwidth + decimalPartFeatureBitwidth) * featureQuantity;
+        int featuresBusBitwidth = (featureBitwidth * 2) * featureQuantity;
 
         src += tab(1) + generatePort("features", WIRE, INPUT, featuresBusBitwidth, true);
 
@@ -101,13 +103,16 @@ public class ControllerGenerator extends BasicGenerator {
     }
 
     private String generateValidationTableInstantiation(
-        int integerPartFeatureBitwidth,
-        int decimalPartFeatureBitwidth,
+        int featureBitwidth,
         int featureQuantity,
-        boolean offlineMode
+        boolean offlineMode,
+        String precision
     ){
-        int featureIntegerBusBitwidth = integerPartFeatureBitwidth * featureQuantity;
-        int featureDecimalBusBitwidth = decimalPartFeatureBitwidth * featureQuantity;
+
+        /*TODO: refatorar os nomes abaixo*/
+
+        int featureIntegerBusBitwidth = featureBitwidth * featureQuantity;
+        int featureDecimalBusBitwidth = featureBitwidth * featureQuantity;
 
         String src = "";
 
@@ -123,20 +128,25 @@ public class ControllerGenerator extends BasicGenerator {
         src += tab(2) + String.format(".%s(%s),\n", "compute_vote_flag", "compute_vote_flag");
         src += tab(2) + String.format(".%s(%s),\n", "read_new_sample", "read_new_sample");
 
-        src += tab(2) + String.format(
-                ".%s(%s[%d:%d]),\n",
-                "feature_integer",
-                "features",
-                (featureDecimalBusBitwidth - 1) + featureIntegerBusBitwidth,
-                featureDecimalBusBitwidth
-        );
-        src += tab(2) + String.format(
-                ".%s(%s[%d:%d])\n",
-                "feature_decimal",
-                "features",
-                featureDecimalBusBitwidth - 1,
-                0
-        );
+        if (precision.equals("integer")){
+            src += tab(2) + String.format(
+                    ".feature(features[%d:%d])\n",
+                    (featureDecimalBusBitwidth - 1) + featureIntegerBusBitwidth,
+                    0
+            );
+        }
+        if (precision.equals("decimal")){
+            src += tab(2) + String.format(
+                    ".feature_integer(features[%d:%d]),\n",
+                    (featureDecimalBusBitwidth - 1) + featureIntegerBusBitwidth,
+                    featureDecimalBusBitwidth
+            );
+            src += tab(2) + String.format(
+                    ".feature_decimal(features[%d:%d]),\n",
+                    featureDecimalBusBitwidth - 1,
+                    0
+            );
+        }
         src += tab(1) + ");\n";
 
         return src;
