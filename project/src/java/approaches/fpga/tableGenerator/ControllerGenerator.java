@@ -90,7 +90,15 @@ public class ControllerGenerator extends BasicGenerator {
         src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
         src += tab(1) + generatePort("reset", WIRE, INPUT, 1, true);
         src += "\n";
-        int featuresBusBitwidth = this.comparedValueBitwidth  * featureQuantity;
+
+        int featuresBusBitwidth = 0;
+
+        if (this.precision.equals("integer")){
+            featuresBusBitwidth = this.comparedValueBitwidth  * featureQuantity;
+        }
+        if (this.precision.equals("decimal")){
+            featuresBusBitwidth = (this.comparedValueBitwidth * 2) * featureQuantity;
+        }
 
         src += tab(1) + generatePort("features", WIRE, INPUT, featuresBusBitwidth, true);
 

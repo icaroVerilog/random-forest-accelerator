@@ -111,6 +111,7 @@ public class TableEntryGenerator extends BasicGenerator {
             );
         } else {
             InnerNode newNode = (InnerNode) node;
+//            System.out.println(newNode.getComparisson().getThreshold().toString());
             rawTableEntries.add(
                 new RawTableEntryInnerNodeDecimalPrecision(
                     newNode.getId(),
@@ -119,7 +120,7 @@ public class TableEntryGenerator extends BasicGenerator {
                 )
             );
             generateNodeRawTableEntryDecimalPrecision(newNode.getLeftNode());
-
+//            System.out.println(newNode.getComparisson().getThreshold().toString());
             rawTableEntries.add(
                 new RawTableEntryInnerNodeDecimalPrecision(
                     newNode.getId(),
@@ -170,6 +171,7 @@ public class TableEntryGenerator extends BasicGenerator {
         int tableIndexerBitwidth,
         boolean lastTreeFlag
     ){
+        System.out.println("entrou1");
 
         var identifiers = new ArrayList<Integer>();
 

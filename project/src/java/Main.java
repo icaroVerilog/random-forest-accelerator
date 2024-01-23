@@ -10,6 +10,7 @@ import project.src.java.util.PythonTreeGeneratorCaller;
 import project.src.java.util.PythonDatasetParserCaller;
 
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.util.List;
 
 public class Main {
@@ -34,7 +35,7 @@ public class Main {
         );
 
         if (returnCode != 0) {
-            System.out.printf("The number of bits required for the values in the dataset is at least %d bits\n\n", returnCode);
+            System.out.printf("the number of bits required for the values in the dataset is at least %d bits\n\n", returnCode);
             System.out.println("job finished: Failed");
             System.exit(1);
         }
