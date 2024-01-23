@@ -77,7 +77,7 @@ if PRECISION == "integer":
             integer_part_list.append(integer_part)
 
     for value in integer_part_list:
-        integer_part_list_bin.append(to_bin(int(value), BITWIDTH * 2))
+        integer_part_list_bin.append(to_bin(int(value), BITWIDTH))
 
     for index in range(LINES):
         line = ""

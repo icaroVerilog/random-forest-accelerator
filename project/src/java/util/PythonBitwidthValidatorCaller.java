@@ -9,7 +9,7 @@ public class PythonBitwidthValidatorCaller {
     private static final String scriptName = "bitwidth_validator_script";
     private static final String runtime = "python3";
 
-    public int execute(String basePath, String datasetName) {
+    public int execute(String basePath, String datasetName, int bitwidth) {
         String pythonScriptPath = String.format("%s/project/src/python/%s.py", basePath, scriptName);
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(
@@ -18,7 +18,7 @@ public class PythonBitwidthValidatorCaller {
                     basePath,
                     datasetName,
                     Boolean.toString(true),
-                    Integer.toString(12)
+                    Integer.toString(bitwidth)
             );
 
             processBuilder.redirectErrorStream(true);

@@ -29,7 +29,8 @@ public class Main {
         PythonBitwidthValidatorCaller bitwidthValidatorCaller = new PythonBitwidthValidatorCaller();
         int returnCode = bitwidthValidatorCaller.execute(
                 path,
-                settings.generalParameters.datasetName
+                settings.generalParameters.datasetName,
+                settings.inferenceParameters.fieldsBitwidth.comparedValue
         );
 
         if (returnCode != 0) {
@@ -62,13 +63,14 @@ public class Main {
             settings
         );
 
-//        PythonDatasetParserCaller datasetParser = new PythonDatasetParserCaller();
-//        datasetParser.execute(
-//                path,
-//                settings.generalParameters.datasetName,
-//                settings.inferenceParameters.approach,
-//                settings.generalParameters.precision
-//        );
+        PythonDatasetParserCaller datasetParser = new PythonDatasetParserCaller();
+        datasetParser.execute(
+                path,
+                settings.inferenceParameters.fieldsBitwidth.comparedValue,
+                settings.generalParameters.datasetName,
+                settings.inferenceParameters.approach,
+                settings.generalParameters.precision
+        );
 
         System.out.println("job finished: Success");
     }

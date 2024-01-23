@@ -8,25 +8,32 @@ public class ControllerGenerator extends BasicGenerator {
 
     private final String MODULE_NAME = "controller";
 
+    private int comparedValueBitwidth;
+    private int comparedColumnBitwidth;
+    private int tableIndexerBitwidth;
+    private int voteCounterBitwidth;
+    private String precision;
+
     public void execute(int classBitwidth, int featureQuantity, ExecutionSettings settings, boolean offlineMode){
         System.out.println("generating controller");
+
+        this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
+        this.comparedColumnBitwidth = settings.inferenceParameters.fieldsBitwidth.comparedColumn;
+        this.tableIndexerBitwidth   = settings.inferenceParameters.fieldsBitwidth.index;
+        this.precision              = settings.generalParameters.precision;
 
         String src = "";
         src += generateHeader(MODULE_NAME, offlineMode);
 
         src += generatePortInstantiation(
-            settings.inferenceParameters.fieldsBitwidth.comparedValue,
             featureQuantity,
             classBitwidth,
-            offlineMode,
-            settings.generalParameters.precision
+            offlineMode
         );
 
         src += generateValidationTableInstantiation(
-            settings.inferenceParameters.fieldsBitwidth.comparedValue,
             featureQuantity,
-            offlineMode,
-            settings.generalParameters.precision
+            offlineMode
         );
 
         src += "endmodule";
@@ -74,18 +81,16 @@ public class ControllerGenerator extends BasicGenerator {
     }
 
     private String generatePortInstantiation(
-        int featureBitwidth,
         int featureQuantity,
         int classBitwidth,
-        boolean offlineMode,
-        String precision
+        boolean offlineMode
     ){
         String src = "";
 
         src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
         src += tab(1) + generatePort("reset", WIRE, INPUT, 1, true);
         src += "\n";
-        int featuresBusBitwidth = (featureBitwidth * 2) * featureQuantity;
+        int featuresBusBitwidth = this.comparedValueBitwidth  * featureQuantity;
 
         src += tab(1) + generatePort("features", WIRE, INPUT, featuresBusBitwidth, true);
 
@@ -103,13 +108,11 @@ public class ControllerGenerator extends BasicGenerator {
     }
 
     private String generateValidationTableInstantiation(
-        int featureBitwidth,
         int featureQuantity,
-        boolean offlineMode,
-        String precision
+        boolean offlineMode
     ){
 
-        int featureBusBitwidth = featureBitwidth * featureQuantity;
+        int featureBusBitwidth = this.comparedValueBitwidth * featureQuantity;
 
         String src = "";
 
@@ -125,14 +128,14 @@ public class ControllerGenerator extends BasicGenerator {
         src += tab(2) + String.format(".%s(%s),\n", "compute_vote_flag", "compute_vote_flag");
         src += tab(2) + String.format(".%s(%s),\n", "read_new_sample", "read_new_sample");
 
-        if (precision.equals("integer")){
+        if (this.precision.equals("integer")){
             src += tab(2) + String.format(
                     ".feature(features[%d:%d])\n",
-                    (featureBusBitwidth - 1) + featureBusBitwidth,
+                    (featureBusBitwidth - 1),
                     0
             );
         }
-        if (precision.equals("decimal")){
+        if (this.precision.equals("decimal")){
             src += tab(2) + String.format(
                     ".feature_integer(features[%d:%d]),\n",
                     (featureBusBitwidth - 1) + featureBusBitwidth,

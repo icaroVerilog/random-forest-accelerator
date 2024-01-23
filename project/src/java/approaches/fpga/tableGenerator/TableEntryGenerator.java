@@ -31,7 +31,6 @@ public class TableEntryGenerator extends BasicGenerator {
             ExecutionSettings settings,
             boolean offlineMode
     ){
-
         Node root;
         int offset = 0;
 
@@ -297,7 +296,7 @@ public class TableEntryGenerator extends BasicGenerator {
                     generateBinaryNumber(comparedColumn, comparedColumnBitwidth),
                     generateBinaryNumber(leftNodeIndex, tableIndexerBitwidth),
                     generateBinaryNumber(rightNodeIndex, tableIndexerBitwidth),
-                    generateBinaryNumber(threshold, comparedValueBitwidth * 2)
+                    generateBinaryNumber(threshold, comparedValueBitwidth)
             );
             binaryTableEntries.add(entry);
         }

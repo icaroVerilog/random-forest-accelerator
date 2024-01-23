@@ -1,11 +1,11 @@
 {
     "general_parameters": {
 	"dataset": "iris",
-	"precision": "decimal"
+	"precision": "integer"
     },
     "training_parameters": {
 	"estimators": 100,
-	"training_percent": 30,
+	"training_percent": 20,
 	"max_depth": "none"
     },
     "inference_parameters": {

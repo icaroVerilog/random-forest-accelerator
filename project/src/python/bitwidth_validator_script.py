@@ -40,8 +40,10 @@ for column in dataset_columns:
 
 if (bigger_integer_value > bigger_decimal_value):
     required_bitwidth = math.ceil(math.log2(bigger_integer_value))
+    print(bigger_integer_value)
 else:
     required_bitwidth = math.ceil(math.log2(bigger_decimal_value))
+    print(bigger_decimal_value)
 
 
 if (BITWIDTH >= required_bitwidth):
