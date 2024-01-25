@@ -4,7 +4,7 @@
 	"precision": "decimal"
     },
     "training_parameters": {
-	"estimators": 100,
+	"estimators": 3,
 	"training_percent": 20,
 	"max_depth": "none"
     },

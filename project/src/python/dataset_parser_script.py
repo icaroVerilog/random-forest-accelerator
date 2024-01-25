@@ -59,6 +59,15 @@ dataset = dataset.drop(class_column, axis=1)
 COLUMNS = dataset.shape[1]
 LINES = dataset.shape[0]
 
+dataset_column_order = []
+
+counter = COLUMNS - 1
+for index in range(0, COLUMNS):
+    dataset_column_order.append(counter)
+    counter = counter - 1
+
+dataset = dataset.iloc[:, dataset_column_order]
+
 binary_dataset = []
 
 if PRECISION == "integer":
