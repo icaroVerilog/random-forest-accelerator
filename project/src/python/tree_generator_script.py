@@ -66,7 +66,9 @@ tree_folder_path = DATASET_PATH + "/project/assets/trees"
 
 if os.path.exists(tree_folder_path):
     if os.path.exists(tree_path):
-        pass
+        folder = os.listdir(tree_path)
+        for file in folder:
+            os.remove(tree_path + "/" + file)
     else:
         os.mkdir(tree_path)
 else:

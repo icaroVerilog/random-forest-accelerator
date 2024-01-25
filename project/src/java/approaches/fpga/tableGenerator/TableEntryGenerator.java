@@ -171,7 +171,6 @@ public class TableEntryGenerator extends BasicGenerator {
         int tableIndexerBitwidth,
         boolean lastTreeFlag
     ){
-        System.out.println("entrou1");
 
         var identifiers = new ArrayList<Integer>();
 

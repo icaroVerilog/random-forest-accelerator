@@ -49,11 +49,6 @@ public class Parser {
     private static List<Tree> readDatasetSamples(String dataset) throws IOException {
         var path = System.getProperty("user.dir") + "/project/assets/trees/" + dataset;
         var files = listFiles(path);
-//        return files
-//            .stream()
-//            .sorted()
-//            .map(file -> parseFromDot(path, file))
-//            .collect(Collectors.toList());
         var a = files
                 .stream()
                 .sorted()
@@ -63,6 +58,8 @@ public class Parser {
     }
 
     private static Tree parseFromDot(String path, String file){
+//        System.out.println("---");
+//        System.out.println(file);
         try {
             return TreeBuilder.execute(path+"/"+file, featuresNames, classesNames);
         } catch (Exception e) {

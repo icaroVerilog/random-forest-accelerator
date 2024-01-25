@@ -4,7 +4,7 @@
 	"precision": "decimal"
     },
     "training_parameters": {
-	"estimators": 50,
+	"estimators": 100,
 	"training_percent": 20,
 	"max_depth": "none"
     },
@@ -13,7 +13,7 @@
 	"mode": "synthesis",
 	    
 	"fields_bitwidth": {
-	    "threshold": 30,
+	    "threshold": 12,
 	    "compared_column": 13,
 	    "index": 13
 	}
