@@ -34,7 +34,7 @@ public class FPGA {
         System.out.println("\nstarting FPGA random forest generator");
 
         if (settings.inferenceParameters.approach.equals("conditional")){
-            executeConditionalApproach();
+            executeConditionalApproach(settings);
         }
         if (settings.inferenceParameters.approach.equals("table")){
             executeTableApproach(settings);
@@ -43,7 +43,7 @@ public class FPGA {
         System.out.println("\nfinishing FPGA random forest generator");
 //        System.out.println("\n========================================\n");
     }
-    public void executeConditionalApproach() throws IOException {
+    public void executeConditionalApproach(ExecutionSettings settings) throws IOException {
         System.out.println("conditional approach\n");
 
         ConditionalFPGAGenerator conditionalGenerator = new ConditionalFPGAGenerator();
@@ -56,6 +56,7 @@ public class FPGA {
             this.featureQuantity,
             samplesQnt,
             false,
+            settings,
             this.datasetName
         );
     }

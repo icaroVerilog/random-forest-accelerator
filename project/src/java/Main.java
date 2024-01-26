@@ -10,7 +10,6 @@ import project.src.java.util.PythonTreeGeneratorCaller;
 import project.src.java.util.PythonDatasetParserCaller;
 
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.util.List;
 
 public class Main {
@@ -31,7 +30,7 @@ public class Main {
         int returnCode = bitwidthValidatorCaller.execute(
                 path,
                 settings.generalParameters.datasetName,
-                settings.inferenceParameters.fieldsBitwidth.comparedValue
+                settings.inferenceParameters.table.fieldsBitwidth.comparedValue
         );
 
         if (returnCode != 0) {
@@ -67,7 +66,7 @@ public class Main {
         PythonDatasetParserCaller datasetParser = new PythonDatasetParserCaller();
         datasetParser.execute(
                 path,
-                settings.inferenceParameters.fieldsBitwidth.comparedValue,
+                settings.inferenceParameters.table.fieldsBitwidth.comparedValue,
                 settings.generalParameters.datasetName,
                 settings.inferenceParameters.approach,
                 settings.generalParameters.precision

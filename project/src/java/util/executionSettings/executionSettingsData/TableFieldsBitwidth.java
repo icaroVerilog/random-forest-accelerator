@@ -2,7 +2,7 @@ package project.src.java.util.executionSettings.executionSettingsData;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class FieldsBitwidth {
+public class TableFieldsBitwidth {
 
     @JsonProperty("threshold")
     public int comparedValue;

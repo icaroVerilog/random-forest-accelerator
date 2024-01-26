@@ -30,9 +30,9 @@ public class ValidationTableGenerator extends BasicGenerator {
     ){
         System.out.println("generating validation table");
 
-        this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
-        this.comparedColumnBitwidth = settings.inferenceParameters.fieldsBitwidth.comparedColumn;
-        this.tableIndexerBitwidth   = settings.inferenceParameters.fieldsBitwidth.index;
+        this.comparedValueBitwidth  = settings.inferenceParameters.table.fieldsBitwidth.comparedValue;
+        this.comparedColumnBitwidth = settings.inferenceParameters.table.fieldsBitwidth.comparedColumn;
+        this.tableIndexerBitwidth   = settings.inferenceParameters.table.fieldsBitwidth.index;
         this.precision              = settings.generalParameters.precision;
 
         /*

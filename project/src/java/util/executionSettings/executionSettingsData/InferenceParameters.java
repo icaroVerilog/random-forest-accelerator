@@ -1,7 +1,6 @@
 package project.src.java.util.executionSettings.executionSettingsData;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import project.src.java.util.executionSettings.executionSettingsData.FieldsBitwidth;
 
 public class InferenceParameters {
 
@@ -11,6 +10,10 @@ public class InferenceParameters {
     @JsonProperty("mode")
     public String mode;
 
-    @JsonProperty("fields_bitwidth")
-    public FieldsBitwidth fieldsBitwidth;
+    @JsonProperty("conditional")
+    public ConditionalParameters conditional;
+
+    @JsonProperty("table")
+    public TableParameters table;
+
 }

@@ -1,6 +1,5 @@
 package project.src.java.approaches.fpga.tableGenerator;
 
-import project.src.java.Main;
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
 import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntryDecimalPrecision;
@@ -42,17 +41,17 @@ public class TableEntryGenerator extends BasicGenerator {
                 if (index == treeList.size() - 1) {
                     offset = generateBinaryTableEntryDecimalPrecision(
                         offset,
-                        settings.inferenceParameters.fieldsBitwidth.comparedValue,
-                        settings.inferenceParameters.fieldsBitwidth.comparedColumn,
-                        settings.inferenceParameters.fieldsBitwidth.index,
+                        settings.inferenceParameters.table.fieldsBitwidth.comparedValue,
+                        settings.inferenceParameters.table.fieldsBitwidth.comparedColumn,
+                        settings.inferenceParameters.table.fieldsBitwidth.index,
                         true
                     );
                 } else {
                     offset = generateBinaryTableEntryDecimalPrecision(
                         offset,
-                        settings.inferenceParameters.fieldsBitwidth.comparedValue,
-                        settings.inferenceParameters.fieldsBitwidth.comparedColumn,
-                        settings.inferenceParameters.fieldsBitwidth.index,
+                        settings.inferenceParameters.table.fieldsBitwidth.comparedValue,
+                        settings.inferenceParameters.table.fieldsBitwidth.comparedColumn,
+                        settings.inferenceParameters.table.fieldsBitwidth.index,
                         false
                     );
                 }
@@ -68,16 +67,16 @@ public class TableEntryGenerator extends BasicGenerator {
                 if (index == treeList.size() - 1) {
                     offset = generateBinaryTableEntryIntegerPrecision(
                         offset,
-                        settings.inferenceParameters.fieldsBitwidth.comparedValue,
-                        settings.inferenceParameters.fieldsBitwidth.comparedColumn,
-                        settings.inferenceParameters.fieldsBitwidth.index,
+                        settings.inferenceParameters.table.fieldsBitwidth.comparedValue,
+                        settings.inferenceParameters.table.fieldsBitwidth.comparedColumn,
+                        settings.inferenceParameters.table.fieldsBitwidth.index,
                         true
                     );
                 } else {
                     offset = generateBinaryTableEntryIntegerPrecision(offset,
-                    settings.inferenceParameters.fieldsBitwidth.comparedValue,
-                    settings.inferenceParameters.fieldsBitwidth.comparedColumn,
-                    settings.inferenceParameters.fieldsBitwidth.index,
+                    settings.inferenceParameters.table.fieldsBitwidth.comparedValue,
+                    settings.inferenceParameters.table.fieldsBitwidth.comparedColumn,
+                    settings.inferenceParameters.table.fieldsBitwidth.index,
                     false);
                 }
                 rawTableEntries.clear();

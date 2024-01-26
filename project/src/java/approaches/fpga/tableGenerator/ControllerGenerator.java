@@ -17,9 +17,9 @@ public class ControllerGenerator extends BasicGenerator {
     public void execute(int classBitwidth, int featureQuantity, ExecutionSettings settings, boolean offlineMode){
         System.out.println("generating controller");
 
-        this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
-        this.comparedColumnBitwidth = settings.inferenceParameters.fieldsBitwidth.comparedColumn;
-        this.tableIndexerBitwidth   = settings.inferenceParameters.fieldsBitwidth.index;
+        this.comparedValueBitwidth  = settings.inferenceParameters.table.fieldsBitwidth.comparedValue;
+        this.comparedColumnBitwidth = settings.inferenceParameters.table.fieldsBitwidth.comparedColumn;
+        this.tableIndexerBitwidth   = settings.inferenceParameters.table.fieldsBitwidth.index;
         this.precision              = settings.generalParameters.precision;
 
         String src = "";
@@ -38,7 +38,7 @@ public class ControllerGenerator extends BasicGenerator {
 
         src += "endmodule";
 
-        FileBuilder.execute(src, String.format("FPGA/table/%s/controller.v", settings.generalParameters.datasetName));
+        FileBuilder.execute(src, String.format("FPGA/table/%s/%s.v", settings.generalParameters.datasetName, this.MODULE_NAME));
     }
 
     private String generateHeader(String module_name, boolean offlineMode){

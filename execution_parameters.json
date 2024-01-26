@@ -9,13 +9,19 @@
 	"max_depth": "none"
     },
     "inference_parameters": {
-	"approach": "table",
+	"approach": "conditional",
 	"mode": "synthesis",
-	    
-	"fields_bitwidth": {
-	    "threshold": 12,
-	    "compared_column": 13,
-	    "index": 13
+	"conditional": {
+	    "fields_bitwidth": {
+		"threshold": 12
+	    }
+	},
+	"table": {
+	    "fields_bitwidth": {
+		"threshold": 12,
+		"compared_column": 13,
+		"index": 13
+	    }
 	}
     }
 }
