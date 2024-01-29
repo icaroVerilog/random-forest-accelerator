@@ -13,7 +13,7 @@ import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
 import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.executionSettingsData.ExecutionSettings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Table;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,13 +27,13 @@ public class TableEntryGenerator extends BasicGenerator {
 
     public ArrayList<BinaryTableEntry> execute(
             List<Tree> treeList,
-            ExecutionSettings settings,
+            Table settings,
             boolean offlineMode
     ){
         Node root;
         int offset = 0;
 
-        if (settings.generalParameters.precision.equals("decimal")) {
+        if (settings.precision.equals("decimal")) {
             for (int index = 0; index < treeList.size(); index++) {
                 root = treeList.get(index).getRoot();
                 generateNodeRawTableEntryDecimalPrecision(root);
@@ -41,17 +41,17 @@ public class TableEntryGenerator extends BasicGenerator {
                 if (index == treeList.size() - 1) {
                     offset = generateBinaryTableEntryDecimalPrecision(
                         offset,
-                        settings.inferenceParameters.table.fieldsBitwidth.comparedValue,
-                        settings.inferenceParameters.table.fieldsBitwidth.comparedColumn,
-                        settings.inferenceParameters.table.fieldsBitwidth.index,
+                        settings.inferenceParameters.fieldsBitwidth.comparedValue,
+                        settings.inferenceParameters.fieldsBitwidth.comparedColumn,
+                        settings.inferenceParameters.fieldsBitwidth.index,
                         true
                     );
                 } else {
                     offset = generateBinaryTableEntryDecimalPrecision(
                         offset,
-                        settings.inferenceParameters.table.fieldsBitwidth.comparedValue,
-                        settings.inferenceParameters.table.fieldsBitwidth.comparedColumn,
-                        settings.inferenceParameters.table.fieldsBitwidth.index,
+                        settings.inferenceParameters.fieldsBitwidth.comparedValue,
+                        settings.inferenceParameters.fieldsBitwidth.comparedColumn,
+                        settings.inferenceParameters.fieldsBitwidth.index,
                         false
                     );
                 }
@@ -59,7 +59,7 @@ public class TableEntryGenerator extends BasicGenerator {
             }
         }
 
-        else if (settings.generalParameters.precision.equals("integer")){
+        else if (settings.precision.equals("integer")){
             for (int index = 0; index < treeList.size(); index++) {
                 root = treeList.get(index).getRoot();
                 generateNodeRawTableEntryIntegerPrecision(root);
@@ -67,16 +67,16 @@ public class TableEntryGenerator extends BasicGenerator {
                 if (index == treeList.size() - 1) {
                     offset = generateBinaryTableEntryIntegerPrecision(
                         offset,
-                        settings.inferenceParameters.table.fieldsBitwidth.comparedValue,
-                        settings.inferenceParameters.table.fieldsBitwidth.comparedColumn,
-                        settings.inferenceParameters.table.fieldsBitwidth.index,
+                        settings.inferenceParameters.fieldsBitwidth.comparedValue,
+                        settings.inferenceParameters.fieldsBitwidth.comparedColumn,
+                        settings.inferenceParameters.fieldsBitwidth.index,
                         true
                     );
                 } else {
                     offset = generateBinaryTableEntryIntegerPrecision(offset,
-                    settings.inferenceParameters.table.fieldsBitwidth.comparedValue,
-                    settings.inferenceParameters.table.fieldsBitwidth.comparedColumn,
-                    settings.inferenceParameters.table.fieldsBitwidth.index,
+                    settings.inferenceParameters.fieldsBitwidth.comparedValue,
+                    settings.inferenceParameters.fieldsBitwidth.comparedColumn,
+                    settings.inferenceParameters.fieldsBitwidth.index,
                     false);
                 }
                 rawTableEntries.clear();
@@ -94,7 +94,7 @@ public class TableEntryGenerator extends BasicGenerator {
                     table += binaryTableEntries.get(index).value() + "\n";
                 }
             }
-            FileBuilder.execute(table, String.format("FPGA/table/%s/table_entries.bin", settings.generalParameters.datasetName));
+            FileBuilder.execute(table, String.format("FPGA/%s_table_run/table_entries.bin", settings.dataset));
         }
         return binaryTableEntries;
     }

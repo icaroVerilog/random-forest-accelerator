@@ -1,10 +1,9 @@
 package project.src.java.util.executionSettings;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import project.src.java.util.executionSettings.executionSettingsData.ExecutionSettings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.ExecutionSettings;
 
 import java.io.File;
-import java.io.IOException;
 
 public class ExecutionSettingsParser {
 

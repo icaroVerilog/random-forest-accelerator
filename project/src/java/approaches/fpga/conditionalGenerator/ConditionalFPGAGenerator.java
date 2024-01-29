@@ -1,8 +1,10 @@
 package project.src.java.approaches.fpga.conditionalGenerator;
 
 import project.src.java.dotTreeParser.treeStructure.Tree;
-import project.src.java.util.executionSettings.executionSettingsData.ExecutionSettings;
+import project.src.java.util.FileBuilder;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Conditional;
 
+import java.io.File;
 import java.util.List;
 
 public class ConditionalFPGAGenerator {
@@ -11,18 +13,18 @@ public class ConditionalFPGAGenerator {
         int classQnt,
         int featureQnt,
         int samplesQnt,
-        boolean debugMode,
-        ExecutionSettings settings,
-        String dataset
+        Conditional settings
     ){
+
+        var a = FileBuilder.createDir(String.format("FPGA/%s_conditional_run", settings.dataset));
 
         var controllerGenerator = new ControllerGenerator();
         var treeGenerator       = new TreeGenerator();
         var apiGenerator        = new ApiGenerator();
 
-        treeGenerator      .execute(treeList, classQnt, featureQnt, dataset, settings);
-        controllerGenerator.execute(treeList.size(), classQnt, featureQnt, samplesQnt, debugMode, dataset);
-        apiGenerator       .execute(featureQnt, classQnt, debugMode, dataset);
+        treeGenerator      .execute(treeList, featureQnt, classQnt, settings);
+        controllerGenerator.execute(treeList.size(), classQnt, featureQnt, samplesQnt, settings);
+//        apiGenerator       .execute(featureQnt, classQnt, debugMode, dataset);
 
     }
 

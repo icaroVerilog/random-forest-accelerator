@@ -1,7 +1,9 @@
 package project.src.java.approaches.fpga.tableGenerator;
 
 import project.src.java.dotTreeParser.treeStructure.Tree;
-import project.src.java.util.executionSettings.executionSettingsData.ExecutionSettings;
+import project.src.java.util.FileBuilder;
+import project.src.java.util.executionSettings.ExecutionSettingsData.*;
+
 
 import java.util.List;
 
@@ -11,8 +13,10 @@ public class TableFPGAGenerator {
         List<Tree> treeList,
         Integer classQuantity,
         Integer featureQuantity,
-        ExecutionSettings settings
+        Table settings
     ){
+
+        FileBuilder.createDir(String.format("FPGA/%s_table_run", settings.dataset));
 
         /* calculate the needed bitwidth to represent each class */
         int classBitwidth = (int) Math.ceil(Math.log(classQuantity) / Math.log(2));

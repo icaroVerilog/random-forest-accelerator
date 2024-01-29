@@ -2,6 +2,7 @@ package project.src.java.approaches.fpga.conditionalGenerator;
 
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Conditional;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -15,24 +16,23 @@ public class ControllerGenerator extends BasicGenerator {
             Integer classQnt,
             Integer featureQnt,
             Integer samplesQnt,
-            Boolean debugMode,
-            String dataset
+            Conditional settings
     ){
         System.out.println("generating controller");
 
         String SRC = "";
 
         SRC += generateImports(treeQnt);
-        SRC += generateIO(featureQnt, classQnt, treeQnt, debugMode);
+        SRC += generateIO(featureQnt, classQnt, treeQnt, false);
 
         for (int index = 0; index < treeQnt; index++){
             SRC += generateModuleInstantiation(featureQnt, index);
         }
 
 //        sourceCode += generateInitialBlock(featureQnt, classQnt, debugMode);
-        SRC += generateAlwaysBlock(featureQnt, samplesQnt, classQnt, treeQnt, debugMode);
+        SRC += generateAlwaysBlock(featureQnt, samplesQnt, classQnt, treeQnt, false);
 
-        FileBuilder.execute(SRC, "FPGA/" + dataset + "/controller.v");
+        FileBuilder.execute(SRC, String.format("FPGA/%s_conditional_run/controller.v", settings.dataset));
     }
 
     private String generateImports(Integer treeQuantity){
@@ -219,18 +219,20 @@ public class ControllerGenerator extends BasicGenerator {
 
         String sourceCode = "";
 
+        int counter = classQnt - 1;
         for (int index1 = 0; index1 < classQnt; index1++){
 
             String voteCounter = ind2 + "class" + generateBinaryNumber(index1, bitwidth) + " <= ";
 
             for (int index2 = 0; index2 < treeQnt; index2++){
                 if (index2 == treeQnt - 1){
-                    voteCounter += "voted_class" + index2 + "[" + index1 + "];\n";
+                    voteCounter += "voted_class" + index2 + "[" + counter + "];\n";
                 }
                 else {
-                    voteCounter += "voted_class" + index2 + "[" + index1 + "] + ";
+                    voteCounter += "voted_class" + index2 + "[" + counter + "] + ";
                 }
             }
+            counter--;
             sourceCode += voteCounter;
         }
 
@@ -258,7 +260,7 @@ public class ControllerGenerator extends BasicGenerator {
             }
 
             expression = expression.replace("x", comparrison);
-            expression = expression.replace(")(", ") & (");
+            expression = expression.replace(")(", ") && (");
 
             body = "voted <= " + bitwidth + "'b" + classes.get(index1) + ";";
 

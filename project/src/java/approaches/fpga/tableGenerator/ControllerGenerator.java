@@ -2,7 +2,7 @@ package project.src.java.approaches.fpga.tableGenerator;
 
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.executionSettingsData.ExecutionSettings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Table;
 
 public class ControllerGenerator extends BasicGenerator {
 
@@ -14,13 +14,13 @@ public class ControllerGenerator extends BasicGenerator {
     private int voteCounterBitwidth;
     private String precision;
 
-    public void execute(int classBitwidth, int featureQuantity, ExecutionSettings settings, boolean offlineMode){
+    public void execute(int classBitwidth, int featureQuantity, Table settings, boolean offlineMode){
         System.out.println("generating controller");
 
-        this.comparedValueBitwidth  = settings.inferenceParameters.table.fieldsBitwidth.comparedValue;
-        this.comparedColumnBitwidth = settings.inferenceParameters.table.fieldsBitwidth.comparedColumn;
-        this.tableIndexerBitwidth   = settings.inferenceParameters.table.fieldsBitwidth.index;
-        this.precision              = settings.generalParameters.precision;
+        this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
+        this.comparedColumnBitwidth = settings.inferenceParameters.fieldsBitwidth.comparedColumn;
+        this.tableIndexerBitwidth   = settings.inferenceParameters.fieldsBitwidth.index;
+        this.precision              = settings.precision;
 
         String src = "";
         src += generateHeader(MODULE_NAME, offlineMode);
@@ -38,7 +38,7 @@ public class ControllerGenerator extends BasicGenerator {
 
         src += "endmodule";
 
-        FileBuilder.execute(src, String.format("FPGA/table/%s/%s.v", settings.generalParameters.datasetName, this.MODULE_NAME));
+        FileBuilder.execute(src, String.format("FPGA/%s_table_run/%s.v", settings.dataset, this.MODULE_NAME));
     }
 
     private String generateHeader(String module_name, boolean offlineMode){

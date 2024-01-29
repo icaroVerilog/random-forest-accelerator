@@ -21,7 +21,7 @@ public class ApiGenerator extends BasicGenerator {
         SRC += generateModuleInstantiation(featureQnt, "controller");
         SRC += generateAlwaysBlock(featureQnt, classQnt);
 
-        FileBuilder.execute(SRC, "FPGA/" + dataset + "/api.v");
+        FileBuilder.execute(SRC, "FPGA/conditional/" + dataset + "/api.v");
     }
 
     private String generateImport(String moduleName){

@@ -7,7 +7,7 @@ import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
 import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.executionSettingsData.ExecutionSettings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Conditional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,10 +19,10 @@ public class TreeGenerator extends BasicGenerator {
     private int comparedValueBitwidth;
     private String precision;
 
-    public void execute(List<Tree> trees, int classQnt, int featureQnt, String dataset, ExecutionSettings settings){
+    public void execute(List<Tree> trees, int featureQnt, int classQnt, Conditional settings){
 
-        this.precision = settings.generalParameters.precision;
-        this.comparedValueBitwidth  = settings.inferenceParameters.conditional.fieldsBitwidth.comparedValue;
+        this.precision = settings.precision;
+        this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 
         for (int index = 0; index < trees.size(); index++){
 
@@ -36,8 +36,7 @@ public class TreeGenerator extends BasicGenerator {
             src += generateConditionals(trees.get(index).getRoot(), 2);
             src += generateEndDelimiters();
 
-            FileBuilder.createDir(String.format("FPGA/%s", settings.generalParameters.datasetName));
-            FileBuilder.execute(src, String.format("FPGA/%s/tree%d.v", settings.generalParameters.datasetName, index));
+            FileBuilder.execute(src, String.format("FPGA/%s_conditional_run/tree%d.v", settings.dataset, index));
         }
     }
 

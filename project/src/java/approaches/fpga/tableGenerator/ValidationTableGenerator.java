@@ -3,7 +3,7 @@ package project.src.java.approaches.fpga.tableGenerator;
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.executionSettingsData.ExecutionSettings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Table;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,15 +25,16 @@ public class ValidationTableGenerator extends BasicGenerator {
         int estimatorsQuantity,
         int classBitwidth,
         ArrayList<BinaryTableEntry> tableEntries,
-        ExecutionSettings settings,
+        Table settings,
         boolean offlineMode
     ){
         System.out.println("generating validation table");
 
-        this.comparedValueBitwidth  = settings.inferenceParameters.table.fieldsBitwidth.comparedValue;
-        this.comparedColumnBitwidth = settings.inferenceParameters.table.fieldsBitwidth.comparedColumn;
-        this.tableIndexerBitwidth   = settings.inferenceParameters.table.fieldsBitwidth.index;
-        this.precision              = settings.generalParameters.precision;
+        this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
+        this.comparedColumnBitwidth = settings.inferenceParameters.fieldsBitwidth.comparedColumn;
+        this.tableIndexerBitwidth   = settings.inferenceParameters.fieldsBitwidth.index;
+
+        this.precision = settings.precision;
 
         /*
          *  the expression calculate the needed bitwidth to hold the votes
@@ -55,8 +56,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         src += generateComputeForestVoteAlways(classQuantity, classBitwidth);
         src += "\n" + "endmodule";
 
-        FileBuilder.createDir(String.format("FPGA/table/%s", settings.generalParameters.datasetName));
-        FileBuilder.execute(src, String.format("FPGA/table/%s/validation_table.v", settings.generalParameters.datasetName));
+        FileBuilder.execute(src, String.format("FPGA/%s_table_run/%s.v", settings.dataset, this.MODULE_NAME));
     }
 
     private String generateHeader(

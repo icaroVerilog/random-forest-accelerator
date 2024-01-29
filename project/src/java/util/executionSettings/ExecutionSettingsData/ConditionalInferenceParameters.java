@@ -1,9 +1,8 @@
-package project.src.java.util.executionSettings.executionSettingsData;
+package project.src.java.util.executionSettings.ExecutionSettingsData;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ConditionalParameters {
-
+public class ConditionalInferenceParameters {
     @JsonProperty("fields_bitwidth")
     public ConditionalFieldsBitwidth fieldsBitwidth;
 }

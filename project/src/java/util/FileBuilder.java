@@ -4,6 +4,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class FileBuilder {
 
@@ -20,11 +23,35 @@ public class FileBuilder {
             System.err.println(e.toString());
         }
     }
-    public static boolean createDir(String path){
 
-        var folderPath = System.getProperty("user.dir") + "/project/target/" + path;
+    public static void setupFolders(){
+        var folderPath = System.getProperty("user.dir") + "/project/target/";
         File folder = new File(folderPath);
-        return folder.mkdir();
+
+        if (!folder.exists()){
+            folder.mkdir();
+        }
+    }
+
+    public static boolean createDir(String path){
+        List<String> directories = Arrays.asList(path.split("/"));
+
+        String incrementalPath = "";
+
+        for (int index = 0; index < directories.size(); index++) {
+            incrementalPath += "/" + directories.get(index);
+
+            var folderPath = System.getProperty("user.dir") + "/project/target/" + incrementalPath;
+            File folder = new File(folderPath);
+
+            if (!folder.exists()){
+                folder.mkdir();
+            }
+        }
+
+        return true;
+
+//        System.out.println(path);
 
     }
 }
