@@ -3,7 +3,7 @@
 	{
 	    "approach": "table",
 	    "dataset": "iris",
-	    "precision": "decimal",
+	    "precision": "integer",
 	    "mode": "synthesis",
 	    "training_parameters": {
 		"estimators": 3,

@@ -85,6 +85,8 @@ public class ControllerGenerator extends BasicGenerator {
 
         src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
         src += tab(1) + generatePort("reset", WIRE, INPUT, 1, true);
+
+        System.out.println(src);
         src += "\n";
 
         int featuresBusBitwidth = 0;

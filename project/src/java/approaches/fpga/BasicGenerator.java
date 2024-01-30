@@ -38,11 +38,11 @@ public class BasicGenerator {
                 io = String.format("%s %s", type, name);
             } else {
                 int aux = bitwidth - 1;
-                io = String.format("%s%s [%d:%d] %s", direction, type, bitwidth - 1, 0, name);
+                io = String.format("%s [%d:%d] %s", type, bitwidth - 1, 0, name);
             }
         } else {
             if (bitwidth == 1){
-                io = String.format("%s %s", type, name);
+                io = String.format("%s %s %s",direction, type, name);
             } else {
                 io = String.format("%s %s [%d:%d] %s", direction, type, bitwidth - 1, 0, name);
             }
