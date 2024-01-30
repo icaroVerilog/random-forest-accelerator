@@ -8,8 +8,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "approach", visible = true)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = Conditional.class, name = "conditional"),
-        @JsonSubTypes.Type(value = Table.class, name = "table")
+        @JsonSubTypes.Type(value = SettingsConditional.class, name = "conditional"),
+        @JsonSubTypes.Type(value = SettingsTable.class, name = "table")
 })
 public abstract class Settings {
 

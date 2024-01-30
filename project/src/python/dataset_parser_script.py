@@ -130,7 +130,7 @@ if PRECISION == "decimal":
             decimal_part_list_bin = decimal_part_list_bin[1:]
         binary_dataset[index] = binary_dataset[index] + line
 
-with open(f"{DATASET_PATH}/project/target/FPGA/{APPROACH}/{DATASET}/dataset.bin", "w") as file:
+with open(f"{DATASET_PATH}/project/target/FPGA/{DATASET}_{APPROACH}_run/dataset.bin", "w") as file:
     for entry in binary_dataset:
         file.write(entry + "\n")
 

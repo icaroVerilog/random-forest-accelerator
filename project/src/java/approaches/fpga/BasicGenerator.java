@@ -19,7 +19,8 @@ public class BasicGenerator {
     protected final String INPUT = "input";
     protected final String NONE = "";
 
-    /* */
+    /* TODO: REFATORAR, DEIXAR APENAS UMA STRING CONSTRUTORA PARA CADA BLOCO CONDICIONAL */
+    /* TODO: REFATORAR, DEIXAR TODOS OS CAMPOS QUE LIDAM COM STRING UTILIZANDO String.format()*/
 
     protected final String MODULE_INSTANCE = "\nind" + "moduleName moduleName(\nports \nind);\n";
     protected final String ALWAYS_BLOCK = "\nind" + "always @(posedge clk) begin \nsrc \nindend";
@@ -34,19 +35,18 @@ public class BasicGenerator {
 
         if (Objects.equals(direction, NONE)) {
             if (bitwidth == 1){
-                io = type + " " + name;
+                io = String.format("%s %s", type, name);
             } else {
                 int aux = bitwidth - 1;
-                io = direction + type + " [" + aux + ":" + 0 + "] " + name;
+                io = String.format("%s%s [%d:%d] %s", direction, type, bitwidth - 1, 0, name);
             }
         } else {
             if (bitwidth == 1){
-                io = direction + " " + type + " " + name;
+                io = String.format("%s %s", type, name);
             } else {
-                io = direction + " " + type + " [" + (bitwidth - 1) + ":" + 0 + "] " + name;
+                io = String.format("%s %s [%d:%d] %s", direction, type, bitwidth - 1, 0, name);
             }
         }
-
         io += ";";
         if (lineBreak) io += "\n";
 
@@ -61,7 +61,6 @@ public class BasicGenerator {
         } else {
             bus = String.format("%s %s [%d:0] %s [%d:0];", type, direction, bitwidth-1, name, size-1);
         }
-
         if (linebreak) bus += "\n";
 
         return bus;

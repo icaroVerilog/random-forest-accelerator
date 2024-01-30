@@ -9,9 +9,9 @@ import project.src.java.util.executionSettings.ExecutionSettingsData.Settings;
 import project.src.java.util.executionSettings.ExecutionSettingsParser;
 import project.src.java.util.PythonTreeGeneratorCaller;
 import project.src.java.util.PythonDatasetParserCaller;
-import project.src.java.util.executionSettings.ExecutionSettingsData.Conditional;
+import project.src.java.util.executionSettings.ExecutionSettingsData.SettingsConditional;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ExecutionSettings;
-import project.src.java.util.executionSettings.ExecutionSettingsData.Table;
+import project.src.java.util.executionSettings.ExecutionSettingsData.SettingsTable;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,8 +33,8 @@ public class Main {
         FileBuilder.setupFolders();
 
         PythonBitwidthValidatorCaller bitwidthValidatorCaller = new PythonBitwidthValidatorCaller();
-        PythonTreeGeneratorCaller     caller                  = new PythonTreeGeneratorCaller();
-        PythonDatasetParserCaller     datasetParser           = new PythonDatasetParserCaller();
+        PythonTreeGeneratorCaller     treeGeneratorCaller     = new PythonTreeGeneratorCaller();
+        PythonDatasetParserCaller     datasetParserCaller     = new PythonDatasetParserCaller();
 
 //        int returnCode = bitwidthValidatorCaller.execute(
 //                path,
@@ -53,7 +53,7 @@ public class Main {
         for (int index = 0; index < executionsSettings.executionsSettings.size(); index++) {
             Settings settings = executionsSettings.executionsSettings.get(index);
 
-            caller.execute(
+            treeGeneratorCaller.execute(
                     path,
                     settings.dataset,
                     settings.trainingParameters.trainingPercent,
@@ -61,9 +61,7 @@ public class Main {
                     settings.precision
             );
 
-            List<Tree> trees = Parser.execute(
-                    settings.dataset
-            );
+            List<Tree> trees = Parser.execute(settings.dataset);
 
             FPGAGenerator.execute(
                     settings,
@@ -71,15 +69,26 @@ public class Main {
                     Parser.getClassQuantity(),
                     Parser.getFeatureQuantity()
             );
-        }
 
-//        datasetParser.execute(
-//                path,
-//                settings.inferenceParameters.table.fieldsBitwidth.comparedValue,
-//                settings.generalParameters.datasetName,
-//                settings.inferenceParameters.approach,
-//                settings.generalParameters.precision
-//        );
+            if (settings instanceof SettingsTable settingsT){
+                datasetParserCaller.execute(
+                        path,
+                        settingsT.inferenceParameters.fieldsBitwidth.comparedValue,
+                        settings.dataset,
+                        settings.approach,
+                        settings.precision
+                );
+            }
+            else if (settings instanceof SettingsConditional settingsC){
+                datasetParserCaller.execute(
+                        path,
+                        settingsC.inferenceParameters.fieldsBitwidth.comparedValue,
+                        settings.dataset,
+                        settings.approach,
+                        settings.precision
+                );
+            }
+        }
 
         System.out.println("job finished: Success");
     }

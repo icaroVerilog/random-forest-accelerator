@@ -4,10 +4,9 @@ package project.src.java.approaches.fpga;
 import project.src.java.approaches.fpga.conditionalGenerator.ConditionalFPGAGenerator;
 import project.src.java.approaches.fpga.tableGenerator.TableFPGAGenerator;
 import project.src.java.dotTreeParser.treeStructure.Tree;
-import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.Conditional;
+import project.src.java.util.executionSettings.ExecutionSettingsData.SettingsConditional;
 import project.src.java.util.executionSettings.ExecutionSettingsData.Settings;
-import project.src.java.util.executionSettings.ExecutionSettingsData.Table;
+import project.src.java.util.executionSettings.ExecutionSettingsData.SettingsTable;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,7 +21,7 @@ public class FPGA {
                     treeList,
                     classQuantity,
                     featureQuantity,
-                    (Conditional) settings
+                    (SettingsConditional) settings
             );
         }
         else if (settings.approach.equals("table")){
@@ -30,29 +29,26 @@ public class FPGA {
                     treeList,
                     classQuantity,
                     featureQuantity,
-                    (Table) settings
+                    (SettingsTable) settings
             );
         }
 
         System.out.println("\nfinishing FPGA random forest generator");
     }
-    public void executeConditionalApproach(List<Tree> treeList, int classQuantity, int featureQuantity, Conditional settings) throws IOException {
+    public void executeConditionalApproach(List<Tree> treeList, int classQuantity, int featureQuantity, SettingsConditional settings) throws IOException {
         System.out.println("conditional approach\n");
 
         ConditionalFPGAGenerator conditionalGenerator = new ConditionalFPGAGenerator();
-        DatasetParser datasetParser = new DatasetParser();
 
-        int samplesQnt = datasetParser.readDataset(settings.dataset);
         conditionalGenerator.execute(
             treeList,
             classQuantity,
             featureQuantity,
-            samplesQnt,
             settings
         );
     }
 
-    private void executeTableApproach(List<Tree> treeList, int classQuantity, int featureQuantity, Table settings) throws  IOException {
+    private void executeTableApproach(List<Tree> treeList, int classQuantity, int featureQuantity, SettingsTable settings) throws  IOException {
         System.out.println("table approach\n");
 
         var tableGenerator = new TableFPGAGenerator();

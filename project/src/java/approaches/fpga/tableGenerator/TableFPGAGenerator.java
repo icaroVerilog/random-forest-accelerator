@@ -13,7 +13,7 @@ public class TableFPGAGenerator {
         List<Tree> treeList,
         Integer classQuantity,
         Integer featureQuantity,
-        Table settings
+        SettingsTable settings
     ){
 
         FileBuilder.createDir(String.format("FPGA/%s_table_run", settings.dataset));

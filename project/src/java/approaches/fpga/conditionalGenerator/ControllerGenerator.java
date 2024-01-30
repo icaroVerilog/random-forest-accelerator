@@ -2,37 +2,43 @@ package project.src.java.approaches.fpga.conditionalGenerator;
 
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.Conditional;
+import project.src.java.util.executionSettings.ExecutionSettingsData.SettingsConditional;
 
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/* TODO: refatorar tudo, o codigo ta feio */
+
 public class ControllerGenerator extends BasicGenerator {
+
+    private final String MODULE_NAME = "controller";
+
+    private int comparedValueBitwidth;
 
     public void execute(
             Integer treeQnt,
             Integer classQnt,
             Integer featureQnt,
-            Integer samplesQnt,
-            Conditional settings
+            SettingsConditional settings
     ){
         System.out.println("generating controller");
 
-        String SRC = "";
+        this.comparedValueBitwidth = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 
-        SRC += generateImports(treeQnt);
-        SRC += generateIO(featureQnt, classQnt, treeQnt, false);
+        String src = "";
+        src += generateImports(treeQnt);
+        src += generateIO(featureQnt, classQnt, treeQnt, false);
 
         for (int index = 0; index < treeQnt; index++){
-            SRC += generateModuleInstantiation(featureQnt, index);
+            src += generateModuleInstantiation(featureQnt, index);
         }
 
 //        sourceCode += generateInitialBlock(featureQnt, classQnt, debugMode);
-        SRC += generateAlwaysBlock(featureQnt, samplesQnt, classQnt, treeQnt, false);
+        src += generateAlwaysBlock(classQnt, treeQnt, false);
 
-        FileBuilder.execute(SRC, String.format("FPGA/%s_conditional_run/controller.v", settings.dataset));
+        FileBuilder.execute(src, String.format("FPGA/%s_conditional_run/%s.v", settings.dataset, this.MODULE_NAME));
     }
 
     private String generateImports(Integer treeQuantity){
@@ -43,14 +49,14 @@ public class ControllerGenerator extends BasicGenerator {
         return imports;
     }
 
-    private String generateIO(Integer featureQnt, Integer classQnt, Integer treeQnt, Boolean debugMode){
+    private String generateIO(int featureQnt, int classQnt, int treeQnt, boolean debugMode){
 
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
         String ind1 = tab(1);
 
         ArrayList<String> moduleIO = new ArrayList<>();
-        String sourceCode;
+        String src;
 
         moduleIO.add("clock");
         moduleIO.add("voted");
@@ -62,17 +68,17 @@ public class ControllerGenerator extends BasicGenerator {
             moduleIO.add("ft" + index + "_fraction");
         }
 
-        sourceCode = "\n\n";
-        sourceCode += generateModule(
+        src = "\n\n";
+        src += generateModule(
                 "controller",
                 moduleIO
         );
 
-        sourceCode += "\n\n";
+        src += "\n\n";
 
         for (int index = 0; index < classQnt; index++){
-            sourceCode += tab(1);
-            sourceCode += generatePort(
+            src += tab(1);
+            src += generatePort(
                 "class" + generateBinaryNumber(index, bitwidth),
                 INTEGER,
                 NONE,
@@ -81,53 +87,33 @@ public class ControllerGenerator extends BasicGenerator {
             );
         }
 
-        sourceCode += ind1 + generatePort("clock", WIRE, INPUT, 1, true);
-        sourceCode += ind1 + generatePort("voted", REGISTER, OUTPUT, bitwidth, true);
-        sourceCode += "\n";
+        src += ind1 + generatePort("clock", WIRE, INPUT, 1, true);
+        src += ind1 + generatePort("voted", REGISTER, OUTPUT, bitwidth, true);
+        src += "\n";
 
         for (int index = 0; index < featureQnt; index++){
-            sourceCode += tab(1);
-            sourceCode += generatePort(
-                "ft" + index + "_exponent",
-                WIRE,
-                INPUT,
-                FEATURE_BITWIDTH,
-                false
-            );
-            sourceCode += "\n";
+            src += tab(1) + generatePort("ft" + index + "_exponent", WIRE, INPUT, this.comparedValueBitwidth, false);
+            src += "\n";
         }
 
         for (int index = 0; index < featureQnt; index++){
-            sourceCode += tab(1);
-            sourceCode += generatePort(
-                    "ft" + index + "_fraction",
-                    WIRE,
-                    INPUT,
-                    FEATURE_BITWIDTH,
-                    false
-            );
-            sourceCode += "\n";
+            src += tab(1) + generatePort("ft" + index + "_fraction", WIRE, INPUT, this.comparedValueBitwidth, false);
+            src += "\n";
         }
 
-        sourceCode += "\n";
+        src += "\n";
 
         for (int index = 0; index < treeQnt; index++){
-            sourceCode += tab(1);
-            sourceCode += generatePort("voted_class" + index,
-                    WIRE,
-                    NONE,
-                    3,
-                    false
-            );
-            sourceCode += "\n";
+            src += tab(1) + generatePort("voted_class" + index, WIRE, NONE, classQnt, false);
+            src += "\n";
         }
 
-        sourceCode += "\n";
+        src += "\n";
 
-        return sourceCode;
+        return src;
     }
 
-    private String generateModuleInstantiation(Integer featureQnt, Integer treeIndex){
+    private String generateModuleInstantiation(int featureQnt, int treeIndex){
 
         String indentation1 = tab(1);
         String indentation2 = tab(2);
@@ -165,14 +151,14 @@ public class ControllerGenerator extends BasicGenerator {
         }
 
         module = module
-                .replace("moduleName", "tree" + treeIndex.toString())
+                .replace("moduleName", "tree" + treeIndex)
                 .replace("ports", sourceCode)
                 .replace("ind", indentation1);
 
         return module;
     }
 
-    private String generateInitialBlock(Integer featureQnt, Integer classQnt, Boolean debugMode){
+    private String generateInitialBlock(int featureQnt, int classQnt, boolean debugMode){
         String tab1 = tab(1);
         String tab2 = tab(2);
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
@@ -208,7 +194,7 @@ public class ControllerGenerator extends BasicGenerator {
         }
     }
 
-    private String generateAlwaysBlock(Integer featuresQnt ,Integer samplesQnt, Integer classQnt, Integer treeQnt, Boolean debugMode) {
+    private String generateAlwaysBlock(int classQnt, int treeQnt, boolean debugMode) {
 
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 

@@ -2,7 +2,7 @@ package project.src.java.approaches.fpga.tableGenerator;
 
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.Table;
+import project.src.java.util.executionSettings.ExecutionSettingsData.SettingsTable;
 
 public class ControllerGenerator extends BasicGenerator {
 
@@ -14,7 +14,7 @@ public class ControllerGenerator extends BasicGenerator {
     private int voteCounterBitwidth;
     private String precision;
 
-    public void execute(int classBitwidth, int featureQuantity, Table settings, boolean offlineMode){
+    public void execute(int classBitwidth, int featureQuantity, SettingsTable settings, boolean offlineMode){
         System.out.println("generating controller");
 
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
@@ -41,7 +41,7 @@ public class ControllerGenerator extends BasicGenerator {
         FileBuilder.execute(src, String.format("FPGA/%s_table_run/%s.v", settings.dataset, this.MODULE_NAME));
     }
 
-    private String generateHeader(String module_name, boolean offlineMode){
+    private String generateHeader(String moduleName, boolean offlineMode){
         String[] ioPorts = {
             "clock",
             "reset",
@@ -63,7 +63,7 @@ public class ControllerGenerator extends BasicGenerator {
             };
         }
 
-        String header = String.format("module %s (\n", module_name);
+        String header = String.format("module %s (\n", moduleName);
         String ports = "";
 
         for (int index = 0; index <= ioPorts.length; index++){
@@ -80,11 +80,7 @@ public class ControllerGenerator extends BasicGenerator {
         return header + ports;
     }
 
-    private String generatePortInstantiation(
-        int featureQuantity,
-        int classBitwidth,
-        boolean offlineMode
-    ){
+    private String generatePortInstantiation(int featureQuantity, int classBitwidth, boolean offlineMode){
         String src = "";
 
         src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
@@ -115,10 +111,7 @@ public class ControllerGenerator extends BasicGenerator {
         return src;
     }
 
-    private String generateValidationTableInstantiation(
-        int featureQuantity,
-        boolean offlineMode
-    ){
+    private String generateValidationTableInstantiation(int featureQuantity, boolean offlineMode){
 
         int featureBusBitwidth = this.comparedValueBitwidth * featureQuantity;
 
