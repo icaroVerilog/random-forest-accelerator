@@ -6,7 +6,7 @@
 	    "precision": "integer",
 	    "mode": "synthesis",
 	    "training_parameters": {
-		"estimators": 3,
+		"estimators": 100,
 		"training_percent": 20,
 		"max_depth": "none"
 	    },
