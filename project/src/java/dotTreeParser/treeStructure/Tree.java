@@ -30,15 +30,16 @@ public class Tree {
     public void linkNodes(Integer fatherId, Integer sonId){
         InnerNode father = innerNodes.get(fatherId);
         Node son = innerNodes.get(sonId);
-        if (Objects.isNull(son)){
+        if(Objects.isNull(son)){
             son = outerNodes.get(sonId);
         }
-        
+
         if (father.leftIsNull()) {
             father.setLeftNode(son);
         } else {
             father.setRightNode(son);
         }
+        son.setFather(father);
     }
 
     public Node getRoot() {
@@ -56,10 +57,6 @@ public class Tree {
 
     public int getClassQuantity() {
         return outerNodes.size();
-    }
-
-    public int nodesQuantity(){
-        return this.innerNodes.size() + this.outerNodes.size();
     }
 
     public HashMap<Integer, InnerNode> getInnerNodes(){

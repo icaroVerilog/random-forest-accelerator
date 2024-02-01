@@ -131,7 +131,7 @@ public class TreeBuilder {
     }
 
     private static void linkNodes(Tree tree, String line) {
-        String parts[] = line.split(" ");
+        String[] parts = line.split(" ");
         int rootId = Integer.parseInt(parts[0]);
         int sonId = Integer.parseInt(parts[2]);
         tree.linkNodes(rootId, sonId);

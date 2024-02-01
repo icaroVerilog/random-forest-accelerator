@@ -16,27 +16,22 @@ import java.util.stream.IntStream;
 
 public class TreeGenerator extends BasicGenerator {
 
-    private int comparedValueBitwidth;
-    private String precision;
 
     public void execute(List<Tree> trees, Integer classQnt, Integer featureQnt, Settings settings){
-
-        this.precision = settings.precision;
-        this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 
         for (int index = 0; index < trees.size(); index++){
 
             System.out.println("generating verilog decision tree" + index);
 
-            String src = "";
+            String sourceCode = "";
 
-            src += generateHeader(index, featureQnt);
-            src += generatePortDeclaration(featureQnt, classQnt);
-            src += generateComparisonWires(trees.get(index));
-            src += generateComparisonAssigns(trees.get(index), classQnt);
-            src += generateEndDelimiters();
+            sourceCode += generateHeader(index, featureQnt);
+            sourceCode += generatePortDeclaration(featureQnt, classQnt);
+            sourceCode += generateComparisonWires(trees.get(index));
+            sourceCode += generateComparisonAssigns(trees.get(index), classQnt);
+            sourceCode += generateEndDelimiters();
 
-            FileBuilder.execute(src, String.format("FPGA/%s_equation_run/tree%d.v", settings.dataset, index));
+            FileBuilder.execute(sourceCode, String.format("FPGA/%s_equation_run/tree%d.v", settings.dataset, index));
         }
     }
 
@@ -86,7 +81,7 @@ public class TreeGenerator extends BasicGenerator {
 
     public String generateHeader(int treeIndex, int featureQnt){
 
-        String tab = tab(1);
+        String tab = generateTab(1);
         String header = "module tree" + treeIndex + "(\n";
         String FI = IntStream.range(0, featureQnt)
                 .mapToObj(index -> "ft" + index)
@@ -99,26 +94,63 @@ public class TreeGenerator extends BasicGenerator {
     }
 
     public String generatePortDeclaration(int featureQnt, int classQnt){
-        String src = "";
+        String tab = generateTab(1);
 
-        src += tab(1) + "input wire clock;\n\n";
+        String CLK = tab + "input wire clock;\n\n";
 
-        for (int index = 0; index < featureQnt; index++){
-            src += tab(1) + generatePort(String.format("ft%d", index), WIRE, INPUT, this.comparedValueBitwidth, true);
+        String FI = IntStream.range(0, featureQnt)
+                .mapToObj(index -> tab + "input wire [31:0] ft" + index + ";\n")
+                .collect(Collectors.joining("")
+                );
+
+        int bitWidth = (int) Math.ceil(Math.sqrt(classQnt));
+        String votedClass =  tab + "output [" + (bitWidth) + ":0] voted_class;\n\n";
+
+        int[][] oneHotMatrix = new int[classQnt][classQnt];
+
+        for (int i = 0; i < oneHotMatrix.length; i++) {
+            for (int j = 0; j < oneHotMatrix[i].length; j++) {
+                if (i == j){
+                    oneHotMatrix[i][j] = 1;
+                }
+                else {
+                    oneHotMatrix[i][j] = 0;
+                }
+            }
         }
-        src += "\n";
+        return CLK + FI + "\n"  + votedClass;
+    }
 
-        src += tab(1) + generatePort("voted_class", REGISTER, OUTPUT, ((int) Math.ceil(Math.sqrt(classQnt))), true);
+    public String generateConditionals(Node node, int tab){
 
-        return src;
+        var tabs = IntStream.range(0, tab)
+                .mapToObj(t -> "\t")
+                .collect(Collectors.joining("")
+                );
+
+        if (node instanceof OuterNode){
+            OuterNode newNode = (OuterNode) node;
+            return tabs + "voted_class <= class" + newNode.getClassNumber() + ";\n";
+        }
+        else {
+            InnerNode newNode = (InnerNode) node;
+            String code = "";
+            code += tabs + "if (" + generateComparison(newNode.getComparisson()) +") begin\n";
+            code += generateConditionals(newNode.getLeftNode(), tab + 1);
+            code += tabs + "end \n" + tabs + "else begin\n";
+            code += generateConditionals(newNode.getRightNode(), tab + 1);
+            code += tabs + "end\n";
+
+            return code;
+        }
     }
 
     public String generateComparison(Comparisson c){
 
         var threshold = c.getThreshold().toString().split("\\.");
+        String integralThreshold = Integer.toBinaryString(Integer.parseInt(threshold[0]));
 
-//        String binaryIntegralTh = String.format(FEATURE_BITWIDTH + "'b%" + FEATURE_BITWIDTH + "s", integralThreshold).replaceAll(" ", "0");
-        String binaryIntegralTh = String.format("%d'b%s", this.comparedValueBitwidth, generateBinaryNumber(Integer.parseInt(threshold[0]), this.comparedValueBitwidth));
+        String binaryIntegralTh = String.format(FEATURE_BITWIDTH + "'b%" + FEATURE_BITWIDTH + "s", integralThreshold).replaceAll(" ", "0");
         String first = "";
 
         //System.out.println(c.getComparissonType());
@@ -133,5 +165,12 @@ public class TreeGenerator extends BasicGenerator {
         code += "\nendmodule";
 
         return code;
+    }
+
+    public String generateTab(int tab){
+        return IntStream.range(0, tab)
+                .mapToObj(t -> "\t")
+                .collect(Collectors.joining("")
+                );
     }
 }

@@ -30,6 +30,9 @@ public class BasicGenerator {
     protected final String ALWAYS_BLOCK2 = "\nind" + "always @(border signal) begin \nsrc \nindend";
     protected final String CONDITIONAL2 = "ind" + "if (x) begin\ny indend";
 
+    protected final String MODULE_VARIABLE_INSTANCE = "\nind" + "moduleName moduleVariableName(\nports \nind);\n";
+
+
     protected String generatePort(String name, String type, String direction, Integer bitwidth, Boolean lineBreak){
         String io = "";
 

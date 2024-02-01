@@ -15,8 +15,11 @@ public class EquationFPGAGenerator {
             Settings settings
     ) {
         var a = FileBuilder.createDir(String.format("FPGA/%s_equation_run", settings.dataset));
-        var treeGenerator = new TreeGenerator();
+
+        var treeGenerator       = new TreeGenerator();
+        var controllerGenerator = new ControllerGenerator();
 
         treeGenerator.execute(treeList, classQnt, featureQnt, settings);
+        controllerGenerator.execute(treeList.size(), classQnt, featureQnt, false, settings);
     }
 }
