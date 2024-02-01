@@ -2,7 +2,7 @@ package project.src.java.approaches.fpga.tableGenerator;
 
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.*;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings;
 
 
 import java.util.List;
@@ -13,7 +13,7 @@ public class TableFPGAGenerator {
         List<Tree> treeList,
         Integer classQuantity,
         Integer featureQuantity,
-        SettingsTable settings
+        Settings settings
     ){
 
         FileBuilder.createDir(String.format("FPGA/%s_table_run", settings.dataset));

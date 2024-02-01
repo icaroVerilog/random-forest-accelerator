@@ -3,7 +3,7 @@ package project.src.java.approaches.fpga.tableGenerator;
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.SettingsTable;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         int estimatorsQuantity,
         int classBitwidth,
         ArrayList<BinaryTableEntry> tableEntries,
-        SettingsTable settings,
+        Settings settings,
         boolean offlineMode
     ){
         System.out.println("generating validation table");

@@ -1,25 +1,7 @@
 {
     "runs": [
 	{
-	    "approach": "table",
-	    "dataset": "iris",
-	    "precision": "integer",
-	    "mode": "synthesis",
-	    "training_parameters": {
-		"estimators": 100,
-		"training_percent": 20,
-		"max_depth": "none"
-	    },
-	    "inference_parameters": {
-		"fields_bitwidth": {
-		    "threshold": 12,
-		    "compared_column": 13,
-		    "index": 13
-		}
-	    }
-	},
-	{
-	    "approach": "conditional",
+	    "approach": "equation",
 	    "dataset": "iris",
 	    "precision": "integer",
 	    "mode": "simulation",

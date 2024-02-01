@@ -2,7 +2,7 @@ package project.src.java.approaches.fpga.tableGenerator;
 
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.SettingsTable;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings;
 
 public class ControllerGenerator extends BasicGenerator {
 
@@ -15,7 +15,7 @@ public class ControllerGenerator extends BasicGenerator {
     private String mode;
     private String precision;
 
-    public void execute(int classBitwidth, int featureQuantity, SettingsTable settings, boolean offlineMode){
+    public void execute(int classBitwidth, int featureQuantity, Settings settings, boolean offlineMode){
         System.out.println("generating controller");
 
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;

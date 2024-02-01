@@ -5,13 +5,11 @@ import project.src.java.dotTreeParser.Parser;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.PythonBitwidthValidatorCaller;
-import project.src.java.util.executionSettings.ExecutionSettingsData.Settings;
 import project.src.java.util.executionSettings.ExecutionSettingsParser;
 import project.src.java.util.PythonTreeGeneratorCaller;
 import project.src.java.util.PythonDatasetParserCaller;
-import project.src.java.util.executionSettings.ExecutionSettingsData.SettingsConditional;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ExecutionSettings;
-import project.src.java.util.executionSettings.ExecutionSettingsData.SettingsTable;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings;
 
 import java.io.IOException;
 import java.util.List;
@@ -51,7 +49,7 @@ public class Main {
         FPGA FPGAGenerator = new FPGA();
 
         for (int index = 0; index < executionsSettings.executionsSettings.size(); index++) {
-            Settings settings = executionsSettings.executionsSettings.get(index);
+            project.src.java.util.executionSettings.ExecutionSettingsData.Settings settings = executionsSettings.executionsSettings.get(index);
 
             treeGeneratorCaller.execute(
                     path,
@@ -70,7 +68,7 @@ public class Main {
                     Parser.getFeatureQuantity()
             );
 
-            if (settings instanceof SettingsTable settingsT){
+            if (settings instanceof Settings settingsT){
                 datasetParserCaller.execute(
                         path,
                         settingsT.inferenceParameters.fieldsBitwidth.comparedValue,
@@ -79,7 +77,7 @@ public class Main {
                         settings.precision
                 );
             }
-            else if (settings instanceof SettingsConditional settingsC){
+            else if (settings instanceof project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings settingsC){
                 datasetParserCaller.execute(
                         path,
                         settingsC.inferenceParameters.fieldsBitwidth.comparedValue,

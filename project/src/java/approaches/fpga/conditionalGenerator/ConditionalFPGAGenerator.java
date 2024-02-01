@@ -2,7 +2,7 @@ package project.src.java.approaches.fpga.conditionalGenerator;
 
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.SettingsConditional;
+import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings;
 
 import java.util.List;
 
@@ -11,13 +11,12 @@ public class ConditionalFPGAGenerator {
         List<Tree> treeList,
         int classQnt,
         int featureQnt,
-        SettingsConditional settings
+        Settings settings
     ){
-
         var a = FileBuilder.createDir(String.format("FPGA/%s_conditional_run", settings.dataset));
 
-        var controllerGenerator = new ControllerGenerator();
         var treeGenerator       = new TreeGenerator();
+        var controllerGenerator = new ControllerGenerator();
         var apiGenerator        = new ApiGenerator();
 
         treeGenerator      .execute(treeList, featureQnt, classQnt, settings);

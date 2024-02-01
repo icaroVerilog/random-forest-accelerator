@@ -2,7 +2,7 @@ package project.src.java.approaches.fpga.conditionalGenerator;
 
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.SettingsConditional;
+import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -18,7 +18,7 @@ public class ControllerGenerator extends BasicGenerator {
     private int comparedValueBitwidth;
     private String precision;
 
-    public void execute(Integer treeQnt, Integer classQnt, Integer featureQnt, SettingsConditional settings){
+    public void execute(Integer treeQnt, Integer classQnt, Integer featureQnt, Settings settings){
         System.out.println("generating controller");
 
         this.precision = settings.precision;

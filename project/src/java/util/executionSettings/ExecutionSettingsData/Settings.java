@@ -8,8 +8,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "approach", visible = true)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = SettingsConditional.class, name = "conditional"),
-        @JsonSubTypes.Type(value = SettingsTable.class, name = "table")
+        @JsonSubTypes.Type(value = project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings.class, name = "conditional"),
+        @JsonSubTypes.Type(value = project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings.class, name = "equation"),
+        @JsonSubTypes.Type(value = project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings.class, name = "table")
 })
 public abstract class Settings {
 
