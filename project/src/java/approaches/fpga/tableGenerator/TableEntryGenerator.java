@@ -93,7 +93,6 @@ public class TableEntryGenerator extends BasicGenerator {
         } else {
             return binaryTableEntries;
         }
-
     }
 
     private void generateNodeRawTableEntryDecimalPrecision(Node node){

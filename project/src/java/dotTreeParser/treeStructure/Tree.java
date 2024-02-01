@@ -61,4 +61,12 @@ public class Tree {
     public int nodesQuantity(){
         return this.innerNodes.size() + this.outerNodes.size();
     }
+
+    public HashMap<Integer, InnerNode> getInnerNodes(){
+        return innerNodes;
+    }
+
+    public HashMap<Integer, OuterNode> getOuterNodes(){
+        return outerNodes;
+    }
 }

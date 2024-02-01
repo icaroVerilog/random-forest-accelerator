@@ -347,8 +347,8 @@ public class ValidationTableGenerator extends BasicGenerator {
         );
 
         thLessThanValueBlock = thLessThanValueBlock
-                .replace("y", thLessThanValueBlockBody)
-                .replace("ind", tab(5));
+            .replace("y", thLessThanValueBlockBody)
+            .replace("ind", tab(5));
 
         String innerNodeBlock = CONDITIONAL2;
         String innerNodeBlockExpr = String.format(
@@ -358,9 +358,9 @@ public class ValidationTableGenerator extends BasicGenerator {
         String innerNodeBlockBody = thGreaterThanValueBlock + thLessThanValueBlock + "\n";
 
         innerNodeBlock = innerNodeBlock
-                .replace("x", innerNodeBlockExpr)
-                .replace("y", innerNodeBlockBody)
-                .replace("ind", tab(4));
+            .replace("x", innerNodeBlockExpr)
+            .replace("y", innerNodeBlockBody)
+            .replace("ind", tab(4));
 
         /******************** OUTER NODE PROCESSING BLOCK ********************/
 
@@ -372,9 +372,9 @@ public class ValidationTableGenerator extends BasicGenerator {
             String voteCounterBlockBody = String.format("%sclass%d <= class%d + 1'b1;\n",tab(6), index, index);
 
             voteCounterBlock = voteCounterBlock
-                    .replace("x", voteCounterBlockExpr)
-                    .replace("y", voteCounterBlockBody)
-                    .replace("ind", tab(5));
+                .replace("x", voteCounterBlockExpr)
+                .replace("y", voteCounterBlockBody)
+                .replace("ind", tab(5));
 
             if (index == classQuantity){
                 voteCounterBlocks += voteCounterBlock;
@@ -399,8 +399,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         readNewSampleBlock = readNewSampleBlock
             .replace("x", readNewSampleBlockExpr)
             .replace("y", readNewSampleBlockBody)
-            .replace("ind", tab(5)
-        );
+            .replace("ind", tab(5));
 
         String outerNodeBlock = CONDITIONAL_ELSE;
         String outerNodeBlockBody = "";
@@ -414,17 +413,17 @@ public class ValidationTableGenerator extends BasicGenerator {
         outerNodeBlockBody += readNewSampleBlock + "\n";
 
         outerNodeBlock = outerNodeBlock
-                .replace("y",outerNodeBlockBody)
-                .replace("ind", tab(4));
+            .replace("y",outerNodeBlockBody)
+            .replace("ind", tab(4));
 
         String sampleProcessingBlock = CONDITIONAL2;
         String sampleProcessingBlockExpr = "read_new_sample == 1'b0";
         String sampleProcessingBlockBody = innerNodeBlock + outerNodeBlock + "\n";
 
         sampleProcessingBlock = sampleProcessingBlock
-                .replace("x", sampleProcessingBlockExpr)
-                .replace("y", sampleProcessingBlockBody)
-                .replace("ind", tab(3));
+            .replace("x", sampleProcessingBlockExpr)
+            .replace("y", sampleProcessingBlockBody)
+            .replace("ind", tab(3));
 
         /******************** COUNTER RESET BLOCK ********************/
 
@@ -443,8 +442,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         resetCounterBlock = resetCounterBlock
             .replace("x", resetCounterBlockExpr)
             .replace("y", resetCounterBlockBody)
-            .replace("ind", tab(3)
-        );
+            .replace("ind", tab(3));
 
         String validationBlock = CONDITIONAL_ELSE;
         String validationBlockBody = "";
@@ -454,8 +452,8 @@ public class ValidationTableGenerator extends BasicGenerator {
 
         validationBlock = validationBlock
             .replace("y", resetCounterBlock + "\n" + validationBlockBody + sampleProcessingBlock + "\n")
-            .replace("ind", tab(2)
-        );
+            .replace("ind", tab(2));
+
 
         /******************** MAIN ALWAYS BLOCK ********************/
 
@@ -464,8 +462,8 @@ public class ValidationTableGenerator extends BasicGenerator {
             .replace("border", "posedge")
             .replace("signal", "clock")
             .replace("src", resetBlock + validationBlock)
-            .replace("ind", tab(1)
-        );
+            .replace("ind", tab(1));
+
         return mainAlways;
     }
 
@@ -504,9 +502,9 @@ public class ValidationTableGenerator extends BasicGenerator {
             );
 
             computeMajorClassBlock = computeMajorClassBlock
-                    .replace("x", computeMajorClassBlockExpr)
-                    .replace("y", computeMajorClassBlockBody)
-                    .replace("ind", tab(2));;
+                .replace("x", computeMajorClassBlockExpr)
+                .replace("y", computeMajorClassBlockBody)
+                .replace("ind", tab(2));
 
             if (index1 == classQuantity-1){
                 src += computeMajorClassBlock;
@@ -520,8 +518,8 @@ public class ValidationTableGenerator extends BasicGenerator {
             .replace("border", "negedge")
             .replace("signal", "read_new_sample")
             .replace("src", src)
-            .replace("ind", tab(1)
-        );
+            .replace("ind", tab(1));
+
         return alwaysBlock;
     }
 

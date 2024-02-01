@@ -46,12 +46,20 @@ public class TreeGenerator extends BasicGenerator {
 
         src += String.format("module tree%d (\n", treeIndex);
 
-        for (int index = 0; index < featureQnt; index++){
-            src += String.format("%sft%d_exponent,\n", tab(1), index);
+        if (this.precision.equals("integer")){
+            for (int index = 0; index < featureQnt; index++){
+                src += String.format("%sfeature%d,\n", tab(1), index);
+            }
         }
-        for (int index = 0; index < featureQnt; index++){
-            src += String.format("%sft%d_fraction,\n", tab(1), index);
+        else if (this.precision.equals("decimal")){
+            for (int index = 0; index < featureQnt; index++){
+                src += String.format("%sft%d_exponent,\n", tab(1), index);
+            }
+            for (int index = 0; index < featureQnt; index++){
+                src += String.format("%sft%d_fraction,\n", tab(1), index);
+            }
         }
+
 
         src += tab(1) + "clock,\n";
         src += tab(1) + "voted_class";
@@ -67,11 +75,18 @@ public class TreeGenerator extends BasicGenerator {
 
         src += tab + "input wire clock;\n\n";
 
-        for (int index = 0; index < featureQnt; index++){
-            src += tab(1) + generatePort(String.format("ft%d_exponent", index), WIRE, INPUT, this.comparedValueBitwidth, true);
+        if (this.precision.equals("integer")){
+            for (int index = 0; index < featureQnt; index++){
+                src += tab(1) + generatePort(String.format("feature%d", index), WIRE, INPUT, this.comparedValueBitwidth, true);
+            }
         }
-        for (int index = 0; index < featureQnt; index++){
-            src += tab(1) + generatePort(String.format("ft%d_fraction", index), WIRE, INPUT, this.comparedValueBitwidth, true);
+        else if (this.precision.equals("decimal")){
+            for (int index = 0; index < featureQnt; index++){
+                src += tab(1) + generatePort(String.format("ft%d_exponent", index), WIRE, INPUT, this.comparedValueBitwidth, true);
+            }
+            for (int index = 0; index < featureQnt; index++){
+                src += tab(1) + generatePort(String.format("ft%d_fraction", index), WIRE, INPUT, this.comparedValueBitwidth, true);
+            }
         }
 
         src += "\n";
@@ -149,7 +164,7 @@ public class TreeGenerator extends BasicGenerator {
             int threshold = (int) Math.floor(c.getThreshold());
 
             expression = String.format(
-                "ft%d_exponent >= %d'b%s",
+                "feature%d >= %d'b%s",
                 c.getColumn(),
                 this.comparedValueBitwidth,
                 decimalToBinary(threshold, this.comparedValueBitwidth)

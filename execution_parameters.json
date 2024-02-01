@@ -21,8 +21,8 @@
 	{
 	    "approach": "conditional",
 	    "dataset": "iris",
-	    "precision": "decimal",
-	    "mode": "synthesis",
+	    "precision": "integer",
+	    "mode": "simulation",
 	    "training_parameters": {
 		"estimators": 3,
 		"training_percent": 20,

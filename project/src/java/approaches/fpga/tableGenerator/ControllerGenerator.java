@@ -12,6 +12,7 @@ public class ControllerGenerator extends BasicGenerator {
     private int comparedColumnBitwidth;
     private int tableIndexerBitwidth;
     private int voteCounterBitwidth;
+    private String mode;
     private String precision;
 
     public void execute(int classBitwidth, int featureQuantity, SettingsTable settings, boolean offlineMode){
@@ -20,32 +21,34 @@ public class ControllerGenerator extends BasicGenerator {
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
         this.comparedColumnBitwidth = settings.inferenceParameters.fieldsBitwidth.comparedColumn;
         this.tableIndexerBitwidth   = settings.inferenceParameters.fieldsBitwidth.index;
+        this.mode                   = settings.mode;
         this.precision              = settings.precision;
 
         String src = "";
+
+
         src += generateHeader(MODULE_NAME, offlineMode);
 
-        src += generatePortInstantiation(
-            featureQuantity,
-            classBitwidth,
-            offlineMode
-        );
+        if (mode.equals("simulation")){
+            src += generateModuleImports();
+        }
 
-        src += generateValidationTableInstantiation(
-            featureQuantity,
-            offlineMode
-        );
-
+        src += generatePortInstantiation(featureQuantity, classBitwidth, offlineMode);
+        src += generateValidationTableInstantiation(featureQuantity, offlineMode);
         src += "endmodule";
 
         FileBuilder.execute(src, String.format("FPGA/%s_table_run/%s.v", settings.dataset, this.MODULE_NAME));
+    }
+
+    private String generateModuleImports(){
+        return "`import validation_table.v\n";
     }
 
     private String generateHeader(String moduleName, boolean offlineMode){
         String[] ioPorts = {
             "clock",
             "reset",
-            "features",
+            "feature",
             "voted",
             "read_new_sample",
             "new_table_entry",
@@ -56,7 +59,7 @@ public class ControllerGenerator extends BasicGenerator {
             ioPorts = new String[]{
                 "clock",
                 "reset",
-                "features",
+                "feature",
                 "voted",
                 "read_new_sample",
                 "compute_vote_flag"
@@ -97,7 +100,7 @@ public class ControllerGenerator extends BasicGenerator {
             featuresBusBitwidth = (this.comparedValueBitwidth * 2) * featureQuantity;
         }
 
-        src += tab(1) + generatePort("features", WIRE, INPUT, featuresBusBitwidth, true);
+        src += tab(1) + generatePort("feature", WIRE, INPUT, featuresBusBitwidth, true);
 
         if (!offlineMode){
             src += tab(1) + generatePort("new_table_entry", WIRE, INPUT, 64, true);
@@ -131,23 +134,11 @@ public class ControllerGenerator extends BasicGenerator {
         src += tab(2) + String.format(".%s(%s),\n", "read_new_sample", "read_new_sample");
 
         if (this.precision.equals("integer")){
-            src += tab(2) + String.format(
-                    ".feature(features[%d:%d])\n",
-                    (featureBusBitwidth - 1),
-                    0
-            );
+            src += tab(2) + String.format(".feature(feature[%d:%d])\n", (featureBusBitwidth - 1), 0);
         }
         if (this.precision.equals("decimal")){
-            src += tab(2) + String.format(
-                    ".feature_integer(features[%d:%d]),\n",
-                    (featureBusBitwidth - 1) + featureBusBitwidth,
-                    featureBusBitwidth
-            );
-            src += tab(2) + String.format(
-                    ".feature_decimal(features[%d:%d])\n",
-                    featureBusBitwidth - 1,
-                    0
-            );
+            src += tab(2) + String.format(".feature_integer(feature[%d:%d]),\n", (featureBusBitwidth - 1) + featureBusBitwidth, featureBusBitwidth);
+            src += tab(2) + String.format(".feature_decimal(feature[%d:%d])\n", featureBusBitwidth - 1, 0);
         }
         src += tab(1) + ");\n";
 

@@ -5,8 +5,15 @@ import java.util.ArrayList;
 public abstract class Node {
     protected Integer id;
     protected ArrayList<Integer> values;
+    protected InnerNode father;
 
-  
+    public InnerNode getFather() {
+        return father;
+    }
+
+    public void setFather(InnerNode father) {
+        this.father = father;
+    }
 
     @Override
     public String toString() {
