@@ -56,6 +56,7 @@ public class Main {
                     settings.dataset,
                     settings.trainingParameters.trainingPercent,
                     settings.trainingParameters.estimatorsQuantity,
+                    settings.trainingParameters.maxDepth,
                     settings.precision
             );
 

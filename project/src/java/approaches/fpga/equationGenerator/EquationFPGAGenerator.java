@@ -1,5 +1,6 @@
 package project.src.java.approaches.fpga.equationGenerator;
 
+import project.src.java.approaches.fpga.AdderGenerator;
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
@@ -18,8 +19,10 @@ public class EquationFPGAGenerator {
 
         var treeGenerator       = new TreeGenerator();
         var controllerGenerator = new ControllerGenerator();
+        var adderGenerator      = new AdderGenerator();
 
         treeGenerator.execute(treeList, classQnt, featureQnt, settings);
         controllerGenerator.execute(treeList.size(), classQnt, featureQnt, false, settings);
+        adderGenerator.execute(treeList.size(), settings);
     }
 }

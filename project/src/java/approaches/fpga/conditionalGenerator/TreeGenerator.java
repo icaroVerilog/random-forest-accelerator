@@ -25,7 +25,6 @@ public class TreeGenerator extends BasicGenerator {
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 
         for (int index = 0; index < trees.size(); index++){
-
             System.out.println("generating verilog decision tree" + index);
 
             String src = "";
@@ -59,7 +58,6 @@ public class TreeGenerator extends BasicGenerator {
                 src += String.format("%sft%d_fraction,\n", tab(1), index);
             }
         }
-
 
         src += tab(1) + "clock,\n";
         src += tab(1) + "voted_class";

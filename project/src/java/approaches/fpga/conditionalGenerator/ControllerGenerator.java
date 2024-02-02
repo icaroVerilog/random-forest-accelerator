@@ -5,6 +5,7 @@ import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -18,7 +19,7 @@ public class ControllerGenerator extends BasicGenerator {
     private int comparedValueBitwidth;
     private String precision;
 
-    public void execute(Integer treeQnt, Integer classQnt, Integer featureQnt, Settings settings){
+    public void execute(int treeQnt, int classQnt, int featureQnt, Settings settings){
         System.out.println("generating controller");
 
         this.precision = settings.precision;
@@ -26,17 +27,15 @@ public class ControllerGenerator extends BasicGenerator {
 
         String src = "";
 
+        src += generateHeader(this.MODULE_NAME);
+
         if (settings.mode.equals("simulation")){
             src += generateImports(treeQnt);
         }
-
-        src += generateIO(featureQnt, classQnt, treeQnt, false);
-
+        src += generateIO(featureQnt, classQnt, treeQnt);
         for (int index = 0; index < treeQnt; index++){
             src += generateModuleInstantiation(featureQnt, index);
         }
-
-//        src += generateInitialBlock(featureQnt, classQnt, debugMode);
         src += generateAlwaysBlock(classQnt, treeQnt, false);
 
         FileBuilder.execute(src, String.format("FPGA/%s_conditional_run/%s.v", settings.dataset, this.MODULE_NAME));
@@ -50,36 +49,42 @@ public class ControllerGenerator extends BasicGenerator {
         return imports;
     }
 
-    private String generateIO(int featureQnt, int classQnt, int treeQnt, boolean debugMode){
+    public String generateHeader(String module_name){
+        String src = "";
+
+        String[] basicIOPorts = {"clock", "voted", "features"};
+
+        ArrayList<String> ioPorts = new ArrayList<>(List.of(basicIOPorts));
+
+        src += String.format("module %s (\n", module_name);
+
+        for (int index = 0; index <= ioPorts.size(); index++){
+            if (index == ioPorts.size()){
+                src += ");\n\n";
+            }
+            else if (index == ioPorts.size() - 1){
+                src += tab(1) + ioPorts.get(index) + "\n";
+            }
+            else {
+                src += tab(1) + ioPorts.get(index) + ",\n";
+            }
+        }
+        return src;
+    }
+
+    private String generateIO(int featureQnt, int classQnt, int treeQnt){
+        String src = "";
 
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
-        ArrayList<String> moduleIO = new ArrayList<>();
-        String src;
-
-        moduleIO.add("clock");
-        moduleIO.add("voted");
-        moduleIO.add("features");
-        src = "\n\n";
-        src += generateModule(
-                "controller",
-                moduleIO
-        );
-
-        src += "\n\n";
+        src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
 
         for (int index = 0; index < classQnt; index++){
             src += tab(1);
             src += generatePort(
-                "class" + generateBinaryNumber(index, bitwidth),
-                INTEGER,
-                NONE,
-                1,
-                true
+                "class" + generateBinaryNumber(index, bitwidth), INTEGER, NONE, 1, true
             );
         }
-
-        src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
         src += tab(1) + generatePort("voted", REGISTER, OUTPUT, bitwidth, true);
         src += "\n";
 
@@ -137,81 +142,13 @@ public class ControllerGenerator extends BasicGenerator {
                 offset += this.comparedValueBitwidth;
             }
         }
-
-
-
-
-//        String moduleFeatureExponent = ".ftZ_exponent(ftZ_exponent),";
-//        String moduleFeatureFraction = ".ftZ_fraction(ftZ_fraction),";
-//
-//        String src = "";
-//        String processed = "";
         String module = MODULE_INSTANCE;
-//
-//        src += tab(2) + ".clock(clock),\n";
-//        src += tab(2) + ".voted_class(voted_class" + treeIndex + "),";
-//
-//        for (int index = 0; index < featureQnt; index++){
-//            processed = moduleFeatureExponent.replace("Z", Integer.toString(index));
-//            src += "\n";
-//
-//            src += tab(2) + processed;
-//        }
-//
-//        for (int index = 0; index < featureQnt; index++){
-//
-//            if (index == featureQnt - 1){
-//                processed = moduleFeatureFraction.replace("Z", Integer.toString(index));
-//                int commaPosition = processed.lastIndexOf(",");
-//                processed = processed.substring(0, commaPosition);
-//            }
-//            else {
-//                processed = moduleFeatureFraction.replace("Z", Integer.toString(index));
-//            }
-//            src += "\n";
-//
-//            src += tab(2) + processed;
-//        }
         module = module
                 .replace("moduleName", "tree" + treeIndex)
                 .replace("ports", src)
                 .replace("ind", tab(1));
 
         return module;
-    }
-
-    private String generateInitialBlock(int featureQnt, int classQnt, boolean debugMode){
-        int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
-
-        String counterSetup = tab(2) + "counter = 0;\n\n";
-
-        String classSetup = IntStream.range(0, classQnt)
-                .mapToObj(index -> tab(2) + "class" + String.format("%" + bitwidth +
-                                "s", Integer.toBinaryString(index)).replaceAll(" ", "0") + " = 0;"
-                )
-                .collect(Collectors.joining("\n")
-                );
-
-
-        String initialBlockOpen = tab(1) + "initial begin\n\n";
-        String initialBlockClose = tab(1) + "end\n\n";
-
-        if (debugMode) {
-            String readmemExponent = IntStream.range(0, featureQnt)
-                    .mapToObj(index -> tab(2) + "$readmemb(" + '"' + "dataset/feature" + index + "_exponent.bin" + '"' + ", mem_feature_" + index + "_e);")
-                    .collect(Collectors.joining("\n")
-                    );
-
-            String readmemFraction = IntStream.range(0, featureQnt)
-                    .mapToObj(index -> tab(2) + "$readmemb(" + '"' + "dataset/feature" + index + "_fraction.bin" + '"' + ", mem_feature_" + index + "_f);")
-                    .collect(Collectors.joining("\n")
-                    );
-
-            return initialBlockOpen + classSetup + "\n" + counterSetup + readmemExponent + "\n" + readmemFraction + "\n\n" + initialBlockClose;
-        }
-        else {
-            return initialBlockOpen + classSetup + "\n" + initialBlockClose;
-        }
     }
 
     private String generateAlwaysBlock(int classQnt, int treeQnt, boolean debugMode) {

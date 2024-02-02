@@ -17,11 +17,9 @@ public class ConditionalFPGAGenerator {
 
         var treeGenerator       = new TreeGenerator();
         var controllerGenerator = new ControllerGenerator();
-        var apiGenerator        = new ApiGenerator();
 
         treeGenerator      .execute(treeList, featureQnt, classQnt, settings);
         controllerGenerator.execute(treeList.size(), classQnt, featureQnt, settings);
-//        apiGenerator       .execute(featureQnt, classQnt, debugMode, dataset);
 
     }
 

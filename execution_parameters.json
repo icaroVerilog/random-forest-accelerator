@@ -1,18 +1,36 @@
 {
     "runs": [
 	{
-	    "approach": "equation",
+	    "approach": "conditional",
 	    "dataset": "iris",
 	    "precision": "integer",
-	    "mode": "simulation",
+	    "mode": "synthesis",
 	    "training_parameters": {
-		"estimators": 3,
+		"estimators": 7,
 		"training_percent": 20,
-		"max_depth": "none"
+		"max_depth": 7
 	    },
 	    "inference_parameters": {
 		"fields_bitwidth": {
 		    "threshold": 12
+		}
+	    }
+	},
+	{
+	    "approach": "table",
+	    "dataset": "iris",
+	    "precision": "integer",
+	    "mode": "synthesis",
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 20,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 12,
+		    "compared_column": 13,
+		    "index": 13
 		}
 	    }
 	}

@@ -13,6 +13,11 @@ DATASET_TEST_PERCENT = int(sys.argv[3])
 TREE_QUANTITY = int(sys.argv[4])
 PRECISION = sys.argv[5]
 
+if sys.argv[6] == "None" or sys.argv[6] == "none":
+    MAX_DEPTH = None
+else:
+    MAX_DEPTH = int(sys.argv[6])
+
 dataset = pd.read_csv(f"{DATASET_PATH}/project/assets/datasets/{DATASET_NAME}.csv")
 
 
@@ -53,7 +58,7 @@ Y = dataset["target"]
 # X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=(DATASET_TEST_PERCENT / 100))
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=(DATASET_TEST_PERCENT / 100))
 
-clf = RandomForestClassifier(n_estimators=TREE_QUANTITY)
+clf = RandomForestClassifier(n_estimators=TREE_QUANTITY, max_depth=MAX_DEPTH)
 
 clf.fit(X_train, Y_train)
 Y_pred = clf.predict(X_test)

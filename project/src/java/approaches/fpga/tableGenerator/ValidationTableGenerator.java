@@ -59,10 +59,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         FileBuilder.execute(src, String.format("FPGA/%s_table_run/%s.v", settings.dataset, this.MODULE_NAME));
     }
 
-    private String generateHeader(
-        String module_name,
-        boolean offlineMode
-    ){
+    private String generateHeader(String module_name, boolean offlineMode){
         String[] basicIOPorts = {
             "clock",
             "reset",

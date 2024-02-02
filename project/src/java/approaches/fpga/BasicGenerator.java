@@ -69,18 +69,6 @@ public class BasicGenerator {
         return bus;
     }
 
-    protected String generateModule(String moduleName, ArrayList<String> ports){
-        String sourceCode = "";
-
-        sourceCode += "module " + moduleName + "(\n";
-        sourceCode += IntStream.range(0, ports.size())
-                .mapToObj(index -> tab(1) + ports.get(index))
-                .collect(Collectors.joining(",\n"));
-        sourceCode += "\n);";
-
-        return sourceCode;
-    }
-
     protected String tab(int tab){
         return IntStream.range(0, tab)
             .mapToObj(t -> "\t")

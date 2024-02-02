@@ -5,7 +5,7 @@ import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings;
 
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -17,10 +17,10 @@ public class ControllerGenerator extends BasicGenerator {
     private String precision;
 
     public void execute(
-            Integer treeQnt,
-            Integer classQnt,
-            Integer featureQnt,
-            Boolean debugMode,
+            int treeQnt,
+            int classQnt,
+            int featureQnt,
+            boolean debugMode,
             Settings settings
     ){
         System.out.println("generating controller");
@@ -31,10 +31,11 @@ public class ControllerGenerator extends BasicGenerator {
         String src = "";
 
         src += generateImports(treeQnt);
+        src += generateHeader(this.MODULE_NAME, featureQnt);
         src += generateIO(featureQnt, classQnt, treeQnt, debugMode);
 
         for (int index = 0; index < treeQnt; index++){
-            src += generateModuleInstantiation(featureQnt, index);
+            src += generateTreeModuleInstantiation(featureQnt, index);
         }
         for (int index = 0; index < classQnt; index++) {
             src += generateModuleAdder(treeQnt, index);
@@ -46,55 +47,7 @@ public class ControllerGenerator extends BasicGenerator {
         FileBuilder.execute(src, String.format("FPGA/%s_equation_run/controller.v", settings.dataset));
     }
 
-    private String generateModuleAdder(Integer treeQnt, int classNumber) {
-        String indentation1 = tab(1);
-        String indentation2 = tab(2);
-
-        String votes = ".voteZ(voted_classZ["+classNumber+"]),";
-        String src = "";
-        String processed = "";
-        String module = MODULE_VARIABLE_INSTANCE;
-
-        for (int index = 0; index < treeQnt; index++){
-            processed = votes.replace("Z", Integer.toString(index));
-            src += "\n";
-
-            src += indentation2 + processed;
-        }
-        src += "\n"+ indentation2 + ".sum(sum_class"+classNumber+")";
-        module = module
-                .replace("moduleName", "adder")
-                .replace("moduleVariableName", "adder"+classNumber)
-                .replace("ports", src)
-                .replace("ind", indentation1);
-
-        return module;
-    }
-
-    private String generateModuleWinner(Integer classQnt) {
-        String indentation1 = tab(1);
-        String indentation2 = tab(2);
-
-        String votes = ".vZ(sum_classZ),";
-        String src = "";
-        String processed = "";
-        String module = MODULE_INSTANCE;
-
-        for (int index = 0; index < classQnt; index++){
-            processed = votes.replace("Z", Integer.toString(index));
-            src += "\n";
-            src += indentation2 + processed;
-        }
-        src += "\n" + indentation2 + ".Winner(voted)";
-        module = module
-                .replace("moduleName", "winner")
-                .replace("ports", src)
-                .replace("ind", indentation1);
-
-        return module;
-    }
-
-    private String generateImports(Integer treeQuantity){
+    private String generateImports(int treeQuantity){
         String imports = IntStream.range(0, treeQuantity)
                 .mapToObj(index -> "`include " + "\"" + "tree" + index + ".v" + "\"")
                 .collect(Collectors.joining("\n")
@@ -104,104 +57,132 @@ public class ControllerGenerator extends BasicGenerator {
         return imports;
     }
 
-    private String generateIO(Integer featureQnt, Integer classQnt, Integer treeQnt, Boolean debugMode){
+    public String generateHeader(String module_name, int featureQnt){
+        String src = "";
+
+        String[] basicIOPorts = {"voted_class"};
+
+        ArrayList<String> ioPorts = new ArrayList<>(List.of(basicIOPorts));
+
+        for (int index = 0; index < featureQnt; index++) {
+            ioPorts.add(String.format("feature%d", index));
+        }
+
+        src += String.format("module %s (\n", module_name);
+
+        for (int index = 0; index <= ioPorts.size(); index++){
+            if (index == ioPorts.size()){
+                src += ");\n\n";
+            }
+            else if (index == ioPorts.size() - 1){
+                src += tab(1) + ioPorts.get(index) + "\n";
+            }
+            else {
+                src += tab(1) + ioPorts.get(index) + ",\n";
+            }
+        }
+
+        return src;
+    }
+
+    private String generateIO(int featureQnt, int classQnt, int treeQnt, boolean debugMode){
 
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
-        String ind1 = tab(1);
-
-        ArrayList<String> moduleIO = new ArrayList<>();
-        String src;
-
-        moduleIO.add("voted");
-
-        for (int index = 0; index < featureQnt; index++){
-            moduleIO.add("ft" + index );
-        }
-
-        src = "\n\n";
-        src += generateModule(
-                "controller",
-                moduleIO
-        );
-
-        src += "\n\n";
+        String src = "";
 
         for (int index = 0; index < classQnt; index++){
             src += tab(1);
-            src += generatePort(
-                    "class" + generateBinaryNumber(index, bitwidth),
-                    INTEGER,
-                    NONE,
-                    1,
-                    true
-            );
+            src += generatePort("class" + generateBinaryNumber(index, bitwidth), INTEGER, NONE, 1, true);
         }
 
-        src += ind1 + generatePort("voted", NONE, OUTPUT, bitwidth, true);
+        src += tab(1) + generatePort("voted", REGISTER, OUTPUT, bitwidth, true);
         src += "\n";
 
         for (int index = 0; index < featureQnt; index++){
-            src += tab(1);
-            src += generatePort(
-                    "ft" + index,
-                    WIRE,
-                    INPUT,
-                    this.comparedValueBitwidth,
-                    false
-            );
-            src += "\n";
+            src += tab(1) + generatePort("feature" + index, WIRE, INPUT, this.comparedValueBitwidth, true);
         }
 
         src += "\n";
         for (int index = 0; index < treeQnt; index++) {
-            src += tab(1);
-            src += generatePort("voted_class" + index,
-                    WIRE,
-                    NONE,
-                    (int) Math.ceil(Math.sqrt(classQnt)),
-                    false
-            );
-            src += "\n";
-
+            src += tab(1) + generatePort("voted_class" + index, WIRE, NONE, (int) Math.ceil(Math.sqrt(classQnt)), true);
         }
+
+        src += "\n";
 
         int sumBits = (int)(Math.log(Math.abs(treeQnt)) / Math.log(2)) + 1; // Logaritmo na base 2
         for (int index = 0; index < classQnt; index++) {
-            src += tab(1);
-            src += generatePort("sum_class"+index,
-                    WIRE,
-                    NONE,
-                    sumBits,
-                    false
-            );
-            src += "\n";
+            src += tab(1) + generatePort("sum_class" + index, WIRE, NONE, sumBits, true);
         }
         src += "\n";
 
         return src;
     }
 
-    private String generateModuleInstantiation(Integer featureQnt, Integer treeIndex){
-
-        String moduleFeatureExponent = ".ftZ(ftZ),";
+    private String generateTreeModuleInstantiation(int featureQnt, int treeIndex){
         String src = "";
-        String processed = "";
+
+        src += tab(2) + ".voted_class(voted_class" + treeIndex + "),\n";
+
+        for (int index = 0; index < featureQnt; index++) {
+            if (index + 1 == featureQnt) {
+                src += tab(2) + String.format(".feature%d(feature%d)", index, index);
+            } else {
+                src += tab(2) + String.format(".feature%d(feature%d),\n", index, index);
+            }
+        }
+
+        String module = MODULE_INSTANCE;
+        module = module
+                .replace("moduleName", "tree" + treeIndex)
+                .replace("ports", src)
+                .replace("ind", tab(1));
+        return module;
+    }
+
+    private String generateModuleAdder(int treeQnt, int classNumber) {
+        String src = "";
+
+        src += tab(2) + ".sum(sum_class" + classNumber + "),\n";
+
+        for (int index = 0; index < treeQnt; index++) {
+            if (index + 1 == treeQnt) {
+                src += tab(2) + String.format(".vote%d(voted_class%d[%d])", index, index, classNumber);
+            } else {
+                src += tab(2) + String.format(".vote%d(voted_class%d[%d]),\n", index, index, classNumber);
+            }
+        }
+
+        String module = MODULE_VARIABLE_INSTANCE;
+        module = module
+                .replace("moduleName", "adder")
+                .replace("moduleVariableName", "adder" + classNumber)
+                .replace("ports", src)
+                .replace("ind", tab(1));
+        return module;
+    }
+
+    private String generateModuleWinner(int classQnt) {
+        String src = "";
+
+        src += tab(2) + ".winner(voted),\n";
+
+        for (int index = 0; index < classQnt; index++) {
+            if (index + 1 == classQnt) {
+                src += tab(2) + String.format(".v%d(sum_class%d)", index, index);
+            } else {
+                src += tab(2) + String.format(".v%d(sum_class%d),\n", index, index);
+            }
+        }
+
         String module = MODULE_INSTANCE;
 
-        for (int index = 0; index < featureQnt; index++){
-            processed = moduleFeatureExponent.replace("Z", Integer.toString(index));
-            src += "\n";
-
-            src += tab(2) + processed;
-        }
-        src += "\n" + tab(2) + ".voted_class(voted_class" + treeIndex + ")";
-
         module = module
-                .replace("moduleName", "tree" + treeIndex.toString())
+                .replace("moduleName", "winner")
                 .replace("ports", src)
                 .replace("ind", tab(1));
 
         return module;
     }
+
 }

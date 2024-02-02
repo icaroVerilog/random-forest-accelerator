@@ -33,7 +33,7 @@ public class ControllerGenerator extends BasicGenerator {
             src += generateModuleImports();
         }
 
-        src += generatePortInstantiation(featureQuantity, classBitwidth, offlineMode);
+        src += generateIO(featureQuantity, classBitwidth, offlineMode);
         src += generateValidationTableInstantiation(featureQuantity, offlineMode);
         src += "endmodule";
 
@@ -45,6 +45,8 @@ public class ControllerGenerator extends BasicGenerator {
     }
 
     private String generateHeader(String moduleName, boolean offlineMode){
+        String src = "";
+
         String[] ioPorts = {
             "clock",
             "reset",
@@ -66,24 +68,23 @@ public class ControllerGenerator extends BasicGenerator {
             };
         }
 
-        String header = String.format("module %s (\n", moduleName);
-        String ports = "";
+        src += String.format("module %s (\n", moduleName);
 
         for (int index = 0; index <= ioPorts.length; index++){
             if (index == ioPorts.length){
-                ports += ");\n\n";
+                src += ");\n\n";
             }
             else if (index == ioPorts.length - 1){
-                ports += tab(1) + ioPorts[index] + "\n";
+                src += tab(1) + ioPorts[index] + "\n";
             }
             else {
-                ports += tab(1) + ioPorts[index] + ",\n";
+                src += tab(1) + ioPorts[index] + ",\n";
             }
         }
-        return header + ports;
+        return src;
     }
 
-    private String generatePortInstantiation(int featureQuantity, int classBitwidth, boolean offlineMode){
+    private String generateIO(int featureQuantity, int classBitwidth, boolean offlineMode){
         String src = "";
 
         src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
