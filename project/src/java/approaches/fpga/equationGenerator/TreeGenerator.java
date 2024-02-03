@@ -12,8 +12,6 @@ import project.src.java.util.executionSettings.ExecutionSettingsData.Conditional
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class TreeGenerator extends BasicGenerator {
 
@@ -135,7 +133,7 @@ public class TreeGenerator extends BasicGenerator {
 
         String first = "";
 
-        first += "feature" + c.getColumn() + " " + c.getComparissonType() + " " + generateBinaryNumber(Integer.parseInt(threshold[0]), this.comparedValueBitwidth);
+        first += "feature" + c.getColumn() + " " + c.getComparissonType() + " " + toBinary(Integer.parseInt(threshold[0]), this.comparedValueBitwidth);
         return first;
     }
 

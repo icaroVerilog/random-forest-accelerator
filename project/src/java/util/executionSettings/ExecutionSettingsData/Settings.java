@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings.class, name = "conditional"),
         @JsonSubTypes.Type(value = project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings.class, name = "equation"),
+        @JsonSubTypes.Type(value = project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings.class, name = "multiplexer"),
         @JsonSubTypes.Type(value = project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings.class, name = "table")
 })
 public abstract class Settings {

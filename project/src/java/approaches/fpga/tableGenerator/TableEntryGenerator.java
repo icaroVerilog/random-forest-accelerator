@@ -211,12 +211,12 @@ public class TableEntryGenerator extends BasicGenerator {
                 }
             }
             BinaryTableEntryDecimalPrecision entry = new BinaryTableEntryDecimalPrecision(
-                generateBinaryNumber(outerNodeFlag ? 1 : 0, 1),
-                generateBinaryNumber(comparedColumn,   this.comparedColumnBitwidth),
-                generateBinaryNumber(leftNodeIndex,    this.tableIndexerBitwidth),
-                generateBinaryNumber(rightNodeIndex,   this.tableIndexerBitwidth),
-                generateBinaryNumber(thresholdInteger, this.comparedValueBitwidth),
-                generateBinaryNumber(thresholdDecimal, this.comparedValueBitwidth)
+                toBinary(outerNodeFlag ? 1 : 0, 1),
+                toBinary(comparedColumn,   this.comparedColumnBitwidth),
+                toBinary(leftNodeIndex,    this.tableIndexerBitwidth),
+                toBinary(rightNodeIndex,   this.tableIndexerBitwidth),
+                toBinary(thresholdInteger, this.comparedValueBitwidth),
+                toBinary(thresholdDecimal, this.comparedValueBitwidth)
             );
             binaryTableEntries.add(entry);
         }
@@ -274,11 +274,11 @@ public class TableEntryGenerator extends BasicGenerator {
                 }
             }
             BinaryTableEntryIntegerPrecision entry = new BinaryTableEntryIntegerPrecision(
-                    generateBinaryNumber(outerNodeFlag ? 1 : 0, 1),
-                    generateBinaryNumber(comparedColumn, this.comparedColumnBitwidth),
-                    generateBinaryNumber(leftNodeIndex,  this.tableIndexerBitwidth),
-                    generateBinaryNumber(rightNodeIndex, this.tableIndexerBitwidth),
-                    generateBinaryNumber(threshold,      this.comparedValueBitwidth)
+                    toBinary(outerNodeFlag ? 1 : 0, 1),
+                    toBinary(comparedColumn, this.comparedColumnBitwidth),
+                    toBinary(leftNodeIndex,  this.tableIndexerBitwidth),
+                    toBinary(rightNodeIndex, this.tableIndexerBitwidth),
+                    toBinary(threshold,      this.comparedValueBitwidth)
             );
             binaryTableEntries.add(entry);
         }

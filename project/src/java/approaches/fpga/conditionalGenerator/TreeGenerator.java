@@ -149,9 +149,9 @@ public class TreeGenerator extends BasicGenerator {
         }
     }
 
-    public String generateComparison(Comparisson c){
+    public String generateComparison(Comparisson comparisson){
 
-        String expression = "";
+        String src = "";
 
         if (this.precision.equals("integer")){
             /*
@@ -159,46 +159,34 @@ public class TreeGenerator extends BasicGenerator {
             *   utilizando apenas numeros inteiros
             */
 
-            int threshold = (int) Math.floor(c.getThreshold());
+            int threshold = (int) Math.floor(comparisson.getThreshold());
 
-            expression = String.format(
+            src = String.format(
                 "feature%d >= %d'b%s",
-                c.getColumn(),
+                comparisson.getColumn(),
                 this.comparedValueBitwidth,
-                decimalToBinary(threshold, this.comparedValueBitwidth)
+                toBinary(threshold, this.comparedValueBitwidth)
             );
         }
         if (this.precision.equals("decimal")){
-            var threshold = c.getThreshold().toString().split("\\.");
-            String integerThreshold = decimalToBinary(Integer.parseInt(threshold[0]), this.comparedValueBitwidth);
-            String decimalThreshold = decimalToBinary(Integer.parseInt(threshold[0]), this.comparedValueBitwidth);
+            var threshold = comparisson.getThreshold().toString().split("\\.");
+            String integerThreshold = toBinary(Integer.parseInt(threshold[0]), this.comparedValueBitwidth);
+            String decimalThreshold = toBinary(Integer.parseInt(threshold[0]), this.comparedValueBitwidth);
 
-            expression += String.format(
+            src += String.format(
                     "(ft%d_exponent > %d'b%s) || ((ft%d_exponent == %d'b%s) && (ft%d_fraction >= %d'b%s))",
-                    c.getColumn(),
+                    comparisson.getColumn(),
                     this.comparedValueBitwidth,
                     integerThreshold,
-                    c.getColumn(),
+                    comparisson.getColumn(),
                     this.comparedValueBitwidth,
                     integerThreshold,
-                    c.getColumn(),
+                    comparisson.getColumn(),
                     this.comparedValueBitwidth,
                     decimalThreshold
             );
         }
-
-        return expression;
-
-//        String binaryIntegralTh = String.format(FEATURE_BITWIDTH + "'b%" + FEATURE_BITWIDTH + "s", Integer.toBinaryString(intIntegralThreshold)).replaceAll(" ", "0");
-//        String binaryFractionalTh = String.format(FEATURE_BITWIDTH + "'b%" + FEATURE_BITWIDTH + "s", Integer.toBinaryString(intFractionalThreshold)).replaceAll(" ", "0");
-//
-//        String first = "";
-//        String second = "";
-//
-//        first += "(" + "ft" + c.getColumn() + "_exponent  > " + binaryIntegralTh + ")";
-//        second += "((" + "ft" + c.getColumn() + "_exponent == " + binaryIntegralTh + ") & ft" + c.getColumn() + "_fraction " + c.getComparissonType() + " " + binaryFractionalTh + ")";
-//
-//        return first + " | " + second;
+        return src;
     }
 
     public String generateEndDelimiters(){
@@ -208,15 +196,5 @@ public class TreeGenerator extends BasicGenerator {
         code += "endmodule";
 
         return code;
-    }
-
-    private String decimalToBinary(int decimalValue, int numberOfBits){
-        StringBuilder binaryValue = new StringBuilder();
-
-        for (int i = numberOfBits - 1; i >= 0; i--) {
-            int bit = (decimalValue >> i) & 1;
-            binaryValue.append(bit);
-        }
-        return binaryValue.toString();
     }
 }

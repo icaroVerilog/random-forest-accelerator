@@ -1,14 +1,10 @@
 package project.src.java.approaches.fpga;
 
-import java.util.ArrayList;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class BasicGenerator {
-
-    protected final Integer FEATURE_BITWIDTH = 32;
-
     /* RESERVED WORDS */
 
     protected final String WIRE = "wire";
@@ -76,7 +72,7 @@ public class BasicGenerator {
         );
     }
 
-    protected String generateBinaryNumber(int value, int bitwidth){
+    protected String toBinary(int value, int bitwidth){
         return String.format("%" + bitwidth + "s", Integer.toBinaryString(value)).replaceAll(" ", "0");
     }
 }

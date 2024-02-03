@@ -3,6 +3,7 @@ package project.src.java.approaches.fpga;
 
 import project.src.java.approaches.fpga.conditionalGenerator.ConditionalFPGAGenerator;
 import project.src.java.approaches.fpga.equationGenerator.EquationFPGAGenerator;
+import project.src.java.approaches.fpga.multiplexerGenerator.MultiplexerFPGAGenerator;
 import project.src.java.approaches.fpga.tableGenerator.TableFPGAGenerator;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings;
@@ -34,6 +35,12 @@ public class FPGA {
                     featureQuantity,
                     (Settings) settings
             );
+            case "multiplexer" -> executeMultiplexerApproach(
+                    treeList,
+                    classQuantity,
+                    featureQuantity,
+                    (Settings) settings
+            );
         }
 
         System.out.println("\nfinishing FPGA random forest generator");
@@ -53,9 +60,6 @@ public class FPGA {
 
     }
 
-
-
-
     public void executeConditionalApproach(List<Tree> treeList, int classQuantity, int featureQuantity, project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings settings) throws IOException {
         System.out.println("conditional approach\n");
 
@@ -69,8 +73,18 @@ public class FPGA {
         );
     }
 
+    public void executeMultiplexerApproach(List<Tree> treeList, int classQuantity, int featureQuantity, project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings settings) throws IOException {
+        System.out.println("Multiplexer approach\n");
 
+        MultiplexerFPGAGenerator multiplexerFPGAGenerator = new MultiplexerFPGAGenerator();
 
+        multiplexerFPGAGenerator.execute(
+                treeList,
+                classQuantity,
+                featureQuantity,
+                settings
+        );
+    }
 
     private void executeTableApproach(List<Tree> treeList, int classQuantity, int featureQuantity, project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings settings) throws  IOException {
         System.out.println("table approach\n");

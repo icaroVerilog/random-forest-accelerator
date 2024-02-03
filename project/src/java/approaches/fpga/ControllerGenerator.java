@@ -1,6 +1,5 @@
-package project.src.java.approaches.fpga.equationGenerator;
+package project.src.java.approaches.fpga;
 
-import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings;
 
@@ -10,13 +9,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ControllerGenerator extends BasicGenerator {
-
     private final String MODULE_NAME = "controller";
 
     private int comparedValueBitwidth;
     private String precision;
 
-    public void execute(int treeQnt, int classQnt, int featureQnt, boolean debugMode, Settings settings){
+    public void execute(int treeQnt, int classQnt, int featureQnt, Settings settings){
         System.out.println("generating controller");
 
         this.precision = settings.precision;
@@ -24,9 +22,9 @@ public class ControllerGenerator extends BasicGenerator {
 
         String src = "";
 
-        src += generateImports(treeQnt);
+//        src += generateImports(treeQnt);
         src += generateHeader(this.MODULE_NAME, featureQnt);
-        src += generateIO(featureQnt, classQnt, treeQnt, debugMode);
+        src += generateIO(featureQnt, classQnt, treeQnt);
 
         for (int index = 0; index < treeQnt; index++){
             src += generateTreeModuleInstantiation(featureQnt, index);
@@ -38,7 +36,7 @@ public class ControllerGenerator extends BasicGenerator {
         src += generateModuleWinner(classQnt);
         src += "\nendmodule";
 
-        FileBuilder.execute(src, String.format("FPGA/%s_equation_run/controller.v", settings.dataset));
+        FileBuilder.execute(src, String.format("FPGA/%s_%s_run/controller.v", settings.dataset, settings.approach));
     }
 
     private String generateImports(int treeQuantity){
@@ -75,11 +73,10 @@ public class ControllerGenerator extends BasicGenerator {
                 src += tab(1) + ioPorts.get(index) + ",\n";
             }
         }
-
         return src;
     }
 
-    private String generateIO(int featureQnt, int classQnt, int treeQnt, boolean debugMode){
+    private String generateIO(int featureQnt, int classQnt, int treeQnt){
 
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
@@ -87,7 +84,7 @@ public class ControllerGenerator extends BasicGenerator {
 
         for (int index = 0; index < classQnt; index++){
             src += tab(1);
-            src += generatePort("class" + generateBinaryNumber(index, bitwidth), INTEGER, NONE, 1, true);
+            src += generatePort("class" + toBinary(index, bitwidth), INTEGER, NONE, 1, true);
         }
 
         src += tab(1) + generatePort("voted", REGISTER, OUTPUT, bitwidth, true);
@@ -178,5 +175,4 @@ public class ControllerGenerator extends BasicGenerator {
 
         return module;
     }
-
 }

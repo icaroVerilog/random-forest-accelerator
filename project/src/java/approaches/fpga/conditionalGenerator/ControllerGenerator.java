@@ -82,7 +82,7 @@ public class ControllerGenerator extends BasicGenerator {
         for (int index = 0; index < classQnt; index++){
             src += tab(1);
             src += generatePort(
-                "class" + generateBinaryNumber(index, bitwidth), INTEGER, NONE, 1, true
+                "class" + toBinary(index, bitwidth), INTEGER, NONE, 1, true
             );
         }
         src += tab(1) + generatePort("voted", REGISTER, OUTPUT, bitwidth, true);
@@ -160,7 +160,7 @@ public class ControllerGenerator extends BasicGenerator {
         int counter = classQnt - 1;
         for (int index1 = 0; index1 < classQnt; index1++){
 
-            String voteCounter = tab(2) + "class" + generateBinaryNumber(index1, bitwidth) + " <= ";
+            String voteCounter = tab(2) + "class" + toBinary(index1, bitwidth) + " <= ";
 
             for (int index2 = 0; index2 < treeQnt; index2++){
                 if (index2 == treeQnt - 1){
