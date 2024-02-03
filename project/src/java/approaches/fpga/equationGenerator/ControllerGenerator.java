@@ -16,13 +16,7 @@ public class ControllerGenerator extends BasicGenerator {
     private int comparedValueBitwidth;
     private String precision;
 
-    public void execute(
-            int treeQnt,
-            int classQnt,
-            int featureQnt,
-            boolean debugMode,
-            Settings settings
-    ){
+    public void execute(int treeQnt, int classQnt, int featureQnt, boolean debugMode, Settings settings){
         System.out.println("generating controller");
 
         this.precision = settings.precision;

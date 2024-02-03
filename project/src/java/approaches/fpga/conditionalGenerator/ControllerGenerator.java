@@ -94,8 +94,6 @@ public class ControllerGenerator extends BasicGenerator {
         else if (this.precision.equals("decimal")){
             src += tab(1) + generatePort("features", WIRE, INPUT, (this.comparedValueBitwidth * featureQnt * 2), false);
         }
-
-
         src += "\n";
 
         for (int index = 0; index < treeQnt; index++){

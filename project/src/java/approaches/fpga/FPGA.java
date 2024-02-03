@@ -15,28 +15,24 @@ public class FPGA {
 
         System.out.println("\nstarting FPGA random forest generator");
 
-        if (settings.approach.equals("conditional")){
-            executeConditionalApproach(
+        switch (settings.approach) {
+            case "conditional" -> executeConditionalApproach(
                     treeList,
                     classQuantity,
                     featureQuantity,
-                    (project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings) settings
+                    (Settings) settings
             );
-        }
-        else if (settings.approach.equals("table")){
-            executeTableApproach(
+            case "table" -> executeTableApproach(
                     treeList,
                     classQuantity,
                     featureQuantity,
                     (project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings) settings
             );
-        }
-        else if (settings.approach.equals("equation")){
-            executeEquationApproach(
+            case "equation" -> executeEquationApproach(
                     treeList,
                     classQuantity,
                     featureQuantity,
-                    (project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings) settings
+                    (Settings) settings
             );
         }
 
