@@ -1,7 +1,6 @@
-package project.src.java.approaches.fpga.equationGenerator;
+package project.src.java.approaches.fpga.conditionalEquationMultiplexer.equationGenerator;
 
-import project.src.java.approaches.fpga.BasicGenerator;
-import project.src.java.dotTreeParser.treeStructure.Comparisson;
+import project.src.java.approaches.fpga.conditionalEquationMultiplexer.BaseTreeGenerator;
 import project.src.java.dotTreeParser.treeStructure.Nodes.InnerNode;
 import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
 import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
@@ -9,11 +8,10 @@ import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class TreeGenerator extends BasicGenerator {
+public class TreeGenerator extends BaseTreeGenerator {
 
     private int comparedValueBitwidth;
     private String precision;
@@ -31,7 +29,7 @@ public class TreeGenerator extends BasicGenerator {
 
             sourceCode += generateHeader(String.format("tree%d", index), featureQnt);
             sourceCode += generatePortDeclaration(featureQnt, classQnt);
-            sourceCode += generateComparisonWires(trees.get(index));
+            sourceCode += generateComparisonWires(trees.get(index), this.comparedValueBitwidth);
             sourceCode += generateComparisonAssigns(trees.get(index), classQnt);
             sourceCode += generateEndDelimiters();
 
@@ -66,54 +64,6 @@ public class TreeGenerator extends BasicGenerator {
         return finalSrc;
     }
 
-    private String generateComparisonWires(Tree tree) {
-        String src = "\n";
-        var comparisons = tree.getInnerNodes();
-        for (Map.Entry<Integer, InnerNode> entry : comparisons.entrySet()) {
-            Integer key = entry.getKey();
-            src += "\twire c"+key+";\n";
-        }
-
-        src += "\n";
-
-        for (Map.Entry<Integer, InnerNode> entry : comparisons.entrySet()) {
-            Integer key = entry.getKey();
-            InnerNode node = entry.getValue();
-            var featureIndex = node.getComparisson().getColumn();
-            src += "\tassign c"+key+" = "+generateComparison(node.getComparisson())+";\n";
-        }
-        return src;
-    }
-
-    public String generateHeader(String module_name, int featureQnt){
-
-        String src = "";
-
-        String[] basicIOPorts = {"voted_class"};
-
-        ArrayList<String> ioPorts = new ArrayList<>(List.of(basicIOPorts));
-
-        for (int index = 0; index < featureQnt; index++) {
-            ioPorts.add(String.format("feature%d", index));
-        }
-
-        src += String.format("module %s (\n", module_name);
-
-        for (int index = 0; index <= ioPorts.size(); index++){
-            if (index == ioPorts.size()){
-                src += ");\n\n";
-            }
-            else if (index == ioPorts.size() - 1){
-                src += tab(1) + ioPorts.get(index) + "\n";
-            }
-            else {
-                src += tab(1) + ioPorts.get(index) + ",\n";
-            }
-        }
-
-        return src;
-    }
-
     public String generatePortDeclaration(int featureQnt, int classQnt){
 
         String src = "";
@@ -127,14 +77,23 @@ public class TreeGenerator extends BasicGenerator {
         return src;
     }
 
-    public String generateComparison(Comparisson c){
+    protected String generateComparisonWires(Tree tree, int comparedValueBitwidth) {
+        String src = "\n";
+        var comparisons = tree.getInnerNodes();
+        for (Map.Entry<Integer, InnerNode> entry : comparisons.entrySet()) {
+            Integer key = entry.getKey();
+            src += "\twire c"+key+";\n";
+        }
 
-        var threshold = c.getThreshold().toString().split("\\.");
+        src += "\n";
 
-        String first = "";
-
-        first += "feature" + c.getColumn() + " " + c.getComparissonType() + " " + toBinary(Integer.parseInt(threshold[0]), this.comparedValueBitwidth);
-        return first;
+        for (Map.Entry<Integer, InnerNode> entry : comparisons.entrySet()) {
+            Integer key = entry.getKey();
+            InnerNode node = entry.getValue();
+            var featureIndex = node.getComparisson().getColumn();
+            src += "\tassign c"+key+" = "+generateComparison(node.getComparisson(), comparedValueBitwidth)+";\n";
+        }
+        return src;
     }
 
     public String generateEndDelimiters(){

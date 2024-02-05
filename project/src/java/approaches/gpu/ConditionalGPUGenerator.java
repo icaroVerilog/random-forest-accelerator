@@ -1,7 +1,7 @@
 package project.src.java.approaches.gpu;
 
 import project.src.java.dotTreeParser.Parser;
-import project.src.java.dotTreeParser.treeStructure.Comparisson;
+import project.src.java.dotTreeParser.treeStructure.Comparison;
 import project.src.java.dotTreeParser.treeStructure.Nodes.InnerNode;
 import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
 import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
@@ -59,10 +59,10 @@ public class ConditionalGPUGenerator {
         }
     }
 
-    private static String decodeToIf(Comparisson comparisson) {
-        return "F[" + comparisson.getColumn() + "] " 
-            + comparisson.getComparissonType() + " " 
-            + comparisson.getThreshold();
+    private static String decodeToIf(Comparison comparison) {
+        return "F[" + comparison.getColumn() + "] " 
+            + comparison.getComparisonType() + " "
+            + comparison.getThreshold();
     }
 
    

@@ -1,16 +1,16 @@
 package project.src.java.dotTreeParser.treeStructure.Nodes;
 
-import project.src.java.dotTreeParser.treeStructure.Comparisson;
+import project.src.java.dotTreeParser.treeStructure.Comparison;
 
 import java.util.ArrayList;
 
 public class InnerNode extends Node {
-    private Comparisson comparisson;
+    private Comparison comparison;
     private Node leftNode;
     private Node rightNode;
 
-    public InnerNode(Comparisson comparisson, ArrayList<Integer> values){
-        this.comparisson = comparisson;
+    public InnerNode(Comparison comparison, ArrayList<Integer> values){
+        this.comparison = comparison;
         this.values = values;
 
         this.leftNode = null;
@@ -28,8 +28,8 @@ public class InnerNode extends Node {
         return this.rightNode == null;
     }
 
-    public Comparisson getComparisson() {
-        return comparisson;
+    public Comparison getComparisson() {
+        return comparison;
     }
 
     public Node getLeftNode() {
@@ -40,8 +40,8 @@ public class InnerNode extends Node {
         return rightNode;
     }
 
-    public void setComparisson(Comparisson comparisson) {
-        this.comparisson = comparisson;
+    public void setComparisson(Comparison comparison) {
+        this.comparison = comparison;
     }
 
     public void setLeftNode(Node leftNode) {

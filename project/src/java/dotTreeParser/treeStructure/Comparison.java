@@ -1,25 +1,25 @@
 package project.src.java.dotTreeParser.treeStructure;
 
-public class Comparisson {
+public class Comparison {
     private String  featureName;
     private Float threshold;
     private Integer column;
-    private String comparissonType;
+    private String comparisonType;
 
-    public Comparisson(String featureName, Float threshold, Integer column, String comparissonType) {
+    public Comparison(String featureName, Float threshold, Integer column, String comparisonType) {
         this.featureName = featureName;
         this.threshold = threshold;
         this.column = column;
-        this.comparissonType = comparissonType;
+        this.comparisonType = comparisonType;
     }
     
-    public Comparisson() {
+    public Comparison() {
     }
 
     @Override
     public String toString() {
         return "Feature [name=" + featureName + ", threshold=" + threshold + ", column=" + column + ", comparissonType="
-                + comparissonType + "]";
+                + comparisonType + "]";
     }
 
     public String getFeatureName() {
@@ -41,11 +41,11 @@ public class Comparisson {
     public void setColumn(Integer column) {
         this.column = column;
     }
-    public String getComparissonType() {
-        return comparissonType;
+    public String getComparisonType() {
+        return comparisonType;
     }
-    public void setComparissonType(String comparissonType) {
-        this.comparissonType = comparissonType;
+    public void setComparisonType(String comparisonType) {
+        this.comparisonType = comparisonType;
     }
 
 

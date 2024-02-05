@@ -2,8 +2,8 @@ package project.src.java.approaches.fpga;
 
 
 import project.src.java.approaches.fpga.conditionalGenerator.ConditionalFPGAGenerator;
-import project.src.java.approaches.fpga.equationGenerator.EquationFPGAGenerator;
-import project.src.java.approaches.fpga.multiplexerGenerator.MultiplexerFPGAGenerator;
+import project.src.java.approaches.fpga.conditionalEquationMultiplexer.equationGenerator.EquationFPGAGenerator;
+import project.src.java.approaches.fpga.conditionalEquationMultiplexer.multiplexerGenerator.MultiplexerFPGAGenerator;
 import project.src.java.approaches.fpga.tableGenerator.TableFPGAGenerator;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings;

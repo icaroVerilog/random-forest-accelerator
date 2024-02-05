@@ -1,7 +1,7 @@
 package project.src.java.approaches.fpga.conditionalGenerator;
 
 import project.src.java.approaches.fpga.BasicGenerator;
-import project.src.java.dotTreeParser.treeStructure.Comparisson;
+import project.src.java.dotTreeParser.treeStructure.Comparison;
 import project.src.java.dotTreeParser.treeStructure.Nodes.InnerNode;
 import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
 import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
@@ -31,6 +31,7 @@ public class TreeGenerator extends BasicGenerator {
 
             src += generateHeader(index, featureQnt);
             src += generatePortDeclaration(featureQnt, classQnt);
+            src += generateParameters(classQnt);
             src += generateAlwaysBlock();
             src += generateConditionals(trees.get(index).getRoot(), 2);
             src += generateEndDelimiters();
@@ -91,11 +92,17 @@ public class TreeGenerator extends BasicGenerator {
         src += tab(1) + generatePort("voted_class", REGISTER, OUTPUT, (int) Math.ceil(Math.sqrt(classQnt)), true);
         src += "\n";
 
+        return src;
+    }
+
+    public String generateParameters(int classQnt){
+        int bitWidth = (int) Math.ceil(Math.sqrt(classQnt));
+
         int[][] oneHotMatrix = new int[classQnt][classQnt];
 
         for (int i = 0; i < oneHotMatrix.length; i++) {
             for (int j = 0; j < oneHotMatrix[i].length; j++) {
-                if (i + j == classQnt - 1){
+                if (i == j){
                     oneHotMatrix[i][j] = 1;
                 }
                 else {
@@ -104,17 +111,14 @@ public class TreeGenerator extends BasicGenerator {
             }
         }
 
+        String src = "";
+
         for (int index = 0; index < classQnt; index++) {
-            String oneHot = Arrays.toString(oneHotMatrix[index]);
-            oneHot = oneHot
-                    .replace(" ", "")
-                    .replace("[", "")
-                    .replace("]","")
-                    .replace(",","");
-
-            src += tab(1) + String.format("parameter class%d = %d'b%s;\n", index, oneHotMatrix.length, oneHot);
+            String oneHotEncode = Arrays.toString(oneHotMatrix[classQnt - index - 1])
+                    .replaceAll("[\\[\\]\\s]", "")
+                    .replace(",", "") + ";";
+            src += tab(1) + String.format("parameter class%d = %d'b%s\n", index, (bitWidth + 1),  oneHotEncode);
         }
-
         return src;
     }
 
@@ -122,7 +126,7 @@ public class TreeGenerator extends BasicGenerator {
 
         String tab = tab(1);
 
-        return "\n\n" + tab + "always @(posedge clock) begin\n";
+        return "\n" + tab + "always @(posedge clock) begin\n";
     }
 
     public String generateConditionals(Node node, int tab){
@@ -149,7 +153,7 @@ public class TreeGenerator extends BasicGenerator {
         }
     }
 
-    public String generateComparison(Comparisson comparisson){
+    public String generateComparison(Comparison comparison){
 
         String src = "";
 
@@ -159,29 +163,29 @@ public class TreeGenerator extends BasicGenerator {
             *   utilizando apenas numeros inteiros
             */
 
-            int threshold = (int) Math.floor(comparisson.getThreshold());
+            int threshold = (int) Math.floor(comparison.getThreshold());
 
             src = String.format(
                 "feature%d >= %d'b%s",
-                comparisson.getColumn(),
+                comparison.getColumn(),
                 this.comparedValueBitwidth,
                 toBinary(threshold, this.comparedValueBitwidth)
             );
         }
         if (this.precision.equals("decimal")){
-            var threshold = comparisson.getThreshold().toString().split("\\.");
+            var threshold = comparison.getThreshold().toString().split("\\.");
             String integerThreshold = toBinary(Integer.parseInt(threshold[0]), this.comparedValueBitwidth);
             String decimalThreshold = toBinary(Integer.parseInt(threshold[0]), this.comparedValueBitwidth);
 
             src += String.format(
                     "(ft%d_exponent > %d'b%s) || ((ft%d_exponent == %d'b%s) && (ft%d_fraction >= %d'b%s))",
-                    comparisson.getColumn(),
+                    comparison.getColumn(),
                     this.comparedValueBitwidth,
                     integerThreshold,
-                    comparisson.getColumn(),
+                    comparison.getColumn(),
                     this.comparedValueBitwidth,
                     integerThreshold,
-                    comparisson.getColumn(),
+                    comparison.getColumn(),
                     this.comparedValueBitwidth,
                     decimalThreshold
             );

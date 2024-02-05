@@ -86,9 +86,9 @@ public class TreeBuilder {
         tree.newInnerNode(node);
     }
 
-    private static InnerNode generateNode(String line, Comparisson comparisson) {
+    private static InnerNode generateNode(String line, Comparison comparison) {
         var node = new InnerNode();
-        node.setComparisson(comparisson);
+        node.setComparisson(comparison);
         node.setId(Integer.parseInt(line.split(" ")[0]));
         var begin = line.indexOf(NVALUE_STRING);
         var end = line.length() - 1;
@@ -110,8 +110,8 @@ public class TreeBuilder {
         return node;
     }
 
-    private static Comparisson generateComparisson(String line) {
-        var comparisson = new Comparisson();
+    private static Comparison generateComparisson(String line) {
+        var comparisson = new Comparison();
         
         var begin = line.indexOf(LABEL_EQUAL_STRING) + LABEL_BEGIN_OFFSET;
         var end = line.indexOf(INNER_NODE_INDICATOR_STRING) - NGINI_END_OFFSET;
@@ -124,7 +124,7 @@ public class TreeBuilder {
             .replace("[", "")
             .replace("]", "")
             .replace("x", "")));
-        comparisson.setComparissonType(comparissonParts[1]);
+        comparisson.setComparisonType(comparissonParts[1]);
         comparisson.setThreshold(Float.parseFloat(comparissonParts[2]));
         comparisson.setFeatureName(featuresNames.get(comparisson.getColumn()));
         return comparisson;

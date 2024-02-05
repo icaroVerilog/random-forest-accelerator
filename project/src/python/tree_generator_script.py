@@ -55,7 +55,7 @@ dataset.rename(columns={target_column_name: "target"}, inplace=True)
 
 X = dataset.drop(["target"], axis=1)
 Y = dataset["target"]
-# X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=(DATASET_TEST_PERCENT / 100))
+
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=(DATASET_TEST_PERCENT / 100))
 
 clf = RandomForestClassifier(n_estimators=TREE_QUANTITY, max_depth=MAX_DEPTH)

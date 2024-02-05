@@ -1,8 +1,7 @@
-package project.src.java.approaches.fpga.equationGenerator;
+package project.src.java.approaches.fpga.conditionalEquationMultiplexer.equationGenerator;
 
-import project.src.java.approaches.fpga.AdderGenerator;
-import project.src.java.approaches.fpga.BasicGenerator;
-import project.src.java.approaches.fpga.ControllerGenerator;
+import project.src.java.approaches.fpga.conditionalEquationMultiplexer.AdderGenerator;
+import project.src.java.approaches.fpga.conditionalEquationMultiplexer.ControllerGenerator;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings;
