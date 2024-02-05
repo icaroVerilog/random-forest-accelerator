@@ -1,4 +1,4 @@
-package project.src.java.approaches.fpga.conditionalGenerator;
+package project.src.java.approaches.fpga.conditionalEquationMultiplexer.conditionalGenerator;
 
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.dotTreeParser.treeStructure.Comparison;
