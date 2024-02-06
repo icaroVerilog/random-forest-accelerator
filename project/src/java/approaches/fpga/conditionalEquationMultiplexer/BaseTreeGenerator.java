@@ -38,11 +38,10 @@ public class BaseTreeGenerator extends BasicGenerator {
 
     protected String generateComparison(Comparison comparison, int comparedValueBitwidth){
         var threshold = comparison.getThreshold().toString().split("\\.");
-
-        String src = "";
-
-        src += "feature" + comparison.getColumn() + " " + comparison.getComparisonType() + " " + toBinary(Integer.parseInt(threshold[0]), comparedValueBitwidth);
-        return src;
+        return String.format("feature%d %s %d'b%s", comparison.getColumn(), comparison.getComparisonType(), comparedValueBitwidth, toBinary(Integer.parseInt(threshold[0]), comparedValueBitwidth));
     }
 
+    protected String generateEndDelimiters(){
+        return "endmodule";
+    }
 }

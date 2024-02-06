@@ -37,33 +37,6 @@ public class TreeGenerator extends BaseTreeGenerator {
         }
     }
 
-    private String generateComparisonAssigns(Tree tree, int classQnt) {
-        String[] src = new String[classQnt];
-        var outerNodes = tree.getOuterNodes();
-        for (Map.Entry<Integer, OuterNode> entry : outerNodes.entrySet()) {
-            Integer key = entry.getKey();
-            Node node = entry.getValue();
-            boolean first = true;
-            int classNumber = entry.getValue().getClassNumber();
-            src[classNumber] = src[classNumber] == null ? "" : src[classNumber];
-            var o = src[classNumber].isEmpty() ? "" : " | ";
-            src[classNumber] += o;
-            while(node.getFather() != null){
-                var innerNode = node.getFather();
-                var n = innerNode.getLeftNode() == node ? "": "~";
-                var e = first ? "" : " & ";
-                src[classNumber] += e + n + "c"+ innerNode.getId();
-                node = innerNode;
-                first = false;
-            }
-        }
-        var finalSrc = "";
-        for (int i = 0; i < classQnt; i++) {
-            finalSrc += "\tassign voted_class["+i+"] = "+ src[i] + ";\n";
-        }
-        return finalSrc;
-    }
-
     public String generatePortDeclaration(int featureQnt, int classQnt){
 
         String src = "";
@@ -72,7 +45,7 @@ public class TreeGenerator extends BaseTreeGenerator {
             src += tab(1) + generatePort(String.format("feature%d", index), WIRE, INPUT, this.comparedValueBitwidth, true);
         }
         src += "\n";
-        src += tab(1) + generatePort("voted_class", REGISTER, OUTPUT, (int) Math.ceil(Math.sqrt(classQnt)), true);
+        src += tab(1) + generatePort("voted_class", WIRE, OUTPUT, classQnt, true);
 
         return src;
     }
@@ -96,11 +69,30 @@ public class TreeGenerator extends BaseTreeGenerator {
         return src;
     }
 
-    public String generateEndDelimiters(){
-        String code = "";
-
-        code += "\nendmodule";
-
-        return code;
+    private String generateComparisonAssigns(Tree tree, int classQnt) {
+        String[] src = new String[classQnt];
+        var outerNodes = tree.getOuterNodes();
+        for (Map.Entry<Integer, OuterNode> entry : outerNodes.entrySet()) {
+            Integer key = entry.getKey();
+            Node node = entry.getValue();
+            boolean first = true;
+            int classNumber = entry.getValue().getClassNumber();
+            src[classNumber] = src[classNumber] == null ? "" : src[classNumber];
+            var o = src[classNumber].isEmpty() ? "" : " | ";
+            src[classNumber] += o;
+            while(node.getFather() != null){
+                var innerNode = node.getFather();
+                var n = innerNode.getLeftNode() == node ? "": "~";
+                var e = first ? "" : " & ";
+                src[classNumber] += e + n + "c"+ innerNode.getId();
+                node = innerNode;
+                first = false;
+            }
+        }
+        var finalSrc = "\n";
+        for (int index = 0; index < classQnt; index++) {
+            finalSrc += tab(1) + String.format("assign voted_class[%d] = %s;\n", index, src[index]);
+        }
+        return finalSrc;
     }
 }

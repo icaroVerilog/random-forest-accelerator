@@ -97,24 +97,24 @@ public class Main {
                 Parser.getFeatureQuantity()
             );
 
-            if (settings instanceof project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings settingsT){
-                datasetParserCaller.execute(
-                    path,
-                    settingsT.inferenceParameters.fieldsBitwidth.comparedValue,
-                    settings.dataset,
-                    settings.approach,
-                    settings.precision
-                );
-            }
-            else if (settings instanceof project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings settingsCEM){
-                datasetParserCaller.execute(
-                    path,
-                    settingsCEM.inferenceParameters.fieldsBitwidth.comparedValue,
-                    settings.dataset,
-                    settings.approach,
-                    settings.precision
-                );
-            }
+//            if (settings instanceof project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings settingsT){
+//                int a = datasetParserCaller.execute(
+//                    path,
+//                    settingsT.inferenceParameters.fieldsBitwidth.comparedValue,
+//                    settings.dataset,
+//                    settings.approach,
+//                    settings.precision
+//                );
+//            }
+//            else if (settings instanceof project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings settingsCEM){
+//                datasetParserCaller.execute(
+//                    path,
+//                    settingsCEM.inferenceParameters.fieldsBitwidth.comparedValue,
+//                    settings.dataset,
+//                    settings.approach,
+//                    settings.precision
+//                );
+//            }
         }
 
         System.out.println("job finished: Success");

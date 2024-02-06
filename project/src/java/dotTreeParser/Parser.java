@@ -69,6 +69,7 @@ public class Parser {
     }
 
     private static Set<String> listFiles(String path) {
+        System.out.println(path);
         return Stream.of(new File(path).listFiles())
           .filter(file -> !file.isDirectory())
           .map(File::getName)

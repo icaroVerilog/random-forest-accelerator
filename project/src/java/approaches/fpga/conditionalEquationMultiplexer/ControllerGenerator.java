@@ -88,7 +88,7 @@ public class ControllerGenerator extends BasicGenerator {
             src += generatePort("class" + toBinary(index, bitwidth), INTEGER, NONE, 1, true);
         }
 
-        src += tab(1) + generatePort("voted", REGISTER, OUTPUT, bitwidth, true);
+        src += tab(1) + generatePort("voted", WIRE, OUTPUT, bitwidth, true);
         src += "\n";
 
         for (int index = 0; index < featureQnt; index++){
@@ -97,7 +97,7 @@ public class ControllerGenerator extends BasicGenerator {
 
         src += "\n";
         for (int index = 0; index < treeQnt; index++) {
-            src += tab(1) + generatePort("voted_class" + index, WIRE, NONE, (int) Math.ceil(Math.sqrt(classQnt)), true);
+            src += tab(1) + generatePort("voted_class" + index, WIRE, NONE, classQnt, true);
         }
 
         src += "\n";

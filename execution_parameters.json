@@ -2,22 +2,6 @@
     "regenerate_estimators": false,
     "runs": [
 	{
-	    "approach": "multiplexer",
-	    "dataset": "iris",
-	    "precision": "integer",
-	    "mode": "synthesis",
-	    "training_parameters": {
-		"estimators": 7,
-		"training_percent": 20,
-		"max_depth": 7
-	    },
-	    "inference_parameters": {
-		"fields_bitwidth": {
-		    "threshold": 12
-		}
-	    }
-	},
-	{
 	    "approach": "equation",
 	    "dataset": "iris",
 	    "precision": "integer",
@@ -29,23 +13,7 @@
 	    },
 	    "inference_parameters": {
 		"fields_bitwidth": {
-		    "threshold": 12
-		}
-	    }
-	},
-	{
-	    "approach": "conditional",
-	    "dataset": "iris",
-	    "precision": "integer",
-	    "mode": "synthesis",
-	    "training_parameters": {
-		"estimators": 7,
-		"training_percent": 20,
-		"max_depth": 7
-	    },
-	    "inference_parameters": {
-		"fields_bitwidth": {
-		    "threshold": 12
+		    "threshold": 32
 		}
 	    }
 	}

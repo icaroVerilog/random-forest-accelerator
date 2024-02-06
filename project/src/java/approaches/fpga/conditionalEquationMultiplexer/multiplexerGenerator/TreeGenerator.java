@@ -38,15 +38,13 @@ public class TreeGenerator extends BaseTreeGenerator {
     }
 
     public String generatePortDeclaration(int featureQnt, int classQnt){
-        int bitWidth = (int) Math.ceil(Math.sqrt(classQnt));
-
         String src = "";
 
         for (int index = 0; index < featureQnt; index++) {
             src += tab(1) + generatePort(String.format("feature%d", index), WIRE, INPUT, this.comparedValueBitwidth, true);
         }
         src += "\n";
-        src += tab(1) + generatePort("voted_class", REGISTER, OUTPUT, bitWidth, true);
+        src += tab(1) + generatePort("voted_class", WIRE, OUTPUT, classQnt, true);
         src += "\n";
 
         return src;
@@ -95,13 +93,5 @@ public class TreeGenerator extends BaseTreeGenerator {
 
             return code;
         }
-    }
-
-    public String generateEndDelimiters(){
-        String code = "";
-
-        code += "\nendmodule";
-
-        return code;
     }
 }

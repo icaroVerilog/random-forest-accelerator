@@ -12,27 +12,27 @@ public class PythonTreeGeneratorCaller {
     public int execute(String basePath, String dataset, int datasetTestPercent, int estimatorQnt, String max_depth, String precision) {
         String pythonScriptPath = String.format("%s/project/src/python/%s.py", basePath, scriptName);
         try {
-            Process process = Runtime
-                .getRuntime()
-                .exec(String.format(
-                     "%s %s %s %s %d %d %s %s",
-                     runtime,
-                     pythonScriptPath,
-                     dataset,
-                     basePath,
-                     datasetTestPercent,
-                     estimatorQnt,
-                     precision,
-                     max_depth
-                ));
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                runtime,
+                pythonScriptPath,
+                dataset,
+                basePath,
+                Integer.toString(datasetTestPercent),
+                Integer.toString(estimatorQnt),
+                precision,
+                max_depth
+            );
+
+            processBuilder.redirectErrorStream(true);
+            Process pythonProcess = processBuilder.start();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(pythonProcess.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
                 System.out.println(line);
             }
             reader.close();
-
-            return process.waitFor();
+            return pythonProcess.waitFor();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return 1;
