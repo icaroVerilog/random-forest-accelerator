@@ -75,4 +75,8 @@ public class BasicGenerator {
     protected String toBinary(int value, int bitwidth){
         return String.format("%" + bitwidth + "s", Integer.toBinaryString(value)).replaceAll(" ", "0");
     }
+
+    protected String generateEndDelimiters(){
+        return "endmodule";
+    }
 }

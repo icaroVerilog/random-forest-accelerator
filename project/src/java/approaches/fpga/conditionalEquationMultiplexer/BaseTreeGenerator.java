@@ -24,7 +24,7 @@ public class BaseTreeGenerator extends BasicGenerator {
 
         for (int index = 0; index <= ioPorts.size(); index++){
             if (index == ioPorts.size()){
-                src += ");\n\n";
+                src += ");\n";
             }
             else if (index == ioPorts.size() - 1){
                 src += tab(1) + ioPorts.get(index) + "\n";
@@ -41,7 +41,15 @@ public class BaseTreeGenerator extends BasicGenerator {
         return String.format("feature%d %s %d'b%s", comparison.getColumn(), comparison.getComparisonType(), comparedValueBitwidth, toBinary(Integer.parseInt(threshold[0]), comparedValueBitwidth));
     }
 
-    protected String generateEndDelimiters(){
-        return "endmodule";
+    protected String generatePortDeclaration(int featureQnt, int classQnt, int comparedValueBitwidth){
+        String src = "";
+
+        for (int index = 0; index < featureQnt; index++) {
+            src += tab(1) + generatePort(String.format("feature%d", index), WIRE, INPUT, comparedValueBitwidth, true);
+        }
+        src += "\n";
+        src += tab(1) + generatePort("voted_class", WIRE, OUTPUT, classQnt, true);
+
+        return src;
     }
 }

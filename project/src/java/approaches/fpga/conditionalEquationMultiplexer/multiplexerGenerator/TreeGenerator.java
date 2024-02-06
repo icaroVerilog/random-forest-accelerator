@@ -27,30 +27,18 @@ public class TreeGenerator extends BaseTreeGenerator {
             String sourceCode = "";
 
             sourceCode += generateHeader(String.format("tree%d", index), featureQnt);
-            sourceCode += generatePortDeclaration(featureQnt, classQnt);
+            sourceCode += generatePortDeclaration(featureQnt, classQnt, this.comparedValueBitwidth);
             sourceCode += generateParameters(classQnt);
             sourceCode += "\n\tassign voted_class = \n";
             sourceCode += generateMux(trees.get(index).getRoot(), 2);
+            sourceCode += ";\n";
             sourceCode += generateEndDelimiters();
 
             FileBuilder.execute(sourceCode, String.format("FPGA/%s_multiplexer_run/tree%d.v", settings.dataset, index));
         }
     }
 
-    public String generatePortDeclaration(int featureQnt, int classQnt){
-        String src = "";
-
-        for (int index = 0; index < featureQnt; index++) {
-            src += tab(1) + generatePort(String.format("feature%d", index), WIRE, INPUT, this.comparedValueBitwidth, true);
-        }
-        src += "\n";
-        src += tab(1) + generatePort("voted_class", WIRE, OUTPUT, classQnt, true);
-        src += "\n";
-
-        return src;
-    }
-
-    public String generateParameters(int classQnt){
+    private String generateParameters(int classQnt){
         int bitWidth = (int) Math.ceil(Math.sqrt(classQnt));
 
         int[][] oneHotMatrix = new int[classQnt][classQnt];
@@ -77,7 +65,7 @@ public class TreeGenerator extends BaseTreeGenerator {
         return src;
     }
 
-    public String generateMux(Node node, int tab){
+    private String generateMux(Node node, int tab){
 
         if (node instanceof OuterNode) {
             OuterNode newNode = (OuterNode) node;

@@ -34,8 +34,8 @@ public class ControllerGenerator extends BasicGenerator {
             src += generateModuleAdder(treeQnt, index);
         }
 
-        src += generateModuleWinner(classQnt);
-        src += "\nendmodule";
+        src += generateModuleMajority(classQnt);
+        src += generateEndDelimiters();
 
         FileBuilder.execute(src, String.format("FPGA/%s_%s_run/controller.v", settings.dataset, settings.approach));
     }
@@ -53,7 +53,7 @@ public class ControllerGenerator extends BasicGenerator {
     public String generateHeader(String module_name, int featureQnt){
         String src = "";
 
-        String[] basicIOPorts = {"voted_class"};
+        String[] basicIOPorts = {"voted"};
 
         ArrayList<String> ioPorts = new ArrayList<>(List.of(basicIOPorts));
 
@@ -65,7 +65,7 @@ public class ControllerGenerator extends BasicGenerator {
 
         for (int index = 0; index <= ioPorts.size(); index++){
             if (index == ioPorts.size()){
-                src += ");\n\n";
+                src += ");\n";
             }
             else if (index == ioPorts.size() - 1){
                 src += tab(1) + ioPorts.get(index) + "\n";
@@ -82,11 +82,6 @@ public class ControllerGenerator extends BasicGenerator {
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
         String src = "";
-
-        for (int index = 0; index < classQnt; index++){
-            src += tab(1);
-            src += generatePort("class" + toBinary(index, bitwidth), INTEGER, NONE, 1, true);
-        }
 
         src += tab(1) + generatePort("voted", WIRE, OUTPUT, bitwidth, true);
         src += "\n";
@@ -106,7 +101,6 @@ public class ControllerGenerator extends BasicGenerator {
         for (int index = 0; index < classQnt; index++) {
             src += tab(1) + generatePort("sum_class" + index, WIRE, NONE, sumBits, true);
         }
-        src += "\n";
 
         return src;
     }
@@ -154,23 +148,23 @@ public class ControllerGenerator extends BasicGenerator {
         return module;
     }
 
-    private String generateModuleWinner(int classQnt) {
+    private String generateModuleMajority(int classQnt) {
         String src = "";
 
-        src += tab(2) + ".winner(voted),\n";
+        src += tab(2) + ".voted(voted),\n";
 
         for (int index = 0; index < classQnt; index++) {
             if (index + 1 == classQnt) {
-                src += tab(2) + String.format(".v%d(sum_class%d)", index, index);
+                src += tab(2) + String.format(".class%d_votes(sum_class%d)", index, index);
             } else {
-                src += tab(2) + String.format(".v%d(sum_class%d),\n", index, index);
+                src += tab(2) + String.format(".class%d_votes(sum_class%d),\n", index, index);
             }
         }
 
         String module = MODULE_INSTANCE;
 
         module = module
-                .replace("moduleName", "winner")
+                .replace("moduleName", "majority")
                 .replace("ports", src)
                 .replace("ind", tab(1));
 

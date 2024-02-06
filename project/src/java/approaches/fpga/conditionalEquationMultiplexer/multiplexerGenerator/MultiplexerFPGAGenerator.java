@@ -2,6 +2,7 @@ package project.src.java.approaches.fpga.conditionalEquationMultiplexer.multiple
 
 import project.src.java.approaches.fpga.conditionalEquationMultiplexer.AdderGenerator;
 import project.src.java.approaches.fpga.conditionalEquationMultiplexer.ControllerGenerator;
+import project.src.java.approaches.fpga.conditionalEquationMultiplexer.MajorityGenerator;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings;
@@ -20,9 +21,11 @@ public class MultiplexerFPGAGenerator {
         var treeGenerator       = new TreeGenerator();
         var controllerGenerator = new ControllerGenerator();
         var adderGenerator      = new AdderGenerator();
+        var majorityGenerator   = new MajorityGenerator();
 
         treeGenerator      .execute(treeList, classQnt, featureQnt, settings);
         controllerGenerator.execute(treeList.size(), classQnt, featureQnt, settings);
         adderGenerator     .execute(treeList.size(), settings);
+        majorityGenerator  .execute(treeList.size(), classQnt, settings);
     }
 }

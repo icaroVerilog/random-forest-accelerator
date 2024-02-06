@@ -17,7 +17,6 @@ public class TreeGenerator extends BaseTreeGenerator {
     private String precision;
 
     public void execute(List<Tree> trees, Integer classQnt, Integer featureQnt, Settings settings){
-
         this.precision = settings.precision;
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 
@@ -25,32 +24,19 @@ public class TreeGenerator extends BaseTreeGenerator {
 
             System.out.println("generating verilog decision tree" + index);
 
-            String sourceCode = "";
+            String src = "";
 
-            sourceCode += generateHeader(String.format("tree%d", index), featureQnt);
-            sourceCode += generatePortDeclaration(featureQnt, classQnt);
-            sourceCode += generateComparisonWires(trees.get(index), this.comparedValueBitwidth);
-            sourceCode += generateComparisonAssigns(trees.get(index), classQnt);
-            sourceCode += generateEndDelimiters();
+            src += generateHeader(String.format("tree%d", index), featureQnt);
+            src += generatePortDeclaration(featureQnt, classQnt, this.comparedValueBitwidth);
+            src += generateComparisonWires(trees.get(index));
+            src += generateComparisonAssigns(trees.get(index), classQnt);
+            src += generateEndDelimiters();
 
-            FileBuilder.execute(sourceCode, String.format("FPGA/%s_equation_run/tree%d.v", settings.dataset, index));
+            FileBuilder.execute(src, String.format("FPGA/%s_equation_run/tree%d.v", settings.dataset, index));
         }
     }
 
-    public String generatePortDeclaration(int featureQnt, int classQnt){
-
-        String src = "";
-
-        for (int index = 0; index < featureQnt; index++) {
-            src += tab(1) + generatePort(String.format("feature%d", index), WIRE, INPUT, this.comparedValueBitwidth, true);
-        }
-        src += "\n";
-        src += tab(1) + generatePort("voted_class", WIRE, OUTPUT, classQnt, true);
-
-        return src;
-    }
-
-    protected String generateComparisonWires(Tree tree, int comparedValueBitwidth) {
+    private String generateComparisonWires(Tree tree) {
         String src = "\n";
         var comparisons = tree.getInnerNodes();
         for (Map.Entry<Integer, InnerNode> entry : comparisons.entrySet()) {
@@ -64,7 +50,7 @@ public class TreeGenerator extends BaseTreeGenerator {
             Integer key = entry.getKey();
             InnerNode node = entry.getValue();
             var featureIndex = node.getComparisson().getColumn();
-            src += "\tassign c"+key+" = "+generateComparison(node.getComparisson(), comparedValueBitwidth)+";\n";
+            src += "\tassign c"+key+" = "+generateComparison(node.getComparisson(), this.comparedValueBitwidth)+";\n";
         }
         return src;
     }

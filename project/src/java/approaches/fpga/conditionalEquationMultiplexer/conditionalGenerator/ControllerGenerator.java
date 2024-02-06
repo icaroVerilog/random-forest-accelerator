@@ -177,6 +177,7 @@ public class ControllerGenerator extends BasicGenerator {
         ArrayList<String> classes = new ArrayList<>();
         for (int index = 0; index < classQnt; index++){
             classes.add(String.format("%" + bitwidth + "s", Integer.toBinaryString(index)).replaceAll(" ", "0"));
+//            System.out.println();
         }
 
         for (int index1 = 0; index1 < classQnt; index1++) {
