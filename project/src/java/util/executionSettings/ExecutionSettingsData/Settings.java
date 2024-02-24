@@ -28,7 +28,7 @@ public abstract class Settings {
     public String target;
 
     @JsonProperty("platform")
-    public String platform;
+    public Platform platform;
 
     @JsonProperty("training_parameters")
     public TrainingParameters trainingParameters;

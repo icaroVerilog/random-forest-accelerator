@@ -5,15 +5,15 @@ import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.Settings;
 
 public class AlteraCycloneApi extends BasicGenerator {
-    private final int IOPinQnt = 523 - 3;
-
+    private int IOPinQnt;
     private int comparedValueBitwidth;
     private String precision;
 
     public void execute(int classQnt, int featureQnt, Settings settings){
 
-        this.precision = settings.precision;
+        this.IOPinQnt = settings.platform.inputBitwidth - 3;
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
+        this.precision = settings.precision;
 
         String src = "";
         src += generateHeader("cycloneIV_api");

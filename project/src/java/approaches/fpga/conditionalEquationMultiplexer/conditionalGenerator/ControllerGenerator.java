@@ -38,7 +38,7 @@ public class ControllerGenerator extends BasicGenerator {
         }
         src += generateAlwaysBlock(classQnt, treeQnt, false);
 
-        FileBuilder.execute(src, String.format("FPGA/%s_conditional_run/%s.v", settings.dataset, this.MODULE_NAME));
+        FileBuilder.execute(src, String.format("FPGA/%s_conditional_%dtree_%sdeep_run/%s.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth, this.MODULE_NAME));
     }
 
     private String generateImports(Integer treeQuantity){

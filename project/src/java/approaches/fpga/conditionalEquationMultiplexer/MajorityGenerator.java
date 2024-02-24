@@ -18,7 +18,7 @@ public class MajorityGenerator extends BasicGenerator {
         src += generateEndDelimiters();
 
 
-        FileBuilder.execute(src, String.format("FPGA/%s_%s_run/majority.v", settings.dataset, settings.approach));
+        FileBuilder.execute(src, String.format("FPGA/%s_%s_%dtree_%sdeep_run/majority.v", settings.dataset, settings.approach, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
     }
 
     public String generateHeader(String module_name, int classQnt){

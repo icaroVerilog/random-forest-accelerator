@@ -17,7 +17,7 @@ public class MultiplexerFPGAGenerator {
             int featureQnt,
             Settings settings
     ){
-        var a = FileBuilder.createDir(String.format("FPGA/%s_multiplexer_run", settings.dataset));
+        var a = FileBuilder.createDir(String.format("FPGA/%s_multiplexer_%dtree_%sdeep_run", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
 
         var treeGenerator       = new TreeGenerator();
         var controllerGenerator = new ControllerGenerator();
@@ -29,9 +29,7 @@ public class MultiplexerFPGAGenerator {
         adderGenerator     .execute(treeList.size(), settings);
         majorityGenerator  .execute(treeList.size(), classQnt, settings);
 
-        if (settings.platform.equals("cycloneIV")) {
-            var alteraCycloneAPI = new AlteraCycloneApi();
-            alteraCycloneAPI.execute(classQnt, featureQnt, settings);
-        }
+        var alteraCycloneAPI = new AlteraCycloneApi();
+        alteraCycloneAPI.execute(classQnt, featureQnt, settings);
     }
 }

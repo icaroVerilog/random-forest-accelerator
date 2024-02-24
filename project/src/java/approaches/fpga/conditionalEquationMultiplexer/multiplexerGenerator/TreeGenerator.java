@@ -24,17 +24,17 @@ public class TreeGenerator extends BaseTreeGenerator {
 
             System.out.println("generating verilog decision tree" + index);
 
-            String sourceCode = "";
+            String src = "";
 
-            sourceCode += generateHeader(String.format("tree%d", index), featureQnt);
-            sourceCode += generatePortDeclaration(featureQnt, classQnt, this.comparedValueBitwidth);
-            sourceCode += generateParameters(classQnt);
-            sourceCode += "\n\tassign voted_class = \n";
-            sourceCode += generateMux(trees.get(index).getRoot(), 2);
-            sourceCode += ";\n";
-            sourceCode += generateEndDelimiters();
+            src += generateHeader(String.format("tree%d", index), featureQnt);
+            src += generatePortDeclaration(featureQnt, classQnt, this.comparedValueBitwidth);
+            src += generateParameters(classQnt);
+            src += "\n\tassign voted_class = \n";
+            src += generateMux(trees.get(index).getRoot(), 2);
+            src += ";\n";
+            src += generateEndDelimiters();
 
-            FileBuilder.execute(sourceCode, String.format("FPGA/%s_multiplexer_run/tree%d.v", settings.dataset, index));
+            FileBuilder.execute(src, String.format("FPGA/%s_multiplexer_%dtree_%sdeep_run/tree%d.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth, index));
         }
     }
 

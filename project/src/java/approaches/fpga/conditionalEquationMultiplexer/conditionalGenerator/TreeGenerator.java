@@ -36,7 +36,7 @@ public class TreeGenerator extends BasicGenerator {
             src += generateConditionals(trees.get(index).getRoot(), 2);
             src += generateEndDelimiters();
 
-            FileBuilder.execute(src, String.format("FPGA/%s_conditional_run/tree%d.v", settings.dataset, index));
+            FileBuilder.execute(src, String.format("FPGA/%s_conditional_%dtree_%sdeep_run/tree%d.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth, index));
         }
     }
 

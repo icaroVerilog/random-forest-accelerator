@@ -32,7 +32,7 @@ public class TreeGenerator extends BaseTreeGenerator {
             src += generateComparisonAssigns(trees.get(index), classQnt);
             src += generateEndDelimiters();
 
-            FileBuilder.execute(src, String.format("FPGA/%s_equation_run/tree%d.v", settings.dataset, index));
+            FileBuilder.execute(src, String.format("FPGA/%s_equation_%dtree_%sdeep_run/tree%d.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth, index));
         }
     }
 

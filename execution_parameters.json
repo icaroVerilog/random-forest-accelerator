@@ -6,10 +6,12 @@
 	    "dataset": "covtype",
 	    "precision": "integer",
 	    "target": "synthesis",
-	    "platform": "cycloneIV",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
 	    "training_parameters": {
 		"estimators": 7,
-		"training_percent": 20,
+		"training_percent": 30,
 		"max_depth": 7
 	    },
 	    "inference_parameters": {

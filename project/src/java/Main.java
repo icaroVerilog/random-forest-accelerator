@@ -21,6 +21,7 @@ public class Main {
     }
 
     public static void start() throws IOException{
+        System.out.println("starting FPGA random forest generator\n\n");
 
         ExecutionSettingsParser settingsParser     = new ExecutionSettingsParser();
         InputJsonValidator      inputJsonValidator = new InputJsonValidator();
@@ -45,8 +46,6 @@ public class Main {
 //            System.out.println("job finished: Failed");
 //            System.exit(1);
 //        }
-
-
 
         FPGA FPGAGenerator = new FPGA();
 
