@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class ExecutionSettings {
 
     @JsonProperty("regenerate_estimators")
-    public boolean regenerateEstimators;
+    public Boolean regenerateEstimators;
 
     @JsonProperty("runs")
     public ArrayList<Settings> executionsSettings;

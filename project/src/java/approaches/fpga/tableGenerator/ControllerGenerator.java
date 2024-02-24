@@ -21,7 +21,7 @@ public class ControllerGenerator extends BasicGenerator {
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
         this.comparedColumnBitwidth = settings.inferenceParameters.fieldsBitwidth.comparedColumn;
         this.tableIndexerBitwidth   = settings.inferenceParameters.fieldsBitwidth.index;
-        this.mode                   = settings.mode;
+//        this.mode                   = settings.target;
         this.precision              = settings.precision;
 
         String src = "";
@@ -29,9 +29,9 @@ public class ControllerGenerator extends BasicGenerator {
 
         src += generateHeader(MODULE_NAME, offlineMode);
 
-        if (mode.equals("simulation")){
-            src += generateModuleImports();
-        }
+//        if (mode.equals("simulation")){
+//            src += generateModuleImports();
+//        }
 
         src += generateIO(featureQuantity, classBitwidth, offlineMode);
         src += generateValidationTableInstantiation(featureQuantity, offlineMode);

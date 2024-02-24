@@ -7,7 +7,7 @@ import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
 import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.Settings;
 
 import java.util.Arrays;
 import java.util.List;

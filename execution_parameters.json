@@ -3,9 +3,10 @@
     "runs": [
 	{
 	    "approach": "equation",
-	    "dataset": "iris",
+	    "dataset": "covtype",
 	    "precision": "integer",
-	    "mode": "synthesis",
+	    "target": "synthesis",
+	    "platform": "cycloneIV",
 	    "training_parameters": {
 		"estimators": 7,
 		"training_percent": 20,
@@ -13,23 +14,7 @@
 	    },
 	    "inference_parameters": {
 		"fields_bitwidth": {
-		    "threshold": 24
-		}
-	    }
-	},
-	{
-	    "approach": "multiplexer",
-	    "dataset": "iris",
-	    "precision": "integer",
-	    "mode": "synthesis",
-	    "training_parameters": {
-		"estimators": 7,
-		"training_percent": 20,
-		"max_depth": 7
-	    },
-	    "inference_parameters": {
-		"fields_bitwidth": {
-		    "threshold": 24
+		    "threshold": 32
 		}
 	    }
 	}

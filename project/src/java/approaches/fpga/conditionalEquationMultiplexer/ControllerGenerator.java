@@ -2,7 +2,7 @@ package project.src.java.approaches.fpga.conditionalEquationMultiplexer;
 
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.Settings;
 
 import java.util.ArrayList;
 import java.util.List;

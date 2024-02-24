@@ -1,4 +1,4 @@
-package project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux;
+package project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

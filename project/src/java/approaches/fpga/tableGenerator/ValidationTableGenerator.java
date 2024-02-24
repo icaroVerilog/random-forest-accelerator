@@ -284,7 +284,7 @@ public class ValidationTableGenerator extends BasicGenerator {
                 if (this.precision.equals("decimal")){
                     tableEntryBitwidth = (this.comparedValueBitwidth * 2) + this.comparedColumnBitwidth + (this.tableIndexerBitwidth * 2) + 1;
                 }
-                resetBlockBody += String.format("%snodes_table[%d] <= %d'b%s;\n", tab(3), index, tableEntryBitwidth, tableEntries.get(index).value());
+                resetBlockBody += tab(3) + String.format("nodes_table[%d] <= %d'b%s;\n", index, tableEntryBitwidth, tableEntries.get(index).value());
             }
         } else {
             resetBlockBody += tab(3) + "nodes_table[new_table_entry_counter - 1'b1] <= new_table_entry;\n\n";

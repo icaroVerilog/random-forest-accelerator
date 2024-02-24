@@ -6,7 +6,7 @@ import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
 import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.Settings;
 
 import java.util.List;
 import java.util.Map;
@@ -79,6 +79,9 @@ public class TreeGenerator extends BaseTreeGenerator {
         for (int index = 0; index < classQnt; index++) {
             finalSrc += tab(1) + String.format("assign voted_class[%d] = %s;\n", index, src[index]);
         }
+
+        finalSrc = finalSrc.replace("null", "1'b0");
+
         return finalSrc;
     }
 }

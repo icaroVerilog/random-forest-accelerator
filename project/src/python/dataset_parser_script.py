@@ -8,7 +8,8 @@ CLASS_DATASET_LAST_COLUMN = True if sys.argv[3] == "true" else False
 BITWIDTH = int(sys.argv[4])
 APPROACH = sys.argv[5]
 PRECISION = sys.argv[6]
-print("rodou")
+
+
 dataset = pd.read_csv(DATASET_PATH + "/project/assets/datasets/" + DATASET + ".csv")
 
 

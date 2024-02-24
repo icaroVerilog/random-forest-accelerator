@@ -3,12 +3,9 @@ package project.src.java;
 import project.src.java.approaches.fpga.FPGA;
 import project.src.java.dotTreeParser.Parser;
 import project.src.java.dotTreeParser.treeStructure.Tree;
-import project.src.java.util.FileBuilder;
-import project.src.java.util.PythonBitwidthValidatorCaller;
+import project.src.java.util.*;
 import project.src.java.util.executionSettings.ExecutionSettingsData.Settings;
 import project.src.java.util.executionSettings.ExecutionSettingsParser;
-import project.src.java.util.PythonTreeGeneratorCaller;
-import project.src.java.util.PythonDatasetParserCaller;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ExecutionSettings;
 
 import java.io.IOException;
@@ -25,8 +22,11 @@ public class Main {
 
     public static void start() throws IOException{
 
-        ExecutionSettingsParser settingsParser = new ExecutionSettingsParser();
+        ExecutionSettingsParser settingsParser     = new ExecutionSettingsParser();
+        InputJsonValidator      inputJsonValidator = new InputJsonValidator();
+
         ExecutionSettings executionsSettings = settingsParser.execute(path);
+        inputJsonValidator.execute(executionsSettings);
 
         FileBuilder.setupFolders();
 

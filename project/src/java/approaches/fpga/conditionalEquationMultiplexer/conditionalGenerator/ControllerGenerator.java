@@ -2,7 +2,7 @@ package project.src.java.approaches.fpga.conditionalEquationMultiplexer.conditio
 
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +29,9 @@ public class ControllerGenerator extends BasicGenerator {
 
         src += generateHeader(this.MODULE_NAME);
 
-        if (settings.mode.equals("simulation")){
-            src += generateImports(treeQnt);
-        }
+//        if (settings.target.equals("simulation")){
+//            src += generateImports(treeQnt);
+//        }
         src += generateIO(featureQnt, classQnt, treeQnt);
         for (int index = 0; index < treeQnt; index++){
             src += generateModuleInstantiation(featureQnt, index);
