@@ -6,7 +6,7 @@ import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
 import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.Settings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +16,7 @@ public class TreeGenerator extends BaseTreeGenerator {
     private int comparedValueBitwidth;
     private String precision;
 
-    public void execute(List<Tree> trees, Integer classQnt, Integer featureQnt, Settings settings){
+    public void execute(List<Tree> trees, Integer classQnt, Integer featureQnt, SettingsCEM settings){
         this.precision = settings.precision;
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 

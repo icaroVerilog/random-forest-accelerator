@@ -2,14 +2,14 @@ package project.src.java.approaches.fpga.conditionalEquationMultiplexer;
 
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.Settings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class MajorityGenerator extends BasicGenerator {
-    public void execute(int treeQnt, int classQnt, Settings settings){
+    public void execute(int treeQnt, int classQnt, SettingsCEM settings){
         String src = "";
 
         src += generateHeader("majority", classQnt);

@@ -3,7 +3,7 @@ package project.src.java.approaches.fpga.tableGenerator;
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Table.SettingsT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         int estimatorsQuantity,
         int classBitwidth,
         ArrayList<BinaryTableEntry> tableEntries,
-        Settings settings,
+        SettingsT settings,
         boolean offlineMode
     ){
         System.out.println("generating validation table");
@@ -56,7 +56,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         src += generateComputeForestVoteAlways(classQuantity, classBitwidth);
         src += "\n" + "endmodule";
 
-        FileBuilder.execute(src, String.format("FPGA/%s_table_run/%s.v", settings.dataset, this.MODULE_NAME));
+        FileBuilder.execute(src, String.format("FPGA/%s_table_%dtree_%sdeep_run/validation_table.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
     }
 
     private String generateHeader(String module_name, boolean offlineMode){

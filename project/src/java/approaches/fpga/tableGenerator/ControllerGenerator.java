@@ -2,7 +2,7 @@ package project.src.java.approaches.fpga.tableGenerator;
 
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Table.SettingsT;
 
 public class ControllerGenerator extends BasicGenerator {
 
@@ -15,7 +15,7 @@ public class ControllerGenerator extends BasicGenerator {
     private String mode;
     private String precision;
 
-    public void execute(int classBitwidth, int featureQuantity, Settings settings, boolean offlineMode){
+    public void execute(int classBitwidth, int featureQuantity, SettingsT settings, boolean offlineMode){
         System.out.println("generating controller");
 
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
@@ -37,7 +37,7 @@ public class ControllerGenerator extends BasicGenerator {
         src += generateValidationTableInstantiation(featureQuantity, offlineMode);
         src += "endmodule";
 
-        FileBuilder.execute(src, String.format("FPGA/%s_table_run/%s.v", settings.dataset, this.MODULE_NAME));
+        FileBuilder.execute(src, String.format("FPGA/%s_table_%dtree_%sdeep_run/controller.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
     }
 
     private String generateModuleImports(){

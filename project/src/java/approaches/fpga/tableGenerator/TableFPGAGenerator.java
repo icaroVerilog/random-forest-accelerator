@@ -1,17 +1,18 @@
 package project.src.java.approaches.fpga.tableGenerator;
 
+import project.src.java.approaches.fpga.AlteraCycloneApi;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Table.SettingsT;
 
 
 import java.util.List;
 
 public class TableFPGAGenerator {
 
-    public void execute(List<Tree> treeList, int classQnt, int featureQnt, Settings settings){
+    public void execute(List<Tree> treeList, int classQnt, int featureQnt, SettingsT settings){
 
-        FileBuilder.createDir(String.format("FPGA/%s_table_run", settings.dataset));
+        var a = FileBuilder.createDir(String.format("FPGA/%s_table_%dtree_%sdeep_run", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
 
         /* calculate the needed bitwidth to represent each class */
         int classBitwidth = (int) Math.ceil(Math.log(classQnt) / Math.log(2));
@@ -19,6 +20,7 @@ public class TableFPGAGenerator {
         var tableEntryGenerator      = new TableEntryGenerator();
         var validationTableGenerator = new ValidationTableGenerator();
         var controllerGenerator      = new ControllerGenerator();
+        var alteraCycloneAPI         = new AlteraCycloneApi();
 
         var tableEntries = tableEntryGenerator.execute(treeList, settings, true);
 
@@ -38,5 +40,7 @@ public class TableFPGAGenerator {
             settings,
             true
         );
+
+        alteraCycloneAPI.execute(classQnt, featureQnt, settings);
     }
 }

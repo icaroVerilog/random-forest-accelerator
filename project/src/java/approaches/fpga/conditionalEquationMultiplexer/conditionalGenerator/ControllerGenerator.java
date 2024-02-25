@@ -2,7 +2,7 @@ package project.src.java.approaches.fpga.conditionalEquationMultiplexer.conditio
 
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.Settings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class ControllerGenerator extends BasicGenerator {
     private int comparedValueBitwidth;
     private String precision;
 
-    public void execute(int treeQnt, int classQnt, int featureQnt, Settings settings){
+    public void execute(int treeQnt, int classQnt, int featureQnt, SettingsCEM settings){
         System.out.println("generating controller");
 
         this.precision = settings.precision;

@@ -1,8 +1,9 @@
-package project.src.java.approaches.fpga.conditionalEquationMultiplexer;
+package project.src.java.approaches.fpga;
 
-import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.Settings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Settings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Table.SettingsT;
 
 public class AlteraCycloneApi extends BasicGenerator {
     private int IOPinQnt;
@@ -11,8 +12,15 @@ public class AlteraCycloneApi extends BasicGenerator {
 
     public void execute(int classQnt, int featureQnt, Settings settings){
 
+        if (settings instanceof SettingsCEM) {
+            this.comparedValueBitwidth = ((SettingsCEM) settings).inferenceParameters.fieldsBitwidth.comparedValue;
+        }
+        if (settings instanceof SettingsT){
+            this.comparedValueBitwidth = ((SettingsT) settings).inferenceParameters.fieldsBitwidth.comparedValue;
+        }
+
         this.IOPinQnt = settings.platform.inputBitwidth - 3;
-        this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
+
         this.precision = settings.precision;
 
         String src = "";

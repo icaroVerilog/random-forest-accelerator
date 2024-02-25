@@ -2,7 +2,7 @@ package project.src.java.approaches.fpga.conditionalEquationMultiplexer;
 
 import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.Settings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ public class AdderGenerator extends BasicGenerator {
 
     private final String MODULE_NAME = "adder";
 
-    public void execute(int treeQnt, Settings settings){
+    public void execute(int treeQnt, SettingsCEM settings){
         System.out.println("generating adder");
 
         String src = "";

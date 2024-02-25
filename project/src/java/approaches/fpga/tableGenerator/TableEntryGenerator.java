@@ -13,7 +13,7 @@ import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
 import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Table.SettingsT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ public class TableEntryGenerator extends BasicGenerator {
     private int comparedColumnBitwidth;
     private int tableIndexerBitwidth;
 
-    public ArrayList<BinaryTableEntry> execute(List<Tree> treeList, Settings settings, boolean offlineMode){
+    public ArrayList<BinaryTableEntry> execute(List<Tree> treeList, SettingsT settings, boolean offlineMode){
 
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
         this.comparedColumnBitwidth = settings.inferenceParameters.fieldsBitwidth.comparedColumn;

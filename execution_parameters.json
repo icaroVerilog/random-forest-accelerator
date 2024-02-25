@@ -2,8 +2,8 @@
     "regenerate_estimators": false,
     "runs": [
 	{
-	    "approach": "equation",
-	    "dataset": "covtype",
+	    "approach": "table",
+	    "dataset": "iris",
 	    "precision": "integer",
 	    "target": "synthesis",
 	    "platform": {
@@ -16,7 +16,9 @@
 	    },
 	    "inference_parameters": {
 		"fields_bitwidth": {
-		    "threshold": 32
+		    "threshold": 32,
+		    "compared_column": 12,
+		    "index": 12
 		}
 	    }
 	}
