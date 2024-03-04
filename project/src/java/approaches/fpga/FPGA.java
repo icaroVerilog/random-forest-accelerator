@@ -15,37 +15,36 @@ import java.util.List;
 
 public class FPGA {
     public void execute(Settings settings, List<Tree> treeList, int classQuantity, int featureQuantity) throws IOException {
-
-        System.out.println("\nstarting FPGA random forest generator");
+        System.out.println("\ngenerating validator\n");
 
         switch (settings.approach) {
             case "conditional" -> executeConditionalApproach(
-                    treeList,
-                    classQuantity,
-                    featureQuantity,
-                    (SettingsCEM) settings
+                treeList,
+                classQuantity,
+                featureQuantity,
+                (SettingsCEM) settings
             );
             case "table" -> executeTableApproach(
-                    treeList,
-                    classQuantity,
-                    featureQuantity,
-                    (SettingsT) settings
+                treeList,
+                classQuantity,
+                featureQuantity,
+                (SettingsT) settings
             );
             case "equation" -> executeEquationApproach(
-                    treeList,
-                    classQuantity,
-                    featureQuantity,
-                    (SettingsCEM) settings
+                treeList,
+                classQuantity,
+                featureQuantity,
+                (SettingsCEM) settings
             );
             case "multiplexer" -> executeMultiplexerApproach(
-                    treeList,
-                    classQuantity,
-                    featureQuantity,
-                    (SettingsCEM) settings
+                treeList,
+                classQuantity,
+                featureQuantity,
+                (SettingsCEM) settings
             );
         }
 
-        System.out.println("\nfinishing FPGA random forest generator");
+//        System.out.println("\nfinishing FPGA random forest generator");
     }
 
     private void executeEquationApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings) {
@@ -76,7 +75,7 @@ public class FPGA {
     }
 
     public void executeMultiplexerApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings) throws IOException {
-        System.out.println("Multiplexer approach\n");
+        System.out.println("multiplexer approach\n");
 
         MultiplexerFPGAGenerator multiplexerFPGAGenerator = new MultiplexerFPGAGenerator();
 

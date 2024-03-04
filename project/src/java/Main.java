@@ -7,6 +7,7 @@ import project.src.java.util.*;
 import project.src.java.util.executionSettings.ExecutionSettingsData.Settings;
 import project.src.java.util.executionSettings.ExecutionSettingsParser;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ExecutionSettings;
+import project.src.java.util.relatory.ReportGenerator;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -21,7 +22,7 @@ public class Main {
     }
 
     public static void start() throws IOException{
-        System.out.println("starting FPGA random forest generator\n\n");
+        System.out.println("starting FPGA random forest generator");
 
         ExecutionSettingsParser settingsParser     = new ExecutionSettingsParser();
         InputJsonValidator      inputJsonValidator = new InputJsonValidator();
@@ -115,6 +116,8 @@ public class Main {
 //                );
 //            }
         }
+        ReportGenerator reportGenerator = new ReportGenerator();
+        reportGenerator.generateReport();
         System.out.println("job finished: Success");
     }
 }

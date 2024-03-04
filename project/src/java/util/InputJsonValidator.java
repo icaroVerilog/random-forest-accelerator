@@ -1,9 +1,9 @@
 package project.src.java.util;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import project.src.java.util.customExceptions.*;
+import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ExecutionSettings;
-import project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings;
+import project.src.java.util.executionSettings.ExecutionSettingsData.Table.SettingsT;
 
 public class InputJsonValidator {
     public void execute(ExecutionSettings executionsSettings) {
@@ -18,14 +18,14 @@ public class InputJsonValidator {
             for (int index = 0; index < executionsSettings.executionsSettings.size(); index++) {
                 validateBasicFields(executionsSettings.executionsSettings.get(index));
 
-                if (executionsSettings.executionsSettings.get(index) instanceof project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings){
+                if (executionsSettings.executionsSettings.get(index) instanceof SettingsT){
                     validateTableFields(
-                        (project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings)
+                        (SettingsT)
                         executionsSettings.executionsSettings.get(index));
                 }
-                if (executionsSettings.executionsSettings.get(index) instanceof project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.Settings){
+                if (executionsSettings.executionsSettings.get(index) instanceof SettingsCEM){
                     validateConditionalEquationMuxFields(
-                        (project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.Settings)
+                        (SettingsCEM)
                         executionsSettings.executionsSettings.get(index));
                 }
             }
@@ -69,7 +69,7 @@ public class InputJsonValidator {
         }
     }
 
-    private void validateTableFields(project.src.java.util.executionSettings.ExecutionSettingsData.Table.Settings settings) throws JsonValidationException {
+    private void validateTableFields(SettingsT settings) throws JsonValidationException {
         if (settings.inferenceParameters == null) {
             throw new JsonValidationException("input file error: field not found 'inference_parameters': object");
         }
@@ -87,7 +87,7 @@ public class InputJsonValidator {
         }
     }
 
-    private void validateConditionalEquationMuxFields(project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.Settings settings) throws JsonValidationException {
+    private void validateConditionalEquationMuxFields(SettingsCEM settings) throws JsonValidationException {
         if (settings.inferenceParameters == null) {
             throw new JsonValidationException("input file error: field not found 'inference_parameters': object");
         }

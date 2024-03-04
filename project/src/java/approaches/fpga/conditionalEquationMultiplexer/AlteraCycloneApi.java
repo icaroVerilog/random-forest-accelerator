@@ -1,5 +1,6 @@
-package project.src.java.approaches.fpga;
+package project.src.java.approaches.fpga.conditionalEquationMultiplexer;
 
+import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
 import project.src.java.util.executionSettings.ExecutionSettingsData.Settings;
@@ -30,7 +31,15 @@ public class AlteraCycloneApi extends BasicGenerator {
         src += generateAlwaysBlock(classQnt, featureQnt);
         src += "endmodule\n";
 
-        FileBuilder.execute(src, String.format("FPGA/%s_%s_run/cycloneIV_api.v", settings.dataset, settings.approach));
+        FileBuilder.execute(
+            src, String.format(
+                "FPGA/%s_%s_%dtree_%sdeep_run/cycloneIV_api.v",
+                settings.dataset,
+                settings.approach,
+                settings.trainingParameters.estimatorsQuantity,
+                settings.trainingParameters.maxDepth
+            )
+        );
     }
 
     private String generateHeader(String module_name){

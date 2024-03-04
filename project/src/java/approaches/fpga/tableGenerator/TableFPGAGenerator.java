@@ -1,6 +1,6 @@
 package project.src.java.approaches.fpga.tableGenerator;
 
-import project.src.java.approaches.fpga.AlteraCycloneApi;
+import project.src.java.approaches.fpga.conditionalEquationMultiplexer.AlteraCycloneApi;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.Table.SettingsT;
@@ -40,7 +40,5 @@ public class TableFPGAGenerator {
             settings,
             true
         );
-
-        alteraCycloneAPI.execute(classQnt, featureQnt, settings);
     }
 }

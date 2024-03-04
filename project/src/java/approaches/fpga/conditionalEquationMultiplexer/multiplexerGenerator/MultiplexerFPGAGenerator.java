@@ -1,7 +1,7 @@
 package project.src.java.approaches.fpga.conditionalEquationMultiplexer.multiplexerGenerator;
 
 import project.src.java.approaches.fpga.conditionalEquationMultiplexer.AdderGenerator;
-import project.src.java.approaches.fpga.AlteraCycloneApi;
+import project.src.java.approaches.fpga.conditionalEquationMultiplexer.AlteraCycloneApi;
 import project.src.java.approaches.fpga.conditionalEquationMultiplexer.ControllerGenerator;
 import project.src.java.approaches.fpga.conditionalEquationMultiplexer.MajorityGenerator;
 import project.src.java.dotTreeParser.treeStructure.Tree;

@@ -58,8 +58,6 @@ public class Parser {
     }
 
     private static Tree parseFromDot(String path, String file){
-//        System.out.println("---");
-//        System.out.println(file);
         try {
             return TreeBuilder.execute(path+"/"+file, featuresNames, classesNames);
         } catch (Exception e) {
@@ -69,7 +67,6 @@ public class Parser {
     }
 
     private static Set<String> listFiles(String path) {
-        System.out.println(path);
         return Stream.of(new File(path).listFiles())
           .filter(file -> !file.isDirectory())
           .map(File::getName)

@@ -11,6 +11,10 @@ public class PythonTreeGeneratorCaller {
 
     public int execute(String basePath, String dataset, int datasetTestPercent, int estimatorQnt, String max_depth, String precision) {
         String pythonScriptPath = String.format("%s/project/src/python/%s.py", basePath, scriptName);
+
+        System.out.println("\nstarting training");
+        System.out.printf("dataset: %s\n", dataset);
+
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(
                 runtime,

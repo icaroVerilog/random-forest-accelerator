@@ -7,7 +7,9 @@ import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.relatory.ReportGenerator;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,13 +18,17 @@ public class TreeGenerator extends BaseTreeGenerator {
     private int comparedValueBitwidth;
     private String precision;
 
-    public void execute(List<Tree> trees, Integer classQnt, Integer featureQnt, SettingsCEM settings){
+    public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCEM settings){
         this.precision = settings.precision;
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 
-        for (int index = 0; index < trees.size(); index++){
+        ReportGenerator reportGenerator = new ReportGenerator();
+        ArrayList<Integer> nodeQntByTree = new ArrayList<>();
 
+        for (int index = 0; index < trees.size(); index++){
             System.out.println("generating verilog decision tree" + index);
+
+            nodeQntByTree.add(trees.get(index).getInnerNodes().size() + trees.get(index).getOuterNodes().size());
 
             String src = "";
 
@@ -36,11 +42,15 @@ public class TreeGenerator extends BaseTreeGenerator {
 
             FileBuilder.execute(src, String.format("FPGA/%s_multiplexer_%dtree_%sdeep_run/tree%d.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth, index));
         }
+        reportGenerator.createEntry(
+                settings.dataset,
+                settings.approach,
+                settings.trainingParameters.maxDepth,
+                nodeQntByTree
+        );
     }
 
     private String generateParameters(int classQnt){
-        int bitWidth = (int) Math.ceil(Math.sqrt(classQnt));
-
         int[][] oneHotMatrix = new int[classQnt][classQnt];
 
         for (int i = 0; i < oneHotMatrix.length; i++) {
@@ -60,7 +70,7 @@ public class TreeGenerator extends BaseTreeGenerator {
             String oneHotEncode = Arrays.toString(oneHotMatrix[classQnt - index - 1])
                     .replaceAll("[\\[\\]\\s]", "")
                     .replace(",", "") + ";";
-            src += tab(1) + String.format("parameter class%d = %d'b%s\n", index, (bitWidth + 1),  oneHotEncode);
+            src += tab(1) + String.format("parameter class%d = %d'b%s\n", index, classQnt,  oneHotEncode);
         }
         return src;
     }

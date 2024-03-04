@@ -27,7 +27,7 @@ public class PythonBitwidthValidatorCaller {
             BufferedReader reader = new BufferedReader(new InputStreamReader(pythonProcess.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+//                System.out.println(line);
             }
             reader.close();
             return pythonProcess.waitFor();

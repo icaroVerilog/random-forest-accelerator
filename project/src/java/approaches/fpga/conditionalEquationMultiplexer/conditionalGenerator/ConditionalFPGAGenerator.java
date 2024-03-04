@@ -1,5 +1,9 @@
 package project.src.java.approaches.fpga.conditionalEquationMultiplexer.conditionalGenerator;
 
+import project.src.java.approaches.fpga.conditionalEquationMultiplexer.AdderGenerator;
+import project.src.java.approaches.fpga.conditionalEquationMultiplexer.AlteraCycloneApi;
+import project.src.java.approaches.fpga.conditionalEquationMultiplexer.ControllerGenerator;
+import project.src.java.approaches.fpga.conditionalEquationMultiplexer.MajorityGenerator;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
@@ -12,9 +16,15 @@ public class ConditionalFPGAGenerator {
 
         var treeGenerator       = new TreeGenerator();
         var controllerGenerator = new ControllerGenerator();
+        var adderGenerator      = new AdderGenerator();
+        var majorityGenerator   = new MajorityGenerator();
+        var alteraCycloneAPI    = new AlteraCycloneApi();
 
-        treeGenerator      .execute(treeList, featureQnt, classQnt, settings);
+        treeGenerator      .execute(treeList, classQnt, featureQnt, settings);
         controllerGenerator.execute(treeList.size(), classQnt, featureQnt, settings);
+        adderGenerator     .execute(treeList.size(), settings);
+        majorityGenerator  .execute(treeList.size(), classQnt, settings);
+        alteraCycloneAPI   .execute(classQnt, featureQnt, settings);
 
     }
 

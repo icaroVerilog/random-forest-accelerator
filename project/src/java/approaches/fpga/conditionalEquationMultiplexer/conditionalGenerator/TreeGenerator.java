@@ -9,6 +9,7 @@ import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
 
+import java.sql.SQLOutput;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,8 +20,9 @@ public class TreeGenerator extends BasicGenerator {
     private int comparedValueBitwidth;
     private String precision;
 
-    public void execute(List<Tree> trees, int featureQnt, int classQnt, SettingsCEM settings){
-
+    public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCEM settings){
+        System.out.println("=======================");
+        System.out.println(featureQnt);
         this.precision = settings.precision;
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 
@@ -68,6 +70,7 @@ public class TreeGenerator extends BasicGenerator {
     }
 
     public String generatePortDeclaration(int featureQnt, int classQnt){
+        System.out.println(featureQnt);
         String tab = tab(1);
 
         String src = "";

@@ -9,8 +9,8 @@ import java.util.Objects;
 
 public class Tree {
 
-    private HashMap<Integer, InnerNode> innerNodes = new HashMap<>();
-    private HashMap<Integer, OuterNode> outerNodes = new HashMap<>();
+    public HashMap<Integer, InnerNode> innerNodes = new HashMap<>();
+    public HashMap<Integer, OuterNode> outerNodes = new HashMap<>();
 
     private Node root;
 

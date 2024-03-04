@@ -7,7 +7,9 @@ import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.relatory.ReportGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,9 +22,13 @@ public class TreeGenerator extends BaseTreeGenerator {
         this.precision = settings.precision;
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 
-        for (int index = 0; index < trees.size(); index++){
+        ReportGenerator reportGenerator = new ReportGenerator();
+        ArrayList<Integer> nodeQntByTree = new ArrayList<>();
 
+        for (int index = 0; index < trees.size(); index++){
             System.out.println("generating verilog decision tree" + index);
+
+            nodeQntByTree.add(trees.get(index).getInnerNodes().size() + trees.get(index).getOuterNodes().size());
 
             String src = "";
 
@@ -32,8 +38,22 @@ public class TreeGenerator extends BaseTreeGenerator {
             src += generateComparisonAssigns(trees.get(index), classQnt);
             src += generateEndDelimiters();
 
-            FileBuilder.execute(src, String.format("FPGA/%s_equation_%dtree_%sdeep_run/tree%d.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth, index));
+            FileBuilder.execute(
+                src, String.format(
+                    "FPGA/%s_equation_%dtree_%sdeep_run/tree%d.v",
+                    settings.dataset,
+                    settings.trainingParameters.estimatorsQuantity,
+                    settings.trainingParameters.maxDepth,
+                    index
+                )
+            );
         }
+        reportGenerator.createEntry(
+            settings.dataset,
+            settings.approach,
+            settings.trainingParameters.maxDepth,
+            nodeQntByTree
+        );
     }
 
     private String generateComparisonWires(Tree tree) {

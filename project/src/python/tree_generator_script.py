@@ -47,8 +47,6 @@ def process_dataset(dataset):
 if PRECISION == "integer":
     dataset = process_dataset(dataset)
 
-print("starting training")
-
 column_names = list(dataset)
 target_column_name = column_names[len(column_names) - 1]
 dataset.rename(columns={target_column_name: "target"}, inplace=True)
@@ -63,7 +61,7 @@ clf = RandomForestClassifier(n_estimators=TREE_QUANTITY, max_depth=MAX_DEPTH)
 clf.fit(X_train, Y_train)
 Y_pred = clf.predict(X_test)
 
-print("accuracy:", metrics.accuracy_score(Y_test, Y_pred))
+print("accuracy:", metrics.accuracy_score(Y_test, Y_pred), "\n")
 
 directory = DATASET_NAME
 tree_path = DATASET_PATH + "/project/assets/trees/" + DATASET_NAME

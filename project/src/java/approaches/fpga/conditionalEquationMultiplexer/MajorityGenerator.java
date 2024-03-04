@@ -17,8 +17,15 @@ public class MajorityGenerator extends BasicGenerator {
         src += generateMajorityExpression(classQnt);
         src += generateEndDelimiters();
 
-
-        FileBuilder.execute(src, String.format("FPGA/%s_%s_%dtree_%sdeep_run/majority.v", settings.dataset, settings.approach, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
+        FileBuilder.execute(
+            src, String.format(
+                "FPGA/%s_%s_%dtree_%sdeep_run/majority.v",
+                settings.dataset,
+                settings.approach,
+                settings.trainingParameters.estimatorsQuantity,
+                settings.trainingParameters.maxDepth
+            )
+        );
     }
 
     public String generateHeader(String module_name, int classQnt){
@@ -51,6 +58,9 @@ public class MajorityGenerator extends BasicGenerator {
     private String generatePortDeclaration(int treeQnt, int classQnt){
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
+//        if (bitwidth == 2){
+//            bitwidth = 1;
+//        }
         String src = "";
         int sumBitwidth = (int)(Math.log(Math.abs(treeQnt)) / Math.log(2)) + 1;
 

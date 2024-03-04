@@ -2,8 +2,8 @@
     "regenerate_estimators": false,
     "runs": [
 	{
-	    "approach": "table",
-	    "dataset": "iris",
+	    "approach": "conditional",
+	    "dataset": "hospital",
 	    "precision": "integer",
 	    "target": "synthesis",
 	    "platform": {
@@ -16,9 +16,7 @@
 	    },
 	    "inference_parameters": {
 		"fields_bitwidth": {
-		    "threshold": 32,
-		    "compared_column": 12,
-		    "index": 12
+		    "threshold": 32
 		}
 	    }
 	}
