@@ -8,6 +8,7 @@ import project.src.java.util.executionSettings.ExecutionSettingsData.Settings;
 import project.src.java.util.executionSettings.ExecutionSettingsParser;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ExecutionSettings;
 import project.src.java.util.relatory.ReportGenerator;
+import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -106,15 +107,17 @@ public class Main {
 //                    settings.precision
 //                );
 //            }
-//            else if (settings instanceof project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationsMux.Settings settingsCEM){
-//                datasetParserCaller.execute(
-//                    path,
-//                    settingsCEM.inferenceParameters.fieldsBitwidth.comparedValue,
-//                    settings.dataset,
-//                    settings.approach,
-//                    settings.precision
-//                );
-//            }
+            if (settings instanceof SettingsCEM){
+                datasetParserCaller.execute(
+                    path,
+                    ((SettingsCEM) settings).inferenceParameters.fieldsBitwidth.comparedValue,
+                    settings.dataset,
+                    settings.approach,
+                    settings.precision,
+                    settings.trainingParameters.maxDepth,
+                    settings.trainingParameters.estimatorsQuantity
+                );
+            }
         }
         ReportGenerator reportGenerator = new ReportGenerator();
         reportGenerator.generateReport();

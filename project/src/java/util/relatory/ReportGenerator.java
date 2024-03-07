@@ -26,8 +26,10 @@ public class ReportGenerator {
 			entryFileLine += String.format("tree max depth: %s\n", entry.maxDepth);
 			entryFileLine += String.format("total node quantity: %d\n", entry.totalNodesQnt);
 
-			for (int index2 = 0; index2 < entry.nodeQntByTree.size(); index2++) {
-				entryFileLine += String.format("tree%d node quantity: %d\n", index2, entry.nodeQntByTree.get(index2));
+			if (entry.nodeQntByTree != null){
+				for (int index2 = 0; index2 < entry.nodeQntByTree.size(); index2++) {
+					entryFileLine += String.format("tree%d node quantity: %d\n", index2, entry.nodeQntByTree.get(index2));
+				}
 			}
 			entryFileLine += "=================================================\n";
 			src += entryFileLine;

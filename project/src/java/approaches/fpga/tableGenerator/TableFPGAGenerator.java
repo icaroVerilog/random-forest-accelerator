@@ -1,6 +1,6 @@
 package project.src.java.approaches.fpga.tableGenerator;
 
-import project.src.java.approaches.fpga.conditionalEquationMultiplexer.AlteraCycloneApi;
+import project.src.java.approaches.fpga.ApiGenerator;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.Table.SettingsT;
@@ -20,25 +20,12 @@ public class TableFPGAGenerator {
         var tableEntryGenerator      = new TableEntryGenerator();
         var validationTableGenerator = new ValidationTableGenerator();
         var controllerGenerator      = new ControllerGenerator();
-        var alteraCycloneAPI         = new AlteraCycloneApi();
+        var apiGenerator             = new ApiGenerator();
 
         var tableEntries = tableEntryGenerator.execute(treeList, settings, true);
 
-        validationTableGenerator.execute(
-            classQnt,
-            featureQnt,
-            treeList.size(),
-            classBitwidth,
-            tableEntries,
-            settings,
-            true
-        );
-
-        controllerGenerator.execute(
-            classBitwidth,
-            featureQnt,
-            settings,
-            true
-        );
+        validationTableGenerator.execute(classQnt, featureQnt, treeList.size(), classBitwidth, tableEntries, settings, true);
+        controllerGenerator     .execute(classBitwidth, featureQnt, settings, true);
+        apiGenerator            .execute(classQnt, featureQnt, settings);
     }
 }

@@ -11,7 +11,7 @@ public class PythonDatasetParserCaller {
     private static final String scriptName = "dataset_parser_script";
     private static final String runtime = "python3";
 
-    public int execute(String basePath, int comparedValueBitwidth, String datasetName, String approach, String precision) {
+    public int execute(String basePath, int comparedValueBitwidth, String datasetName, String approach, String precision, String maxDepth, int treeQnt) {
         String pythonScriptPath = String.format("%s/project/src/python/%s.py", basePath, scriptName);
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(
@@ -22,7 +22,9 @@ public class PythonDatasetParserCaller {
                 Boolean.toString(true),
                 Integer.toString(comparedValueBitwidth),
                 approach,
-                precision
+                precision,
+                maxDepth,
+                Integer.toString(treeQnt)
             );
 
             processBuilder.redirectErrorStream(true);

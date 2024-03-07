@@ -1,6 +1,7 @@
 package project.src.java.approaches.fpga.conditionalEquationMultiplexer.conditionalGenerator;
 
 import project.src.java.approaches.fpga.BasicGenerator;
+import project.src.java.approaches.fpga.conditionalEquationMultiplexer.BaseTreeGenerator;
 import project.src.java.dotTreeParser.treeStructure.Comparison;
 import project.src.java.dotTreeParser.treeStructure.Nodes.InnerNode;
 import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
@@ -8,26 +9,31 @@ import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.relatory.ReportGenerator;
 
 import java.sql.SQLOutput;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class TreeGenerator extends BasicGenerator {
+public class TreeGenerator extends BaseTreeGenerator {
 
     private int comparedValueBitwidth;
     private String precision;
 
     public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCEM settings){
-        System.out.println("=======================");
-        System.out.println(featureQnt);
         this.precision = settings.precision;
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 
+        ReportGenerator reportGenerator = new ReportGenerator();
+        ArrayList<Integer> nodeQntByTree = new ArrayList<>();
+
         for (int index = 0; index < trees.size(); index++){
             System.out.println("generating verilog decision tree" + index);
+
+            nodeQntByTree.add(trees.get(index).getInnerNodes().size() + trees.get(index).getOuterNodes().size());
 
             String src = "";
 
@@ -40,6 +46,12 @@ public class TreeGenerator extends BasicGenerator {
 
             FileBuilder.execute(src, String.format("FPGA/%s_conditional_%dtree_%sdeep_run/tree%d.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth, index));
         }
+        reportGenerator.createEntry(
+            settings.dataset,
+            settings.approach,
+            settings.trainingParameters.maxDepth,
+            nodeQntByTree
+        );
     }
 
     public String generateHeader(int treeIndex, int featureQnt){
@@ -70,7 +82,6 @@ public class TreeGenerator extends BasicGenerator {
     }
 
     public String generatePortDeclaration(int featureQnt, int classQnt){
-        System.out.println(featureQnt);
         String tab = tab(1);
 
         String src = "";
@@ -92,14 +103,13 @@ public class TreeGenerator extends BasicGenerator {
         }
 
         src += "\n";
-        src += tab(1) + generatePort("voted_class", REGISTER, OUTPUT, (int) Math.ceil(Math.sqrt(classQnt)), true);
+        src += tab(1) + generatePort("voted_class", REGISTER, OUTPUT, classQnt, true);
         src += "\n";
 
         return src;
     }
 
     public String generateParameters(int classQnt){
-        int bitWidth = (int) Math.ceil(Math.sqrt(classQnt));
 
         int[][] oneHotMatrix = new int[classQnt][classQnt];
 
@@ -120,7 +130,7 @@ public class TreeGenerator extends BasicGenerator {
             String oneHotEncode = Arrays.toString(oneHotMatrix[classQnt - index - 1])
                     .replaceAll("[\\[\\]\\s]", "")
                     .replace(",", "") + ";";
-            src += tab(1) + String.format("parameter class%d = %d'b%s\n", index, (bitWidth + 1),  oneHotEncode);
+            src += tab(1) + String.format("parameter class%d = %d'b%s\n", index, classQnt,  oneHotEncode);
         }
         return src;
     }

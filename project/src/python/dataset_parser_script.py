@@ -8,6 +8,8 @@ CLASS_DATASET_LAST_COLUMN = True if sys.argv[3] == "true" else False
 BITWIDTH = int(sys.argv[4])
 APPROACH = sys.argv[5]
 PRECISION = sys.argv[6]
+MAX_DEPTH = sys.argv[7]
+ESTIMATORS_QNT = sys.argv[8]
 
 
 dataset = pd.read_csv(DATASET_PATH + "/project/assets/datasets/" + DATASET + ".csv")
@@ -130,7 +132,7 @@ if PRECISION == "decimal":
             decimal_part_list_bin = decimal_part_list_bin[1:]
         binary_dataset[index] = binary_dataset[index] + line
 
-with open(f"{DATASET_PATH}/project/target/FPGA/{DATASET}_{APPROACH}_run/dataset.bin", "w") as file:
+with open(f"{DATASET_PATH}/project/target/FPGA/{DATASET}_{APPROACH}_{ESTIMATORS_QNT}tree_{MAX_DEPTH}deep_run/dataset.bin", "w") as file:
     for entry in binary_dataset:
         file.write(entry + "\n")
 

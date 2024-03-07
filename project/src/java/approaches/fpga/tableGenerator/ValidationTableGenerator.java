@@ -4,6 +4,7 @@ import project.src.java.approaches.fpga.BasicGenerator;
 import project.src.java.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.Table.SettingsT;
+import project.src.java.util.relatory.ReportGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,8 @@ public class ValidationTableGenerator extends BasicGenerator {
 
         this.precision = settings.precision;
 
+        ReportGenerator reportGenerator = new ReportGenerator();
+
         /*
          *  the expression calculate the needed bitwidth to hold the votes
          *  the counter can reach the maximum value of votes given by the quantity of trees
@@ -57,6 +60,16 @@ public class ValidationTableGenerator extends BasicGenerator {
         src += "\n" + "endmodule";
 
         FileBuilder.execute(src, String.format("FPGA/%s_table_%dtree_%sdeep_run/validation_table.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
+
+        ArrayList<Integer> nodeQntByTree = new ArrayList<>();
+        nodeQntByTree.add(tableEntries.size());
+
+        reportGenerator.createEntry(
+            settings.dataset,
+            settings.approach,
+            settings.trainingParameters.maxDepth,
+            nodeQntByTree
+        );
     }
 
     private String generateHeader(String module_name, boolean offlineMode){

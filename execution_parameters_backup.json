@@ -1,0 +1,398 @@
+{
+    "regenerate_estimators": false,
+    "runs": [
+	{
+	    "approach": "conditional",
+	    "dataset": "adult",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	{
+	    "approach": "table",
+	    "dataset": "adult",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32,
+		    "compared_column": 32,
+		    "index": 16
+		}
+	    }
+	},
+	{
+	    "approach": "multiplexer",
+	    "dataset": "adult",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	{
+	    "approach": "equation",
+	    "dataset": "adult",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	
+	{
+	    "approach": "conditional",
+	    "dataset": "covtype",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	{
+	    "approach": "table",
+	    "dataset": "covtype",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32,
+		    "compared_column": 32,
+		    "index": 16
+		}
+	    }
+	},
+	{
+	    "approach": "multiplexer",
+	    "dataset": "covtype",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	{
+	    "approach": "equation",
+	    "dataset": "covtype",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	
+	{
+	    "approach": "conditional",
+	    "dataset": "drybean",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	{
+	    "approach": "table",
+	    "dataset": "drybean",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32,
+		    "compared_column": 32,
+		    "index": 16
+		}
+	    }
+	},
+	{
+	    "approach": "multiplexer",
+	    "dataset": "drybean",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	{
+	    "approach": "equation",
+	    "dataset": "drybean",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	
+	{
+	    "approach": "conditional",
+	    "dataset": "hospital",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	{
+	    "approach": "table",
+	    "dataset": "hospital",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32,
+		    "compared_column": 32,
+		    "index": 16
+		}
+	    }
+	},
+	{
+	    "approach": "multiplexer",
+	    "dataset": "hospital",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	{
+	    "approach": "equation",
+	    "dataset": "hospital",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	{
+	    "approach": "conditional",
+	    "dataset": "iris",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	{
+	    "approach": "table",
+	    "dataset": "iris",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32,
+		    "compared_column": 32,
+		    "index": 16
+		}
+	    }
+	},
+	{
+	    "approach": "multiplexer",
+	    "dataset": "iris",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	{
+	    "approach": "equation",
+	    "dataset": "iris",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	}
+    ]
+}

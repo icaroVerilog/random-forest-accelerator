@@ -93,7 +93,7 @@ public class ControllerGenerator extends BasicGenerator {
 
         src += tab(1) + generatePort("voted", WIRE, OUTPUT, bitwidth, true);
         if (this.approach.equals("conditional")){
-            src += tab(1) + generatePort("clock", WIRE, INPUT, bitwidth, true);
+            src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
         }
         src += "\n";
 

@@ -3,7 +3,45 @@
     "runs": [
 	{
 	    "approach": "conditional",
-	    "dataset": "hospital",
+	    "dataset": "covtype",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	{
+	    "approach": "conditional",
+	    "dataset": "drybean",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	{
+	    "approach": "conditional",
+	    "dataset": "iris",
 	    "precision": "integer",
 	    "target": "synthesis",
 	    "platform": {

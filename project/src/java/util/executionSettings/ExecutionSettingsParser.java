@@ -1,6 +1,5 @@
 package project.src.java.util.executionSettings;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ExecutionSettings;
