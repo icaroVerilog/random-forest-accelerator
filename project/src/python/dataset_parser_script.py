@@ -69,33 +69,19 @@ for index in range(0, COLUMNS):
     counter = counter - 1
 
 dataset = dataset.iloc[:, dataset_column_order]
-
+lines = []
 binary_dataset = []
 
 if PRECISION == "integer":
-    integer_part_list = []
-    decimal_part_list = []
-    integer_part_list_bin = []
-    decimal_part_list_bin = []
-
     dataset = process_dataset(dataset)
-
     for line in dataset.values:
         line = line.tolist()
+        binary_value = ""
 
-        for index in range(len(line)):
-            integer_part = str(line[index])
-            integer_part_list.append(integer_part)
+        for value in line:
+            binary_value = binary_value + to_bin(value, BITWIDTH)
+        binary_dataset.append(binary_value)
 
-    for value in integer_part_list:
-        integer_part_list_bin.append(to_bin(int(value), BITWIDTH))
-
-    for index in range(LINES):
-        line = ""
-        for index2 in range(COLUMNS):
-            line += integer_part_list_bin[0]
-            integer_part_list_bin = integer_part_list_bin[1:]
-        binary_dataset.append(line)
 
 if PRECISION == "decimal":
     integer_part_list = []
