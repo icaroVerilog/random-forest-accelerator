@@ -107,17 +107,17 @@ public class Main {
 //                    settings.precision
 //                );
 //            }
-            if (settings instanceof SettingsCEM){
-                datasetParserCaller.execute(
-                    path,
-                    ((SettingsCEM) settings).inferenceParameters.fieldsBitwidth.comparedValue,
-                    settings.dataset,
-                    settings.approach,
-                    settings.precision,
-                    settings.trainingParameters.maxDepth,
-                    settings.trainingParameters.estimatorsQuantity
-                );
-            }
+//            if (settings instanceof SettingsCEM){
+//                datasetParserCaller.execute(
+//                    path,
+//                    ((SettingsCEM) settings).inferenceParameters.fieldsBitwidth.comparedValue,
+//                    settings.dataset,
+//                    settings.approach,
+//                    settings.precision,
+//                    settings.trainingParameters.maxDepth,
+//                    settings.trainingParameters.estimatorsQuantity
+//                );
+//            }
         }
         ReportGenerator reportGenerator = new ReportGenerator();
         reportGenerator.generateReport();

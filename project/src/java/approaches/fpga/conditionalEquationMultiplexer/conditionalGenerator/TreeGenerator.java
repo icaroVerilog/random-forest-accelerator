@@ -179,7 +179,7 @@ public class TreeGenerator extends BaseTreeGenerator {
             int threshold = (int) Math.floor(comparison.getThreshold());
 
             src = String.format(
-                "feature%d >= %d'b%s",
+                "feature%d <= %d'b%s",
                 comparison.getColumn(),
                 this.comparedValueBitwidth,
                 toBinary(threshold, this.comparedValueBitwidth)

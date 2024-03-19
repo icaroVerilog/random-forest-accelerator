@@ -72,11 +72,17 @@ public class ApiGenerator extends BasicGenerator {
 
 		src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
 		src += tab(1) + generatePort("reset", WIRE, INPUT, 1, true);
-		src += tab(1) + generatePort("data", WIRE, INPUT, this.IOPinQnt - outputDataBitwidth, true);
+
+		if (inputDataBitwidth <= this.IOPinQnt - outputDataBitwidth){
+			src += tab(1) + generatePort("data", WIRE, INPUT, inputDataBitwidth, true);
+		} else {
+			src += tab(1) + generatePort("data", WIRE, INPUT, this.IOPinQnt - outputDataBitwidth, true);
+		}
+
 		src += "\n";
 		src += tab(1) + generatePort("compute_vote", REGISTER, OUTPUT, 1, true);
+		src += tab(1) + generatePort("read_new_sample", REGISTER, OUTPUT,1,true);
 		src += tab(1) + generatePort("voted", WIRE, OUTPUT, outputDataBitwidth,true);
-		src += tab(1) + generatePort("read_new_sample", WIRE, OUTPUT,1,true);
 		src += "\n";
 		src += tab(1) + generatePort("counter", REGISTER, NONE, 12,true);
 		src += tab(1) + generatePort("input_buffer", REGISTER, NONE, inputDataBitwidth, true);
@@ -148,6 +154,7 @@ public class ApiGenerator extends BasicGenerator {
 
 		resetBlockBody += tab(3) + "counter <= 12'b000000000000;\n";
 		resetBlockBody += tab(3) + "compute_vote <= 1'b0;\n";
+		resetBlockBody += tab(3) + "read_new_sample <= 1'b1;\n";
 
 		resetBlock = resetBlock
 				.replace("x", resetBlockExpr)
@@ -155,11 +162,20 @@ public class ApiGenerator extends BasicGenerator {
 				.replace("ind", tab(2));
 
 		String computeVoteBlock     = CONDITIONAL2;
-		String computeVoteBlockExp  = String.format("counter == 12'b%s", toBinary(bufferQnt + 1, 12));
+		String computeVoteBlockExp  = "";
+
+		if (this.approach.equals("conditional")){
+			computeVoteBlockExp  = String.format("counter == 12'b%s", toBinary(bufferQnt + 3, 12));
+		}
+		else {
+			computeVoteBlockExp  = String.format("counter == 12'b%s", toBinary(bufferQnt + 2, 12));
+		}
+
 		String computeVoteBlockBody = "";
 
-		computeVoteBlockBody += tab(4) + "counter <= 12'b00000000001;\n";
+		computeVoteBlockBody += tab(4) + "counter <= 12'b00000000000;\n";
 		computeVoteBlockBody += tab(4) + "compute_vote <= 1'b1;\n";
+		computeVoteBlockBody += tab(4) + "read_new_sample <= 1'b1;\n";
 
 		computeVoteBlock = computeVoteBlock
 				.replace("x", computeVoteBlockExp)
@@ -170,18 +186,12 @@ public class ApiGenerator extends BasicGenerator {
 		String computeVoteElseBlockBody = "";
 
 		computeVoteElseBlockBody += tab(4) + "compute_vote <= 1'b0;\n";
+		computeVoteElseBlockBody += tab(4) + "read_new_sample <= 1'b0;\n";
 
 		computeVoteElseBlock = computeVoteElseBlock
 				.replace("y", computeVoteElseBlockBody)
 				.replace("ind", tab(3));
 
-		computeVoteBlockBody += tab(4) + "counter <= 12'b00000000001;\n";
-		computeVoteBlockBody += tab(4) + "compute_vote <= 1'b1;\n";
-
-		computeVoteBlock = computeVoteBlock
-				.replace("x", computeVoteBlockExp)
-				.replace("y", computeVoteBlockBody)
-				.replace("ind", tab(3));
 
 		String resetBlockElse = CONDITIONAL_ELSE;
 		String resetBlockElseBody = "";
@@ -229,4 +239,3 @@ public class ApiGenerator extends BasicGenerator {
 		return alwaysBlock;
 	}
 }
-

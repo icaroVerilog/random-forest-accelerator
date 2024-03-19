@@ -13,13 +13,11 @@ public class ControllerGenerator extends BasicGenerator {
     private final String MODULE_NAME = "controller";
 
     private int comparedValueBitwidth;
-    private String precision;
     private String approach;
 
     public void execute(int treeQnt, int classQnt, int featureQnt, SettingsCEM settings){
         System.out.println("generating controller");
 
-        this.precision = settings.precision;
         this.approach = settings.approach;
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 
@@ -43,18 +41,19 @@ public class ControllerGenerator extends BasicGenerator {
     }
 
     private String generateImports(int treeQuantity){
-        String imports = IntStream.range(0, treeQuantity)
-                .mapToObj(index -> "`include " + "\"" + "tree" + index + ".v" + "\"")
-                .collect(Collectors.joining("\n")
-                );
-        imports += "\n`include \"adder.v\"";
-        imports += "\n`include \"winner.v\"\n";
-        return imports;
+        String src = "";
+
+        for (int index = 0; index < treeQuantity; index++) {
+            src += String.format("`include \"tree%d.v\"\n", index);
+        }
+        src += "`include \"adder.v\"\n";
+        src += "`include \"majority.v\"\n\n";
+
+        return src;
     }
 
     public String generateHeader(String module_name, int featureQnt){
         String src = "";
-
 
         String[] basicIOPorts;
         if (this.approach.equals("conditional")){
@@ -86,10 +85,9 @@ public class ControllerGenerator extends BasicGenerator {
     }
 
     private String generateIO(int featureQnt, int classQnt, int treeQnt){
+        String src = "";
 
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
-
-        String src = "";
 
         src += tab(1) + generatePort("voted", WIRE, OUTPUT, bitwidth, true);
         if (this.approach.equals("conditional")){
