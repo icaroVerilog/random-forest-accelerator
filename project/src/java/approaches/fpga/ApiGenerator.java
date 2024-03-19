@@ -26,6 +26,7 @@ public class ApiGenerator extends BasicGenerator {
 		this.approach = settings.approach;
 
 		String src = "";
+		src += "`include \"controller.v\"\n";
 		src += generateHeader("fpga_api");
 		src += generatePortDeclarations(classQnt, featureQnt);
 		src += generateControllerModuleInstantiation(featureQnt);

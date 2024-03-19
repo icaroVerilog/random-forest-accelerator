@@ -23,7 +23,7 @@ public class ControllerGenerator extends BasicGenerator {
 
         String src = "";
 
-//        src += generateImports(treeQnt);
+        src += generateImports(treeQnt);
         src += generateHeader(this.MODULE_NAME, featureQnt);
         src += generateIO(featureQnt, classQnt, treeQnt);
 

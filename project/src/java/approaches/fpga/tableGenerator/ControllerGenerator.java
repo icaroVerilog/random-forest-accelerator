@@ -26,12 +26,13 @@ public class ControllerGenerator extends BasicGenerator {
 
         String src = "";
 
-
+        src += generateModuleImports();
         src += generateHeader(MODULE_NAME, offlineMode);
 
 //        if (mode.equals("simulation")){
 //            src += generateModuleImports();
 //        }
+
 
         src += generateIO(featureQuantity, classBitwidth, offlineMode);
         src += generateValidationTableInstantiation(featureQuantity, offlineMode);
@@ -41,7 +42,7 @@ public class ControllerGenerator extends BasicGenerator {
     }
 
     private String generateModuleImports(){
-        return "`import validation_table.v\n";
+        return "`include \"validation_table.v\"\n";
     }
 
     private String generateHeader(String moduleName, boolean offlineMode){

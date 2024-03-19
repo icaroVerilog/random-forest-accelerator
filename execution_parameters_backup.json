@@ -393,6 +393,84 @@
 		    "threshold": 32
 		}
 	    }
+	},
+	{
+	    "approach": "conditional",
+	    "dataset": "SUSY",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	{
+	    "approach": "table",
+	    "dataset": "SUSY",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32,
+		    "compared_column": 32,
+		    "index": 16
+		}
+	    }
+	},
+	{
+	    "approach": "multiplexer",
+	    "dataset": "SUSY",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
+	},
+	{
+	    "approach": "equation",
+	    "dataset": "SUSY",
+	    "precision": "integer",
+	    "target": "synthesis",
+	    "platform": {
+		"input_bitwidth": 523
+	    },
+	    "training_parameters": {
+		"estimators": 7,
+		"training_percent": 30,
+		"max_depth": 7
+	    },
+	    "inference_parameters": {
+		"fields_bitwidth": {
+		    "threshold": 32
+		}
+	    }
 	}
     ]
 }
