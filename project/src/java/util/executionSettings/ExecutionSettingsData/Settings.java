@@ -13,6 +13,7 @@ import project.src.java.util.executionSettings.ExecutionSettingsData.Table.Setti
         @JsonSubTypes.Type(value = SettingsCEM.class, name = "conditional"),
         @JsonSubTypes.Type(value = SettingsCEM.class, name = "equation"),
         @JsonSubTypes.Type(value = SettingsCEM.class, name = "multiplexer"),
+        @JsonSubTypes.Type(value = SettingsCEM.class, name = "pipeline"),
         @JsonSubTypes.Type(value = SettingsT.class, name = "table")
 })
 public abstract class Settings {

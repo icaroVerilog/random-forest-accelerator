@@ -2,23 +2,21 @@
     "regenerate_estimators": false,
     "runs": [
 	{
-	    "approach": "table",
+	    "approach": "conditional",
 	    "dataset": "iris",
 	    "precision": "integer",
 	    "target": "synthesis",
 	    "platform": {
-		"input_bitwidth": 523
+		"input_bitwidth": 512
 	    },
 	    "training_parameters": {
-		"estimators": 7,
+		"estimators": 3,
 		"training_percent": 30,
-		"max_depth": 7
+		"max_depth": 4
 	    },
 	    "inference_parameters": {
 		"fields_bitwidth": {
-		    "threshold": 32,
-		    "compared_column": 32,
-		    "index": 16
+		    "threshold": 8
 		}
 	    }
 	}

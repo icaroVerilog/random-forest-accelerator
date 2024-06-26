@@ -4,7 +4,10 @@ import project.src.java.dotTreeParser.treeStructure.Nodes.InnerNode;
 import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 
 import java.io.File;
+import java.security.KeyPair;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class TreeBuilder {
@@ -19,9 +22,13 @@ public class TreeBuilder {
     private final static String CLOSED_BRACKET_STRING = "] ;";
     private final static Integer NVALUE_BEGIN_OFFSET = 9;
     private final static Integer CLOSED_BRACKET_OFFSET = 1;
+    private final static Pattern associationPattern = Pattern.compile("([0-9]*) -> ([0-9]*)");
 
     private static List<String> featuresNames;
     private static List<String> classesNames;
+    private final static ArrayList<int[]> nodeHierarchy = new ArrayList<>();
+    private final static ArrayList<int[]> nodeLevel = new ArrayList<>();
+
 
     public static Tree execute(String filePath, List<String> featureNames, Set<String> classNames) throws Exception {
         Scanner scanner = new Scanner(new File(filePath));
@@ -31,15 +38,29 @@ public class TreeBuilder {
 
         while (scanner.hasNext()) {
             String line = scanner.nextLine();
+
             final boolean isAssociationLine = line.contains(LINKED_NODE_ARROW);
             final boolean isNewNode = line.contains(LABEL_STRING);
 
             if (isAssociationLine) {
+                Matcher matcher = associationPattern.matcher(line);
+                if (matcher.find()){
+                    nodeHierarchy.add(
+                        new int[]{
+                            Integer.parseInt(matcher.group(1)),
+                            Integer.parseInt(matcher.group(2))
+                        }
+                    );
+                }
+
                 linkNodes(tree, line);
             } else if (isNewNode) {
                 createNewNode(tree, line);
             }
         }
+
+        assignNodeLevel();
+
         return tree;
     }
 
@@ -135,5 +156,36 @@ public class TreeBuilder {
         int rootId = Integer.parseInt(parts[0]);
         int sonId = Integer.parseInt(parts[2]);
         tree.linkNodes(rootId, sonId);
+    }
+
+    private static void assignNodeLevel(){
+
+        int size = nodeHierarchy.size();
+
+        for (int index = 0; index < size; index++) {
+
+            int level = 1;
+
+            int parent = 0;
+            int child = 0;
+
+            for (int i = nodeHierarchy.size() - 1; i >= 0; i--) {
+                if (i == nodeHierarchy.size() - 1){
+                    parent = nodeHierarchy.get(i)[0];
+                    child = nodeHierarchy.get(i)[1];
+                } else {
+//                    System.out.printf("%d %d %d\n",nodeHierarchy.get(i)[1], parent, child);
+                    if (nodeHierarchy.get(i)[1] == parent){
+                        level = level + 1;
+                        parent = nodeHierarchy.get(i)[0];
+                    }
+                }
+
+            }
+            nodeHierarchy.remove(nodeHierarchy.size() - 1);
+            System.out.printf("no: %d, nivel: %d\n",child, level);
+
+        }
+        System.out.println("===============");
     }
 }

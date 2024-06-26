@@ -4,6 +4,7 @@ package project.src.java.approaches.fpga;
 import project.src.java.approaches.fpga.conditionalEquationMultiplexer.conditionalGenerator.ConditionalFPGAGenerator;
 import project.src.java.approaches.fpga.conditionalEquationMultiplexer.equationGenerator.EquationFPGAGenerator;
 import project.src.java.approaches.fpga.conditionalEquationMultiplexer.multiplexerGenerator.MultiplexerFPGAGenerator;
+import project.src.java.approaches.fpga.pipeline.PipelineFPGAGenerator;
 import project.src.java.approaches.fpga.tableGenerator.TableFPGAGenerator;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
@@ -37,6 +38,12 @@ public class FPGA {
                 (SettingsCEM) settings
             );
             case "multiplexer" -> executeMultiplexerApproach(
+                treeList,
+                classQuantity,
+                featureQuantity,
+                (SettingsCEM) settings
+            );
+            case "pipeline" -> executePipelineApproach(
                 treeList,
                 classQuantity,
                 featureQuantity,
@@ -85,6 +92,20 @@ public class FPGA {
                 featureQnt,
                 settings
         );
+    }
+
+    public void executePipelineApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings) throws IOException {
+        System.out.println("pipeline approach\n");
+
+        PipelineFPGAGenerator pipelineGenerator = new PipelineFPGAGenerator();
+
+        pipelineGenerator.execute(
+                treeList,
+                classQnt,
+                featureQnt,
+                settings
+        );
+
     }
 
     private void executeTableApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsT settings) throws  IOException {
