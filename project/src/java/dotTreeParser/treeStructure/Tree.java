@@ -12,6 +12,8 @@ public class Tree {
     public HashMap<Integer, InnerNode> innerNodes = new HashMap<>();
     public HashMap<Integer, OuterNode> outerNodes = new HashMap<>();
 
+    private Integer maxDepth;
+
     private Node root;
 
     public void newInnerNode(InnerNode node){
@@ -27,6 +29,7 @@ public class Tree {
         }
         outerNodes.put(node.getId(), node);
     }
+
     public void linkNodes(Integer fatherId, Integer sonId){
         InnerNode father = innerNodes.get(fatherId);
         Node son = innerNodes.get(sonId);
@@ -65,5 +68,13 @@ public class Tree {
 
     public HashMap<Integer, OuterNode> getOuterNodes(){
         return outerNodes;
+    }
+
+    public Integer getMaxDepth(){
+        return this.maxDepth;
+    }
+
+    public void setMaxDepth(Integer maxDepth){
+        this.maxDepth = maxDepth;
     }
 }

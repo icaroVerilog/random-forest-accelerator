@@ -2,7 +2,7 @@
     "regenerate_estimators": false,
     "runs": [
 	{
-	    "approach": "conditional",
+	    "approach": "pipeline",
 	    "dataset": "iris",
 	    "precision": "integer",
 	    "target": "synthesis",

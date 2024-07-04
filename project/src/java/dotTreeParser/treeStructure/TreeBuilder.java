@@ -60,7 +60,34 @@ public class TreeBuilder {
         }
 
         assignNodeLevel();
+        var innerNodes = tree.getInnerNodes();
+        var outerNodes = tree.getOuterNodes();
 
+        for (Integer key: innerNodes.keySet()){
+            if (innerNodes.get(key).getId() == 0){
+                innerNodes.get(key).setLevel(0);
+            } else {
+                for (int index = 0; index < nodeLevel.size(); index++) {
+                    if (nodeLevel.get(index)[0] == innerNodes.get(key).getId()){
+                        innerNodes.get(key).setLevel(nodeLevel.get(index)[1]);
+                    }
+                }
+            }
+        }
+
+        Integer maxDepth = 0;
+
+        for (Integer key: outerNodes.keySet()){
+            for (int index = 0; index < nodeLevel.size(); index++) {
+                if (nodeLevel.get(index)[0] == outerNodes.get(key).getId()){
+                    outerNodes.get(key).setLevel(nodeLevel.get(index)[1]);
+                    if (nodeLevel.get(index)[1] > maxDepth){
+                        maxDepth = nodeLevel.get(index)[1];
+                    }
+                }
+            }
+        }
+        tree.setMaxDepth(maxDepth);
         return tree;
     }
 
@@ -159,11 +186,9 @@ public class TreeBuilder {
     }
 
     private static void assignNodeLevel(){
-
         int size = nodeHierarchy.size();
 
         for (int index = 0; index < size; index++) {
-
             int level = 1;
 
             int parent = 0;
@@ -174,7 +199,6 @@ public class TreeBuilder {
                     parent = nodeHierarchy.get(i)[0];
                     child = nodeHierarchy.get(i)[1];
                 } else {
-//                    System.out.printf("%d %d %d\n",nodeHierarchy.get(i)[1], parent, child);
                     if (nodeHierarchy.get(i)[1] == parent){
                         level = level + 1;
                         parent = nodeHierarchy.get(i)[0];
@@ -183,9 +207,14 @@ public class TreeBuilder {
 
             }
             nodeHierarchy.remove(nodeHierarchy.size() - 1);
-            System.out.printf("no: %d, nivel: %d\n",child, level);
 
+            int[] nodeLevelPair = new int[2];
+            nodeLevelPair[0] = child;
+            nodeLevelPair[1] = level;
+
+            System.out.println(Arrays.toString(nodeLevelPair));
+            nodeLevel.add(nodeLevelPair);
         }
-        System.out.println("===============");
+//        System.out.println("===============");
     }
 }

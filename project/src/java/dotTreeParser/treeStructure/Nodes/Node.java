@@ -6,6 +6,7 @@ public abstract class Node {
     protected Integer id;
     protected ArrayList<Integer> values;
     protected InnerNode father;
+    protected Integer level;
 
     public InnerNode getFather() {
         return father;
@@ -36,5 +37,11 @@ public abstract class Node {
         this.values = values;
     }
 
-    
+    public void setLevel(Integer level){
+        this.level = level;
+    }
+
+    public Integer getLevel(){
+        return this.level;
+    }
 }

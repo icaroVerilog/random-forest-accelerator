@@ -1,6 +1,9 @@
 package project.src.java.approaches.fpga.pipeline;
 
 import project.src.java.approaches.fpga.conditionalEquationMultiplexer.BaseTreeGenerator;
+import project.src.java.dotTreeParser.treeStructure.Nodes.InnerNode;
+import project.src.java.dotTreeParser.treeStructure.Nodes.Node;
+import project.src.java.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
@@ -8,6 +11,7 @@ import project.src.java.util.relatory.ReportGenerator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class TreeGenerator extends BaseTreeGenerator {
@@ -31,8 +35,8 @@ public class TreeGenerator extends BaseTreeGenerator {
 
 			src += generateHeader(index, featureQnt);
 			src += generateParameters(classQnt);
-			src += generatePortDeclaration(featureQnt, classQnt, currentTree.getInnerNodes().size());
-			src += generateAlwaysBlock(featureQnt);
+			src += generatePortDeclaration(featureQnt, classQnt, currentTree.getInnerNodes().size(), currentTree.getMaxDepth());
+			src += generateAlwaysBlock(featureQnt, currentTree.innerNodes);
 //			src += generateConditionals(trees.get(index).getRoot(), 2);
 //			src += generateEndDelimiters();
 
@@ -103,7 +107,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 		return src;
 	}
 
-	public String generatePortDeclaration(int featureQnt, int classQnt, int innerNodeQnt){
+	public String generatePortDeclaration(int featureQnt, int classQnt, int innerNodeQnt, int maxDepth){
 		String tab = tab(1);
 
 		String src = "";
@@ -148,20 +152,112 @@ public class TreeGenerator extends BaseTreeGenerator {
 		src += "\n";
 
 		for (int index = 0; index < innerNodeQnt; index++) {
-			src += tab(1) + generatePort(String.format("node%d", index), REGISTER, NONE,classQnt, true);
+			src += tab(1) + generatePort(String.format("node%d", index), REGISTER, NONE, classQnt, true);
 		}
-		
+
+		src += "\n";
+		src += tab(1) + generatePort("sync_flag", REGISTER, NONE, maxDepth + 2, true);
+		src += "\n";
+
 		return src;
 	}
 
-	public String generateAlwaysBlock(int featureQnt){
+	public String generateAlwaysBlock(int featureQnt, HashMap<Integer, InnerNode> innerNodes){
 		String src = "";
 
 		for (int index = 0; index < featureQnt; index++) {
 			src += tab(2) + String.format("r_feature%d", index) + " <= " + String.format("feature%d;\n", index);
 		}
-//		src += tab(2) + "sync_flag[0] <= ~reset;\n";
+		src += tab(2) + "sync_flag[0] <= ~reset;\n";
 		src += "\n";
+
+		int maxLevel = 0;
+		int counter = 0;
+
+		ArrayList<Integer> innerNodeList = new ArrayList<>();
+
+		for (int key: innerNodes.keySet()){
+
+			innerNodeList.add(innerNodes.get(key).getId());
+
+			int threshold = (int) Math.floor(innerNodes.get(key).getComparisson().getThreshold());
+			src += tab(2) + String.format("c_register[%d] <= (r_feature%d <= %d'b%s);\n", counter, innerNodes.get(key).getComparisson().getColumn(), this.comparedValueBitwidth ,toBinary(threshold, 8));
+
+			int level = innerNodes.get(key).getLevel();
+
+			if (level > maxLevel){
+				maxLevel = level;
+			}
+			counter = counter + 1;
+		}
+		src += tab(2) + "sync_flag[1] <= sync_flag[0];\n";
+
+		int comparisonCounter = innerNodes.keySet().size() - 1;
+
+		System.out.println(innerNodeList);
+
+		for (int index = maxLevel; index >= 0 ; index--) {
+			for (int key: innerNodes.keySet()){
+				if (innerNodes.get(key).getLevel() == index){
+					String nodeConditional = CONDITIONAL2;
+
+					String nodeExpr = String.format("c_register[%d]", comparisonCounter);
+					String nodeBody = "";
+
+					Node leftNode = innerNodes.get(key).getLeftNode();
+
+					if (leftNode instanceof InnerNode){
+						nodeBody = tab(3) + String.format(
+							"node%d <= node%d;\n",
+							comparisonCounter,
+							innerNodeList.indexOf(leftNode.getId())
+						);
+					}
+					else if (leftNode instanceof OuterNode) {
+						nodeBody = tab(3) + String.format(
+							"node%d <= class%d;\n",
+							comparisonCounter,
+							((OuterNode) leftNode).getClassNumber()
+						);
+					}
+
+					nodeConditional = nodeConditional
+							.replace("x", nodeExpr)
+							.replace("y", nodeBody)
+							.replace("ind", tab(2));
+
+					comparisonCounter--;
+					src += nodeConditional + "\n";
+				}
+
+			}
+			src += "\n===========\n";
+//			String levelSyncConditional = CONDITIONAL2;
+
+			System.out.println("--------------------");
+		}
+
+		String conditional = CONDITIONAL2;
+
+//		for (int key: innerNodes.keySet()){
+//			System.out.println(key);
+//			for (int index = 0; index < maxLevel; index++) {
+//				if (innerNodes.get(key).getLevel() == maxLevel){
+//					System.out.printf("a: %d\n", maxLevel);
+//				}
+//			}
+//			maxLevel--;
+			//			if (innerNodes.get(key).getLevel() == )
+//			int threshold = (int) Math.floor(innerNodes.get(key).getComparisson().getThreshold());
+//			src += tab(2) + String.format("c_register[%d] <= (r_feature%d <= %d'b%s);\n", counter, innerNodes.get(key).getComparisson().getColumn(), this.comparedValueBitwidth ,toBinary(threshold, 8));
+//
+//			int level = innerNodes.get(key).getLevel();
+//
+//			if (level > maxLevel){
+//				maxLevel = level;
+//			}
+//			counter = counter + 1;
+//		}
 
 		String always = ALWAYS_BLOCK2;
 		always = always
