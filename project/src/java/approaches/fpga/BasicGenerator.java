@@ -25,6 +25,7 @@ public class BasicGenerator {
     protected final String CONDITIONAL_ELSE = "\nind" + "else begin\ny indend";
     protected final String ALWAYS_BLOCK2 = "\nind" + "always @(border signal) begin \nsrc \nindend\n";
     protected final String CONDITIONAL2 = "ind" + "if (x) begin\ny indend";
+    protected final String CONDITIONAL3 = "ind" + "if (x) begin\n` indend";
 
     protected final String MODULE_VARIABLE_INSTANCE = "\nind" + "moduleName moduleVariableName(\nports \nind);\n";
 

@@ -58,16 +58,6 @@ public class ControllerGenerator extends BasicGenerator {
             "new_table_entry_counter",
             "compute_vote_flag"
         };
-        if (offlineMode) {
-            ioPorts = new String[]{
-                "clock",
-                "reset",
-                "feature",
-                "voted",
-                "read_new_sample",
-                "compute_vote_flag"
-            };
-        }
 
         src += String.format("module %s (\n", moduleName);
 

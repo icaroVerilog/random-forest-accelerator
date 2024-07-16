@@ -36,7 +36,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 			src += generateHeader(index, featureQnt);
 			src += generateParameters(classQnt);
 			src += generatePortDeclaration(featureQnt, classQnt, currentTree.getInnerNodes().size(), currentTree.getMaxDepth());
-			src += generateAlwaysBlock(featureQnt, currentTree.innerNodes);
+			src += generateAlwaysBlock(featureQnt, currentTree.innerNodes, currentTree.getMaxDepth());
 //			src += generateConditionals(trees.get(index).getRoot(), 2);
 //			src += generateEndDelimiters();
 
@@ -151,10 +151,10 @@ public class TreeGenerator extends BaseTreeGenerator {
 		src += tab(1) + generatePort("c_register", REGISTER, NONE, innerNodeQnt, true);
 		src += "\n";
 
+
 		for (int index = 0; index < innerNodeQnt; index++) {
 			src += tab(1) + generatePort(String.format("node%d", index), REGISTER, NONE, classQnt, true);
 		}
-
 		src += "\n";
 		src += tab(1) + generatePort("sync_flag", REGISTER, NONE, maxDepth + 2, true);
 		src += "\n";
@@ -162,7 +162,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 		return src;
 	}
 
-	public String generateAlwaysBlock(int featureQnt, HashMap<Integer, InnerNode> innerNodes){
+	public String generateAlwaysBlock(int featureQnt, HashMap<Integer, InnerNode> innerNodes, int maxDepth){
 		String src = "";
 
 		for (int index = 0; index < featureQnt; index++) {
@@ -177,7 +177,6 @@ public class TreeGenerator extends BaseTreeGenerator {
 		ArrayList<Integer> innerNodeList = new ArrayList<>();
 
 		for (int key: innerNodes.keySet()){
-
 			innerNodeList.add(innerNodes.get(key).getId());
 
 			int threshold = (int) Math.floor(innerNodes.get(key).getComparisson().getThreshold());
@@ -190,82 +189,157 @@ public class TreeGenerator extends BaseTreeGenerator {
 			}
 			counter = counter + 1;
 		}
-		src += tab(2) + "sync_flag[1] <= sync_flag[0];\n";
 
 		int comparisonCounter = innerNodes.keySet().size() - 1;
+		int maxDepthCounter = 1;
 
-		System.out.println(innerNodeList);
+		ArrayList<ArrayList<Integer>> delayMatrix = new ArrayList<>();
+		ArrayList<String> delayRegisters = new ArrayList<>();
 
 		for (int index = maxLevel; index >= 0 ; index--) {
+			ArrayList<Integer> delayedComparisons = new ArrayList<>();
+
+			Boolean placeDelay = false;
+
+			String levelSyncConditional = CONDITIONAL3;
+			String levelSyncBody = "";
+
 			for (int key: innerNodes.keySet()){
 				if (innerNodes.get(key).getLevel() == index){
-					String nodeConditional = CONDITIONAL2;
+					String nodeConditionalTrue = CONDITIONAL3;
+					String nodeConditionalFalse = CONDITIONAL_ELSE;
+					String nodeExpr = "";
 
-					String nodeExpr = String.format("c_register[%d]", comparisonCounter);
-					String nodeBody = "";
+					if (maxDepthCounter > 1 ){
+						nodeExpr = String.format("c%d_delay_register%d",  comparisonCounter, maxDepthCounter - 1);
+						delayedComparisons.add(comparisonCounter);
+						placeDelay = true;
+					} else {
+						nodeExpr = String.format("c_register[%d]", comparisonCounter);
+					}
+
+					String nodeBodyTrue = "";
+					String nodeBodyFalse = "";
 
 					Node leftNode = innerNodes.get(key).getLeftNode();
+					Node rightNode = innerNodes.get(key).getRightNode();
 
 					if (leftNode instanceof InnerNode){
-						nodeBody = tab(3) + String.format(
+						nodeBodyTrue = tab(4) + String.format(
 							"node%d <= node%d;\n",
 							comparisonCounter,
 							innerNodeList.indexOf(leftNode.getId())
 						);
 					}
 					else if (leftNode instanceof OuterNode) {
-						nodeBody = tab(3) + String.format(
+						nodeBodyTrue = tab(4) + String.format(
 							"node%d <= class%d;\n",
 							comparisonCounter,
 							((OuterNode) leftNode).getClassNumber()
 						);
 					}
 
-					nodeConditional = nodeConditional
-							.replace("x", nodeExpr)
-							.replace("y", nodeBody)
-							.replace("ind", tab(2));
+					if (rightNode instanceof InnerNode){
+						nodeBodyFalse = tab(4) + String.format(
+							"node%d <= node%d;\n",
+							comparisonCounter,
+							innerNodeList.indexOf(rightNode.getId())
+						);
+					}
+					else if (rightNode instanceof OuterNode) {
+						nodeBodyFalse = tab(4) + String.format(
+							"node%d <= class%d;\n",
+							comparisonCounter,
+							((OuterNode) rightNode).getClassNumber()
+						);
+					}
 
+					nodeConditionalTrue = nodeConditionalTrue
+						.replace("x", nodeExpr)
+						.replace("`", nodeBodyTrue)
+						.replace("ind", tab(3));
+
+					nodeConditionalFalse = nodeConditionalFalse
+						.replace("y", nodeBodyFalse)
+						.replace("ind", tab(3));
+
+					levelSyncBody += nodeConditionalTrue + nodeConditionalFalse + "\n";
 					comparisonCounter--;
-					src += nodeConditional + "\n";
 				}
-
 			}
-			src += "\n===========\n";
-//			String levelSyncConditional = CONDITIONAL2;
 
-			System.out.println("--------------------");
+			delayMatrix.add(delayedComparisons);
+			if (placeDelay){
+				src += "^\n";
+			}
+
+			src += tab(2) + String.format("sync_flag[%d] <= sync_flag[%d];\n", maxDepthCounter, maxDepthCounter - 1);
+			src += "\n";
+
+			String levelSyncExpr = String.format("sync_flag[%d] == 1'b1", maxDepthCounter);
+
+			levelSyncConditional = levelSyncConditional
+				.replace("x", levelSyncExpr)
+				.replace("`", levelSyncBody)
+				.replace("ind", tab(2));
+
+			maxDepthCounter++;
+			src += levelSyncConditional + "\n";
 		}
 
-		String conditional = CONDITIONAL2;
+		for (int index = delayMatrix.size(); index > 0; index--) {
+			if (index != delayMatrix.size()){
+				delayMatrix.get(index - 1).addAll(delayMatrix.get(index));
+			}
+		}
 
-//		for (int key: innerNodes.keySet()){
-//			System.out.println(key);
-//			for (int index = 0; index < maxLevel; index++) {
-//				if (innerNodes.get(key).getLevel() == maxLevel){
-//					System.out.printf("a: %d\n", maxLevel);
-//				}
-//			}
-//			maxLevel--;
-			//			if (innerNodes.get(key).getLevel() == )
-//			int threshold = (int) Math.floor(innerNodes.get(key).getComparisson().getThreshold());
-//			src += tab(2) + String.format("c_register[%d] <= (r_feature%d <= %d'b%s);\n", counter, innerNodes.get(key).getComparisson().getColumn(), this.comparedValueBitwidth ,toBinary(threshold, 8));
-//
-//			int level = innerNodes.get(key).getLevel();
-//
-//			if (level > maxLevel){
-//				maxLevel = level;
-//			}
-//			counter = counter + 1;
-//		}
+		for (int index1 = 1; index1 < delayMatrix.size(); index1++) {
+			String delay = "";
+
+			for (int index2 = 0; index2 < delayMatrix.get(index1).size(); index2++) {
+				if (index1 == 1){
+					delay += tab(2) + String.format(
+						"c%d_delay_register%d <= c_register[%d];\n",
+						delayMatrix.get(index1).get(index2),
+						index1,
+						delayMatrix.get(index1).get(index2)
+					);
+				} else {
+					delay += tab(2) + String.format(
+						"c%d_delay_register%d <= c%d_delay_register%d;\n",
+						delayMatrix.get(index1).get(index2),
+						index1,
+						delayMatrix.get(index1).get(index2),
+						index1 - 1
+					);
+				}
+
+				delayRegisters.add(
+					String.format("c%d_delay_register%d", delayMatrix.get(index1).get(index2), index1)
+				);
+			}
+			src = src.replaceFirst("\\^", delay);
+		}
+
+		String registers = "";
+
+		for (int index = 0; index < delayRegisters.size(); index++) {
+			registers += tab(1) + generatePort(delayRegisters.get(index), REGISTER, NONE, 1, true);
+		}
+
+		src += "\n";
+		src += tab(2) + String.format("sync_flag[%d] <= sync_flag[%d];\n", maxDepthCounter, maxDepthCounter - 1);
+		src += tab(2) + String.format("compute_vote <= sync_flag[%d];\n", maxDepthCounter);
+		src += tab(2) + "voted_class <= node0;";
+		src += "\n";
 
 		String always = ALWAYS_BLOCK2;
 		always = always
-				.replace("border", "posedge")
-				.replace("signal", "clock")
-				.replace("src", src)
-				.replace("ind", tab(1));
+			.replace("border", "posedge")
+			.replace("signal", "clock")
+			.replace("src", src)
+			.replace("ind", tab(1));
 
-		return always;
+		return registers + always + "endmodule";
 	}
 }

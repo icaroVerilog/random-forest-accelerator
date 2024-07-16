@@ -1,5 +1,6 @@
 package project.src.java.approaches.fpga.pipeline;
 
+import project.src.java.approaches.fpga.conditionalEquationMultiplexer.AdderGenerator;
 import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
@@ -10,8 +11,12 @@ public class PipelineFPGAGenerator {
 	public void execute(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings){
 		var a = FileBuilder.createDir(String.format("FPGA/%s_pipeline_%dtree_%sdeep_run", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
 
-		var treeGenerator = new TreeGenerator();
+		var treeGenerator 		= new TreeGenerator();
+		var controllerGenerator = new ControllerGenerator();
+		var adderGenerator      = new AdderGenerator();
 
-		treeGenerator.execute(treeList, classQnt, featureQnt, settings);
+		treeGenerator	   .execute(treeList, classQnt, featureQnt, settings);
+		controllerGenerator.execute(treeList.size(), classQnt, featureQnt, settings);
+		adderGenerator     .execute(treeList.size(), settings);
 	}
 }
