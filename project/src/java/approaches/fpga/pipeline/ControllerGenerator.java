@@ -145,9 +145,10 @@ public class ControllerGenerator extends BasicGenerator {
 
         String module = MODULE_INSTANCE;
         module = module
-                .replace("moduleName", "tree" + treeIndex)
-                .replace("ports", src)
-                .replace("ind", tab(1));
+            .replace("moduleName", "tree" + treeIndex)
+            .replace("ports", src)
+            .replace("ind", tab(1));
+
         return module;
     }
 
@@ -166,10 +167,10 @@ public class ControllerGenerator extends BasicGenerator {
 
         String module = MODULE_VARIABLE_INSTANCE;
         module = module
-                .replace("moduleName", "adder")
-                .replace("moduleVariableName", "adder" + classNumber)
-                .replace("ports", src)
-                .replace("ind", tab(1));
+            .replace("moduleName", "adder")
+            .replace("moduleVariableName", "adder" + classNumber)
+            .replace("ports", src)
+            .replace("ind", tab(1));
         return module;
     }
 
@@ -189,9 +190,9 @@ public class ControllerGenerator extends BasicGenerator {
         String module = MODULE_INSTANCE;
 
         module = module
-                .replace("moduleName", "majority")
-                .replace("ports", src)
-                .replace("ind", tab(1));
+            .replace("moduleName", "majority")
+            .replace("ports", src)
+            .replace("ind", tab(1));
 
         return module;
     }

@@ -14,9 +14,11 @@ public class PipelineFPGAGenerator {
 		var treeGenerator 		= new TreeGenerator();
 		var controllerGenerator = new ControllerGenerator();
 		var adderGenerator      = new AdderGenerator();
+		var majorityGenerator   = new MajorityGenerator();
 
 		treeGenerator	   .execute(treeList, classQnt, featureQnt, settings);
 		controllerGenerator.execute(treeList.size(), classQnt, featureQnt, settings);
 		adderGenerator     .execute(treeList.size(), settings);
+		majorityGenerator  .execute(treeList.size(), classQnt, settings);
 	}
 }
