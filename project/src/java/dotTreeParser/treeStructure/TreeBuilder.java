@@ -212,9 +212,7 @@ public class TreeBuilder {
             nodeLevelPair[0] = child;
             nodeLevelPair[1] = level;
 
-            System.out.println(Arrays.toString(nodeLevelPair));
             nodeLevel.add(nodeLevelPair);
         }
-//        System.out.println("===============");
     }
 }

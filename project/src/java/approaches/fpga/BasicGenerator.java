@@ -19,8 +19,6 @@ public class BasicGenerator {
     /* TODO: REFATORAR, DEIXAR TODOS OS CAMPOS QUE LIDAM COM STRING UTILIZANDO String.format()*/
 
     protected final String MODULE_INSTANCE = "\nind" + "moduleName moduleName(\nports \nind);\n";
-    protected final String ALWAYS_BLOCK = "\nind" + "always @(posedge clk) begin \nsrc \nindend";
-    protected final String CONDITIONAL = "\nind" + "if (x) begin\nind2y \n indend";
 
     protected final String CONDITIONAL_ELSE = "\nind" + "else begin\ny indend";
     protected final String ALWAYS_BLOCK2 = "\nind" + "always @(border signal) begin \nsrc \nindend\n";

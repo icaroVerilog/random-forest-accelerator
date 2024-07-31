@@ -149,7 +149,7 @@ public class ApiGenerator extends BasicGenerator {
 		int inputDataBitwidth = featureQnt * this.comparedValueBitwidth;
 		int bufferQnt = (int) Math.ceil((float) inputDataBitwidth / (this.IOPinQnt - outputDataBitwidth));
 
-		String resetBlock = CONDITIONAL2;
+		String resetBlock = CONDITIONAL3;
 		String resetBlockExpr = "reset";
 		String resetBlockBody = "";
 
@@ -159,10 +159,10 @@ public class ApiGenerator extends BasicGenerator {
 
 		resetBlock = resetBlock
 				.replace("x", resetBlockExpr)
-				.replace("y", resetBlockBody)
+				.replace("`", resetBlockBody)
 				.replace("ind", tab(2));
 
-		String computeVoteBlock     = CONDITIONAL2;
+		String computeVoteBlock     = CONDITIONAL3;
 		String computeVoteBlockExp  = "";
 
 		if (this.approach.equals("conditional")){
@@ -180,7 +180,7 @@ public class ApiGenerator extends BasicGenerator {
 
 		computeVoteBlock = computeVoteBlock
 				.replace("x", computeVoteBlockExp)
-				.replace("y", computeVoteBlockBody)
+				.replace("`", computeVoteBlockBody)
 				.replace("ind", tab(3));
 
 		String computeVoteElseBlock     = CONDITIONAL_ELSE;

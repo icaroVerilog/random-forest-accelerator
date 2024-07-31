@@ -282,7 +282,7 @@ public class ValidationTableGenerator extends BasicGenerator {
 
         /*************************** RESET BLOCK ****************************/
 
-        String resetBlock = CONDITIONAL2;
+        String resetBlock = CONDITIONAL3;
         String resetBlockExpr = "reset == 1'b1";
         String resetBlockBody = "";
 
@@ -318,12 +318,12 @@ public class ValidationTableGenerator extends BasicGenerator {
 
         resetBlock = resetBlock
                 .replace("x", resetBlockExpr)
-                .replace("y", resetBlockBody)
+                .replace("`", resetBlockBody)
                 .replace("ind", tab(2));
 
         /******************* INNER NODE PROCESSING BLOCK ********************/
 
-        String thGreaterThanValueBlock = CONDITIONAL2;
+        String thGreaterThanValueBlock = CONDITIONAL3;
         String thGreaterThanValueBlockExpr = "";
 
         if (this.precision.equals("integer")){
@@ -341,12 +341,12 @@ public class ValidationTableGenerator extends BasicGenerator {
         String thGreaterThanValueBlockBody = tab(6) + String.format(
             "next <= nodes_table[next][%d:%d];\n",
             (this.tableIndexerBitwidth * 2) - 1,
-                this.tableIndexerBitwidth
+            this.tableIndexerBitwidth
         );
 
         thGreaterThanValueBlock = thGreaterThanValueBlock
             .replace("x", thGreaterThanValueBlockExpr)
-            .replace("y", thGreaterThanValueBlockBody)
+            .replace("`", thGreaterThanValueBlockBody)
             .replace("ind", tab(5));
 
         String thLessThanValueBlock = CONDITIONAL_ELSE;
@@ -360,7 +360,7 @@ public class ValidationTableGenerator extends BasicGenerator {
             .replace("y", thLessThanValueBlockBody)
             .replace("ind", tab(5));
 
-        String innerNodeBlock = CONDITIONAL2;
+        String innerNodeBlock = CONDITIONAL3;
         String innerNodeBlockExpr = String.format(
             "~nodes_table[next][%d]",
             ((this.comparedValueBitwidth * 2) + this.comparedColumnBitwidth + (this.tableIndexerBitwidth * 2)) - (this.comparedValueBitwidth * 2)
@@ -369,7 +369,7 @@ public class ValidationTableGenerator extends BasicGenerator {
 
         innerNodeBlock = innerNodeBlock
             .replace("x", innerNodeBlockExpr)
-            .replace("y", innerNodeBlockBody)
+            .replace("`", innerNodeBlockBody)
             .replace("ind", tab(4));
 
         /******************** OUTER NODE PROCESSING BLOCK ********************/
@@ -377,13 +377,13 @@ public class ValidationTableGenerator extends BasicGenerator {
         String voteCounterBlocks = "";
 
         for (int index = 1; index <= classQuantity; index++){
-            String voteCounterBlock = CONDITIONAL2;
+            String voteCounterBlock = CONDITIONAL3;
             String voteCounterBlockExpr = String.format("tree_vote_wire == %d'b%s", this.tableIndexerBitwidth, decimalToBinary(index, this.tableIndexerBitwidth));
             String voteCounterBlockBody = String.format("%sclass%d <= class%d + 1'b1;\n",tab(6), index, index);
 
             voteCounterBlock = voteCounterBlock
                 .replace("x", voteCounterBlockExpr)
-                .replace("y", voteCounterBlockBody)
+                .replace("`", voteCounterBlockBody)
                 .replace("ind", tab(5));
 
             if (index == classQuantity){
@@ -393,7 +393,7 @@ public class ValidationTableGenerator extends BasicGenerator {
             }
         }
 
-        String readNewSampleBlock = CONDITIONAL2;
+        String readNewSampleBlock = CONDITIONAL3;
         String readNewSampleBlockExpr = String.format(
             "nodes_table[next][%d:%d] == %d'b%s",
             (this.tableIndexerBitwidth * 2) - 1,
@@ -408,7 +408,7 @@ public class ValidationTableGenerator extends BasicGenerator {
 
         readNewSampleBlock = readNewSampleBlock
             .replace("x", readNewSampleBlockExpr)
-            .replace("y", readNewSampleBlockBody)
+            .replace("`", readNewSampleBlockBody)
             .replace("ind", tab(5));
 
         String outerNodeBlock = CONDITIONAL_ELSE;
@@ -426,18 +426,18 @@ public class ValidationTableGenerator extends BasicGenerator {
             .replace("y",outerNodeBlockBody)
             .replace("ind", tab(4));
 
-        String sampleProcessingBlock = CONDITIONAL2;
+        String sampleProcessingBlock = CONDITIONAL3;
         String sampleProcessingBlockExpr = "read_new_sample == 1'b0";
         String sampleProcessingBlockBody = innerNodeBlock + outerNodeBlock + "\n";
 
         sampleProcessingBlock = sampleProcessingBlock
             .replace("x", sampleProcessingBlockExpr)
-            .replace("y", sampleProcessingBlockBody)
+            .replace("`", sampleProcessingBlockBody)
             .replace("ind", tab(3));
 
         /******************** COUNTER RESET BLOCK ********************/
 
-        String resetCounterBlock = CONDITIONAL2;
+        String resetCounterBlock = CONDITIONAL3;
         String resetCounterBlockExpr = "compute_vote_flag";
         String resetCounterBlockBody = "";
 
@@ -451,7 +451,7 @@ public class ValidationTableGenerator extends BasicGenerator {
 
         resetCounterBlock = resetCounterBlock
             .replace("x", resetCounterBlockExpr)
-            .replace("y", resetCounterBlockBody)
+            .replace("`", resetCounterBlockBody)
             .replace("ind", tab(3));
 
         String validationBlock = CONDITIONAL_ELSE;

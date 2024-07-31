@@ -16,15 +16,23 @@ import java.util.List;
 
 public class TreeGenerator extends BaseTreeGenerator {
 
-	private int comparedValueBitwidth;
+	private Integer comparedValueBitwidth;
+	private Integer maxDepth;
 	private String precision;
 
 	public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCEM settings){
 		this.precision = settings.precision;
 		this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
+		this.maxDepth = 0;
 
 		ReportGenerator reportGenerator = new ReportGenerator();
 		ArrayList<Integer> nodeQntByTree = new ArrayList<>();
+
+		for (int index = 0; index < trees.size(); index++) {
+			if (trees.get(index).getMaxDepth() > this.maxDepth) {
+				this.maxDepth = trees.get(index).getMaxDepth();
+			}
+		}
 
 		for (int index = 0; index < trees.size(); index++){
 			System.out.println("generating verilog decision tree" + index);
@@ -36,9 +44,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 			src += generateHeader(index, featureQnt);
 			src += generateParameters(classQnt);
 			src += generatePortDeclaration(featureQnt, classQnt, currentTree.getInnerNodes().size(), currentTree.getMaxDepth());
-			src += generateAlwaysBlock(featureQnt, currentTree.innerNodes, currentTree.getMaxDepth());
-//			src += generateConditionals(trees.get(index).getRoot(), 2);
-//			src += generateEndDelimiters();
+			src += generateAlwaysBlock(featureQnt, classQnt, currentTree.innerNodes, currentTree.getMaxDepth());
 
 			FileBuilder.execute(src, String.format("FPGA/%s_pipeline_%dtree_%sdeep_run/tree%d.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth, index));
 		}
@@ -155,14 +161,27 @@ public class TreeGenerator extends BaseTreeGenerator {
 		for (int index = 0; index < innerNodeQnt; index++) {
 			src += tab(1) + generatePort(String.format("node%d", index), REGISTER, NONE, classQnt, true);
 		}
+
+		if (this.maxDepth > maxDepth){
+			for (int index = 0; index < this.maxDepth - maxDepth; index++) {
+				src += tab(1) + generatePort(String.format("delay_node%d", index), REGISTER, NONE, classQnt, true);
+			}
+		}
+
 		src += "\n";
-		src += tab(1) + generatePort("sync_flag", REGISTER, NONE, maxDepth + 2, true);
+		if (this.maxDepth > maxDepth){
+			int additionalBits = this.maxDepth - maxDepth;
+			src += tab(1) + generatePort("sync_flag", REGISTER, NONE, maxDepth + 2 + additionalBits, true);
+		} else {
+			src += tab(1) + generatePort("sync_flag", REGISTER, NONE, maxDepth + 2, true);
+		}
+
 		src += "\n";
 
 		return src;
 	}
 
-	public String generateAlwaysBlock(int featureQnt, HashMap<Integer, InnerNode> innerNodes, int maxDepth){
+	public String generateAlwaysBlock(Integer featureQnt, Integer classQnt, HashMap<Integer, InnerNode> innerNodes, Integer maxDepth){
 		String src = "";
 
 		for (int index = 0; index < featureQnt; index++) {
@@ -181,12 +200,6 @@ public class TreeGenerator extends BaseTreeGenerator {
 
 			int threshold = (int) Math.floor(innerNodes.get(key).getComparisson().getThreshold());
 			src += tab(2) + String.format("c_register[%d] <= (r_feature%d <= %d'b%s);\n", counter, innerNodes.get(key).getComparisson().getColumn(), this.comparedValueBitwidth ,toBinary(threshold, 8));
-
-			int level = innerNodes.get(key).getLevel();
-
-			if (level > maxLevel){
-				maxLevel = level;
-			}
 			counter = counter + 1;
 		}
 
@@ -196,7 +209,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 		ArrayList<ArrayList<Integer>> delayMatrix = new ArrayList<>();
 		ArrayList<String> delayRegisters = new ArrayList<>();
 
-		for (int index = maxLevel; index >= 0 ; index--) {
+		for (int index = maxDepth - 1; index >= 0 ; index--) {
 			ArrayList<Integer> delayedComparisons = new ArrayList<>();
 
 			Boolean placeDelay = false;
@@ -321,17 +334,37 @@ public class TreeGenerator extends BaseTreeGenerator {
 			src = src.replaceFirst("\\^", delay);
 		}
 
+		src += "\n";
+
+		if (this.maxDepth > maxDepth){
+			for (int index = 0; index < this.maxDepth - maxDepth; index++) {
+				src += tab(2) + String.format("sync_flag[%d] <= sync_flag[%d];\n", maxDepthCounter, maxDepthCounter - 1);
+				maxDepthCounter++;
+			}
+		}
+
+
+		src += tab(2) + String.format("sync_flag[%d] <= sync_flag[%d];\n", maxDepthCounter, maxDepthCounter - 1);
+		src += tab(2) + String.format("compute_vote <= sync_flag[%d];\n", maxDepthCounter);
+
+		if (this.maxDepth > maxDepth){
+			for (int index = 0; index < this.maxDepth - maxDepth; index++) {
+				if (index == 0){
+					src += tab(2) + String.format("delay_node%d <= node0;\n", index);
+				} else {
+					src += tab(2) + String.format("delay_node%d <= delay_node%d;\n", index, index - 1);
+				}
+			}
+			src += tab(2) + String.format("voted_class <= delay_node%d;", (this.maxDepth - maxDepth) - 1);
+		} else {
+			src += tab(2) + "voted_class <= node0;";
+		}
+
 		String registers = "";
 
 		for (int index = 0; index < delayRegisters.size(); index++) {
 			registers += tab(1) + generatePort(delayRegisters.get(index), REGISTER, NONE, 1, true);
 		}
-
-		src += "\n";
-		src += tab(2) + String.format("sync_flag[%d] <= sync_flag[%d];\n", maxDepthCounter, maxDepthCounter - 1);
-		src += tab(2) + String.format("compute_vote <= sync_flag[%d];\n", maxDepthCounter);
-		src += tab(2) + "voted_class <= node0;";
-		src += "\n";
 
 		String always = ALWAYS_BLOCK2;
 		always = always

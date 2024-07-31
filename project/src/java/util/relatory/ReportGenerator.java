@@ -7,7 +7,6 @@ import java.util.ArrayList;
 public class ReportGenerator {
 
 	private static final ArrayList<Entry> entries = new ArrayList<>();
-	private final String src = "";
 
 	public void createEntry(String dataset, String approach, String maxDepth, ArrayList<Integer> nodeQntByTree){
 		entries.add(new Entry(dataset, approach, maxDepth, nodeQntByTree));

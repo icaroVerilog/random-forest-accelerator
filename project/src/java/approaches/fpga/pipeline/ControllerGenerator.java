@@ -1,6 +1,7 @@
 package project.src.java.approaches.fpga.pipeline;
 
 import project.src.java.approaches.fpga.BasicGenerator;
+import project.src.java.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
 
@@ -11,28 +12,37 @@ public class ControllerGenerator extends BasicGenerator {
     private final String MODULE_NAME = "controller";
 
     private int comparedValueBitwidth;
+    private Integer maxDepth;
     private String approach;
 
-    public void execute(int treeQnt, int classQnt, int featureQnt, SettingsCEM settings){
+    public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCEM settings){
         System.out.println("generating controller");
 
+        this.maxDepth = 0;
         this.approach = settings.approach;
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 
+        for (int index = 0; index < trees.size(); index++) {
+            if (trees.get(index).getMaxDepth() > this.maxDepth) {
+                this.maxDepth = trees.get(index).getMaxDepth();
+            }
+        }
+
         String src = "";
 
-        src += generateImports(treeQnt);
+        src += generateImports(trees.size());
         src += generateHeader(this.MODULE_NAME, featureQnt);
-        src += generateIO(featureQnt, classQnt, treeQnt);
+        src += generateIO(featureQnt, classQnt, trees.size());
 
-        for (int index = 0; index < treeQnt; index++){
+        for (int index = 0; index < trees.size(); index++){
             src += generateTreeModuleInstantiation(featureQnt, index);
         }
         for (int index = 0; index < classQnt; index++) {
-            src += generateModuleAdder(treeQnt, index);
+            src += generateModuleAdder(trees.size(), index);
         }
 
         src += generateModuleMajority(classQnt);
+        src += generateAlways(trees.size());
         src += generateEndDelimiters();
 
         FileBuilder.execute(src, String.format("FPGA/%s_%s_%dtree_%sdeep_run/controller.v", settings.dataset, settings.approach, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
@@ -56,7 +66,7 @@ public class ControllerGenerator extends BasicGenerator {
         String[] basicIOPorts = {
             "reset",
             "clock",
-            "compute_vote_flag",
+            "compute_vote",
             "forest_vote"
         };
 
@@ -86,6 +96,7 @@ public class ControllerGenerator extends BasicGenerator {
         int outputBitwidth = (int)(Math.log(Math.abs(treeQnt)) / Math.log(2)) + 1; // Logaritmo na base 2
         String src = "";
 
+        int sumBitwidth = (int) Math.ceil(Math.sqrt(treeQnt));
         int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
         src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
@@ -97,6 +108,7 @@ public class ControllerGenerator extends BasicGenerator {
         }
         src += "\n";
         src += tab(1) + generatePort("forest_vote", REGISTER, OUTPUT, outputBitwidth, true);
+        src += tab(1) + generatePort("compute_vote", REGISTER, OUTPUT, 1, true);
         src += "\n";
 
         for (int index = 0; index < treeQnt; index++) {
@@ -110,18 +122,11 @@ public class ControllerGenerator extends BasicGenerator {
         src += "\n";
 
         for (int index = 0; index < treeQnt; index++) {
-            src += tab(1) + generatePort("sum_class" + index, WIRE, NONE, 1, true);
+            src += tab(1) + generatePort("sum_class" + index, WIRE, NONE, sumBitwidth, true);
         }
         src += "\n";
 
-        for (int index = 0; index < treeQnt; index++) {
-            src += tab(1) + generatePort("r_sum_class" + index, REGISTER, NONE, 1, true);
-        }
-
-//        int sumBits = (int)(Math.log(Math.abs(treeQnt)) / Math.log(2)) + 1; // Logaritmo na base 2
-//        for (int index = 0; index < classQnt; index++) {
-//            src += tab(1) + generatePort("sum_class" + index, WIRE, NONE, sumBits, true);
-//        }
+        src += tab(1) + generatePort("r_forest_vote", WIRE, NONE, outputBitwidth, true);
 
         return src;
     }
@@ -152,7 +157,7 @@ public class ControllerGenerator extends BasicGenerator {
         return module;
     }
 
-    private String generateModuleAdder(int treeQnt, int classNumber) {
+    private String generateModuleAdder(int treeQnt, int classNumber){
         String src = "";
 
         src += tab(2) + ".sum(sum_class" + classNumber + "),\n";
@@ -174,10 +179,10 @@ public class ControllerGenerator extends BasicGenerator {
         return module;
     }
 
-    private String generateModuleMajority(int classQnt) {
+    private String generateModuleMajority(int classQnt){
         String src = "";
 
-        src += tab(2) + ".voted(voted),\n";
+        src += tab(2) + ".voted(r_forest_vote),\n";
 
         for (int index = 0; index < classQnt; index++) {
             if (index + 1 == classQnt) {
@@ -195,5 +200,46 @@ public class ControllerGenerator extends BasicGenerator {
             .replace("ind", tab(1));
 
         return module;
+    }
+
+    private String generateAlways(int treeQnt){
+
+        String computeVoteConditional = CONDITIONAL3;
+        String computeVoteExpr = "";
+        String computeVoteBody = "";
+
+        for (int index = 0; index < treeQnt; index++) {
+            if (index == treeQnt - 1){
+                computeVoteExpr += String.format("compute_vote%d", index);
+            } else {
+                computeVoteExpr += String.format("compute_vote%d && ", index);
+            }
+        }
+
+        computeVoteBody += tab(3) + "forest_vote <= r_forest_vote;\n";
+        computeVoteBody += tab(3) + "compute_vote <= 1'b1;\n";
+
+        computeVoteConditional = computeVoteConditional
+            .replace("x", computeVoteExpr)
+            .replace("`", computeVoteBody)
+            .replace("ind", tab(2));
+
+        String computeVoteConditionalElse = CONDITIONAL_ELSE;
+        String computeVoteConditionalElseBody = tab(3) + "compute_vote <= 1'b0;\n";
+
+        computeVoteConditionalElse = computeVoteConditionalElse
+                .replace("y", computeVoteConditionalElseBody)
+                .replace("ind", tab(2));
+
+        String always = ALWAYS_BLOCK2;
+        String src = computeVoteConditional + computeVoteConditionalElse;
+
+        always = always
+            .replace("border", "posedge")
+            .replace("signal", "clock")
+            .replace("src", src)
+            .replace("ind", tab(1));
+
+        return always;
     }
 }
