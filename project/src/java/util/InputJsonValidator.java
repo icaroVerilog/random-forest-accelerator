@@ -1,14 +1,14 @@
 package project.src.java.util;
 
 import project.src.java.util.customExceptions.*;
-import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
-import project.src.java.util.executionSettings.ExecutionSettingsData.ExecutionSettings;
-import project.src.java.util.executionSettings.ExecutionSettingsData.Table.SettingsT;
+import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ExecutionSettings;
+import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsT;
 
 public class InputJsonValidator {
     public void execute(ExecutionSettings executionsSettings) {
         try {
-            if (executionsSettings.regenerateEstimators == null){
+            if (executionsSettings.estimatorsGenerationPolicy == null){
                 throw new JsonValidationException("input file error: field not found 'regenerate_estimators': string");
             }
             if (executionsSettings.executionsSettings == null){
@@ -35,7 +35,7 @@ public class InputJsonValidator {
         }
     }
 
-    private void validateBasicFields(project.src.java.util.executionSettings.ExecutionSettingsData.Settings settings)
+    private void validateBasicFields(project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Settings settings)
             throws JsonValidationException {
         if (settings.approach == null){
             throw new JsonValidationException("input file error: field not found 'approach': string");

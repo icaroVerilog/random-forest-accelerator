@@ -1,5 +1,5 @@
 {
-    "regenerate_estimators": false,
+    "estimators_generation_policy": "keep",
     "runs": [
 	{
 	    "approach": "conditional",

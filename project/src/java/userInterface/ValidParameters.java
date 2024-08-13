@@ -1,0 +1,35 @@
+package project.src.java.userInterface;
+
+public class ValidParameters {
+
+	/* commands */
+
+	public static final String READ_SETTINGS   			= "read_settings";
+	public static final String RUN_SETTINGS    			= "run_settings";
+	public static final String START_TRAINING  			= "start_training";
+
+	public static final String START_IF_INFERENCE 		= "start_if_inference";
+	public static final String START_MUX_INFERENCE 		= "start_mux_inference";
+	public static final String START_EQUATION_INFERENCE = "start_equation_inference";
+	public static final String START_TABLE_INFERENCE    = "start_table_inference";
+
+	public static final String HELP 		   			= "help";
+	public static final String EXIT 		   			= "exit";
+	public static final String CLEAR		   			= "clear";
+
+	/* flags */
+
+	/* training */
+
+	public static final String estimators = "-e";
+	public static final String training_percent = "-tp";
+	public static final String max_depth = "-d";
+
+	/* inference */
+
+//	public static final String
+
+	public static final String threshold_bitwidth = "-tb";
+
+//	public static final String
+}

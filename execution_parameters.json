@@ -1,22 +1,24 @@
 {
-    "regenerate_estimators": false,
+    "estimators_generation_policy": "regenerate",
     "runs": [
 	{
-	    "approach": "pipeline",
-	    "dataset": "iris",
+	    "approach": "table",
+	    "dataset": "adult",
 	    "precision": "integer",
 	    "target": "synthesis",
 	    "platform": {
-		"input_bitwidth": 512
+		"input_bitwidth": 523
 	    },
 	    "training_parameters": {
-		"estimators": 3,
+		"estimators": 7,
 		"training_percent": 30,
-		"max_depth": 4
+		"max_depth": 7
 	    },
 	    "inference_parameters": {
 		"fields_bitwidth": {
-		    "threshold": 8
+		    "threshold": 32,
+		    "compared_column": 32,
+		    "index": 16
 		}
 	    }
 	}
