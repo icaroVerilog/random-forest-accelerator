@@ -21,15 +21,15 @@ public class ValidParameters {
 
 	/* training */
 
-	public static final String estimators = "-e";
-	public static final String training_percent = "-tp";
-	public static final String max_depth = "-d";
+	public static final String ESTIMATORS = "-e";
+	public static final String TRAINING_PERCENT = "-tp";
+	public static final String MAX_DEPTH = "-d";
 
 	/* inference */
 
 //	public static final String
 
-	public static final String threshold_bitwidth = "-tb";
+	public static final String THRESHOLD_BITWIDTH = "-tb";
 
 //	public static final String
 }

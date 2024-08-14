@@ -1,2 +1,1 @@
-# random-forest-accelerator
-ne.
+# ROAR - Random fOrest Accelerator generatoR

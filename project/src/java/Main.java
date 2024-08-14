@@ -26,7 +26,7 @@ public class Main {
     private static String path;
     private static ExecutionSettings executionSettings = null;
 
-    public static void main(String[] args) throws IOException, InvalidCommandException {
+    public static void main(String[] args) throws IOException {
         path = System.getProperty("user.dir");
         System.out.println(path);
 
