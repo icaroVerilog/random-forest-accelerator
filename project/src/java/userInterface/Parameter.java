@@ -47,6 +47,7 @@ public class Parameter {
 		return this.parameter;
 	}
 
+
 	public HashMap<String, String> getValue(){
 		return this.values;
 	}
