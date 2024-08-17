@@ -1,9 +1,9 @@
 package project.src.java.core.randomForest.approaches.fpga;
 
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Settings;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsT;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.CLI.Table.SettingsT;
+import project.src.java.util.executionSettings.CLI.SettingsCLI;
 
 public class ApiGenerator extends BasicGenerator {
 	private int IOPinQnt;
@@ -11,7 +11,7 @@ public class ApiGenerator extends BasicGenerator {
 	private String precision;
 	private String approach;
 
-	public void execute(int classQnt, int featureQnt, Settings settings){
+	public void execute(int classQnt, int featureQnt, SettingsCLI settings){
 
 		if (settings instanceof SettingsCEM) {
 			this.comparedValueBitwidth = ((SettingsCEM) settings).inferenceParameters.fieldsBitwidth.comparedValue;
@@ -20,8 +20,11 @@ public class ApiGenerator extends BasicGenerator {
 			this.comparedValueBitwidth = ((SettingsT) settings).inferenceParameters.fieldsBitwidth.comparedValue;
 		}
 
-		this.IOPinQnt = settings.platform.inputBitwidth - 3;
-		this.precision = settings.precision;
+		/* TODO: AJUSTAR OS PARAMETROS DE PLATAFORMA E PRECISÃO*/
+//		this.IOPinQnt = settings.platform.inputBitwidth - 3;
+//		this.precision = settings.precision;
+		this.IOPinQnt = 10;
+		this.precision = "integer";
 		this.approach = settings.approach;
 
 		String src = "";

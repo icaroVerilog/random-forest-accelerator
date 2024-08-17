@@ -12,7 +12,7 @@ public class FileBuilder {
 
     public static void execute(String content, String filePath){
         try {
-            var path = System.getProperty("user.dir") + "/project/target/" + filePath;
+            var path = System.getProperty("user.dir") + "/" + filePath;
             var fileWriter = new FileWriter(path);
             BufferedWriter out = new BufferedWriter(fileWriter);
             out.write(content);
@@ -25,7 +25,7 @@ public class FileBuilder {
     }
 
     public static void setupFolders(){
-        var folderPath = System.getProperty("user.dir") + "/project/target/";
+        var folderPath = System.getProperty("user.dir");
         File folder = new File(folderPath);
 
         if (!folder.exists()){
@@ -41,7 +41,7 @@ public class FileBuilder {
         for (int index = 0; index < directories.size(); index++) {
             incrementalPath += "/" + directories.get(index);
 
-            var folderPath = System.getProperty("user.dir") + "/project/target/" + incrementalPath;
+            var folderPath = System.getProperty("user.dir")  + incrementalPath;
             File folder = new File(folderPath);
 
             if (!folder.exists()){

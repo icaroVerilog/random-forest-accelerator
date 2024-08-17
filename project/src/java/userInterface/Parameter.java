@@ -1,5 +1,6 @@
 package project.src.java.userInterface;
 
+import project.src.java.util.customExceptions.InvalidCommandException;
 import project.src.java.util.messages.Error;
 
 import java.security.InvalidParameterException;
@@ -8,12 +9,10 @@ import java.util.*;
 public class Parameter {
 
 	private String parameter = "";
-	private HashMap<String, String> values = new HashMap<>();
-	private HashMap<String, String> flags;
-	private HashMap<String, String> flagType;
+	private HashMap<String, String> flags = null;
+	private HashMap<String, String> flagType = null;
 
 	public Parameter(){
-
 	}
 
 	public Parameter(List<String> flags, List<String> type){
@@ -26,18 +25,29 @@ public class Parameter {
 		}
 	}
 
-	public void add(String parameter, String key, String value) throws InvalidParameterException {
+	public void add(String parameter, String key, String value) throws InvalidCommandException {
 
 		if (Objects.equals(this.parameter, "")){
 			this.parameter = parameter;
 		} else {
-			if ((this.flagType.get(key).equals("numeric") && !isNumericInt(value)) || (this.flagType.get(key).equals("text") && isNumericInt(value))) {
-				throw new InvalidParameterException(Error.INVALID_FLAG_VALUE.replace("x", key));
-			} else {
-				if (this.flags.get(key).isEmpty()){
-					this.flags.replace(key, value);
+			/* this block is executed when the constructor without parameters is called */
+			if (this.flags == null){
+				this.flags = new HashMap<>();
+				this.flags.put(key, value);
+			}
+
+			/* executed when the constructor with parameters are called*/
+			else {
+				if ((this.flagType.get(key).equals("numeric") && !isNumericInt(value)) || (this.flagType.get(key).equals("text") && isNumericInt(value))) {
+					/* error throws when the flag have a specific type declared but this value have another type */
+					throw new InvalidCommandException(Error.INVALID_FLAG_VALUE.replace("x", key));
 				} else {
-					throw new InvalidParameterException(String.format("a flag %s ja foi usada\n", key));
+					if (this.flags.get(key).isEmpty()){
+						this.flags.replace(key, value);
+					} else {
+						/* error throws when the same flag is used more tha once */
+						throw new InvalidCommandException(Error.MULTIPLE_USE_FLAG.replace("x", key));
+					}
 				}
 			}
 		}
@@ -49,15 +59,17 @@ public class Parameter {
 
 
 	public HashMap<String, String> getValue(){
-		return this.values;
+		return this.flags;
 	}
 
 	public void verify(){
-		Set<String> keys = this.flags.keySet();
+		if (!this.flags.isEmpty()){
+			Set<String> keys = this.flags.keySet();
 
-		for (String key:keys){
-			if (this.flags.get(key).isEmpty()){
-				System.out.printf("O parametro %s é invalido\n", key);
+			for (String key:keys){
+				if (this.flags.get(key).isEmpty()){
+					System.out.printf("O parametro %s é invalido\n", key);
+				}
 			}
 		}
 	}
@@ -75,8 +87,4 @@ public class Parameter {
 		}
 	}
 
-	public void print(){
-		System.out.println(parameter);
-		System.out.println(this.values.toString());
-	}
 }

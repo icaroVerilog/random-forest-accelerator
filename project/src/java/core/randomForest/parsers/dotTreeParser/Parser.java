@@ -32,6 +32,7 @@ public class Parser {
 
     private static void readDatasetHeader(String dataset) throws IOException {
 
+        /*TODO: ALTERAR FUTURAMENTE PARA PESQUISAR NA PASTA QUE O USUÁRIO TIVER O TERMINAL ABERTO, COMO EM OUTRAS CLI'S*/
         var path = System.getProperty("user.dir") + "/project/assets/datasets/" + dataset + ".csv";
         var scanner = new Scanner(new File(path));
         var line = scanner.nextLine().split(",");
@@ -47,7 +48,7 @@ public class Parser {
     }
 
     private static List<Tree> readDatasetSamples(String dataset) throws IOException {
-        var path = System.getProperty("user.dir") + "/project/assets/trees/" + dataset;
+        var path = System.getProperty("user.dir") + "/trees/" + dataset;
         var files = listFiles(path);
         var a = files
                 .stream()

@@ -26,6 +26,6 @@ public class TableFPGAGenerator {
 
         validationTableGenerator.execute(classQnt, featureQnt, treeList.size(), classBitwidth, tableEntries, settings, false);
         controllerGenerator     .execute(classBitwidth, featureQnt, settings, true);
-        apiGenerator            .execute(classQnt, featureQnt, settings);
+//        apiGenerator            .execute(classQnt, featureQnt, settings);
     }
 }

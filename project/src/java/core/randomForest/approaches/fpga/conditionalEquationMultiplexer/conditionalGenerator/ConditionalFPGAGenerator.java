@@ -6,13 +6,13 @@ import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMul
 import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMultiplexer.MajorityGenerator;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
 
 import java.util.List;
 
 public class ConditionalFPGAGenerator {
     public void execute(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings){
-        var a = FileBuilder.createDir(String.format("FPGA/%s_conditional_%dtree_%sdeep_run", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
+        var a = FileBuilder.createDir(String.format("output/%s_conditional_%dtree_%sdeep_run", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
 
         var treeGenerator       = new TreeGenerator();
         var controllerGenerator = new ControllerGenerator();

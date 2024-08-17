@@ -10,17 +10,25 @@ package project.src.java;
 //import project.src.java.util.executionSettings.ExecutionSettingsParser;
 //import project.src.java.util.relatory.ReportGenerator;
 
+import project.src.java.core.randomForest.approaches.fpga.FPGA;
+import project.src.java.core.randomForest.parsers.dotTreeParser.Parser;
+import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.userInterface.Parameter;
 import project.src.java.userInterface.UserInterface;
 import project.src.java.userInterface.ValidParameters;
 import project.src.java.util.*;
-import project.src.java.util.customExceptions.InvalidCommandException;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.FieldsBitwidth;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.InferenceParameters;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.CLI.SettingsCLI;
+import project.src.java.util.executionSettings.CLI.TrainingParameters;
 import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ExecutionSettings;
 import project.src.java.util.executionSettings.JSON.ExecutionSettingsParser;
 import project.src.java.util.messages.Error;
 import project.src.java.util.messages.Messages;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Main {
     private static String path;
@@ -32,7 +40,9 @@ public class Main {
 
         ExecutionSettingsParser settingsParser     = new ExecutionSettingsParser();
         InputJsonValidator      inputJsonValidator = new InputJsonValidator();
-        UserInterface userInterface = new UserInterface();
+        UserInterface           userInterface      = new UserInterface();
+
+        SettingsCLI settingsCLI = new SettingsCLI();
 
         while (true){
             Parameter parameter = userInterface.execute();
@@ -57,28 +67,82 @@ public class Main {
             }
             else if (parameter.getParameter().equals(ValidParameters.RUN_SETTINGS)){
                 if (executionSettings == null){
-                    System.out.println(Error.UNLOADED_SETTINGS);
+                    System.out.println(Error.NOT_LOADED_SETTINGS);
                 }
             }
+            else if (parameter.getParameter().equals(ValidParameters.READ_DATASET)){
+                String filename = parameter.getValue().get("filename");
+                settingsCLI.dataset = filename;
+
+            }
             else if (parameter.getParameter().equals(ValidParameters.START_TRAINING)){
-                System.out.println(parameter.getValue().keySet());
-                System.out.println(parameter.getValue().entrySet());
+
+                if (settingsCLI.dataset != null){
+                    settingsCLI.trainingParameters = new TrainingParameters();
+
+                    settingsCLI.trainingParameters.estimatorsQuantity = Integer.valueOf(parameter.getValue().get("-e"));
+                    settingsCLI.trainingParameters.trainingPercent    = Integer.valueOf(parameter.getValue().get("-tp"));
+                    settingsCLI.trainingParameters.maxDepth           = Integer.valueOf(parameter.getValue().get("-d"));
+
+                    PythonTreeGeneratorCaller treeGeneratorCaller = new PythonTreeGeneratorCaller();
+
+                    treeGeneratorCaller.execute(
+                        path,
+                        settingsCLI.dataset,
+                        settingsCLI.trainingParameters.trainingPercent,
+                        settingsCLI.trainingParameters.estimatorsQuantity,
+                        "1000",
+                        "integer"
+//                      settingsCLI.trainingParameters.maxDepth
+//                      settingsCLI.precision
+                    );
+
+                } else {
+                    System.out.println(Error.NOT_LOADED_DATASET);
+                }
             }
             else if (
-               parameter.getParameter().equals(ValidParameters.START_MUX_INFERENCE) ||
-               parameter.getParameter().equals(ValidParameters.START_EQUATION_INFERENCE)
-            ) {
-                System.out.println(parameter.getValue().keySet());
-            }
-            else if (parameter.getParameter().equals(ValidParameters.START_IF_INFERENCE)){
-                System.out.println(parameter.getValue().keySet());
+                parameter.getParameter().equals(ValidParameters.START_IF_INFERENCE) ||
+                parameter.getParameter().equals(ValidParameters.START_MUX_INFERENCE) ||
+                parameter.getParameter().equals(ValidParameters.START_EQUATION_INFERENCE)
+            ){
+                if (settingsCLI.dataset != null & settingsCLI.trainingParameters != null){
+
+                    SettingsCEM settings = new SettingsCEM();
+                    settings.dataset            = settingsCLI.dataset;
+                    settings.trainingParameters = settingsCLI.trainingParameters;
+                    settings.approach           = "conditional";
+
+                    settings.inferenceParameters                = new InferenceParameters();
+                    settings.inferenceParameters.fieldsBitwidth = new FieldsBitwidth();
+                    settings.inferenceParameters.fieldsBitwidth.comparedValue = Integer.valueOf(parameter.getValue().get("-bw"));
+
+                    FPGA FPGAGenerator = new FPGA();
+                    List<Tree> trees = Parser.execute(settingsCLI.dataset);
+
+
+                    switch (parameter.getParameter()){
+                        case ValidParameters.START_IF_INFERENCE -> FPGAGenerator.executeConditionalApproach(
+                            trees,
+                            Parser.getClassQuantity(),
+                            Parser.getFeatureQuantity(),
+                            settings
+                        );
+//                        case ValidParameters.START_MUX_INFERENCE -> settings.approach = "multiplexer";
+                        case ValidParameters.START_EQUATION_INFERENCE -> FPGAGenerator.executeEquationApproach(
+                            trees,
+                            Parser.getClassQuantity(),
+                            Parser.getFeatureQuantity(),
+                            settings
+                        );
+                    }
+
+                } else {
+                    System.out.println(Error.NOT_TRAINED_NOT_LOADED_DATASET);
+                }
             }
             else if (parameter.getParameter().equals(ValidParameters.START_TABLE_INFERENCE)){
                 System.out.println(parameter.getValue().keySet());
-            }
-            else {
-                String commandError = Error.INVALID_COMMAND.replace("x", parameter.getParameter());
-                System.out.println(commandError);
             }
 
 //            parameter.print();

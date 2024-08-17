@@ -11,17 +11,17 @@ import java.util.stream.Collectors;
 
 public class TreeBuilder {
 
-    private final static String LINKED_NODE_ARROW = "->";
-    private final static String LABEL_STRING = "label";
-    private final static String INNER_NODE_INDICATOR_STRING = "ngini";
-    private final static String LABEL_EQUAL_STRING = "label=";
-    private final static Integer LABEL_BEGIN_OFFSET = 7;
-    private final static Integer NGINI_END_OFFSET = 1;
-    private final static String NVALUE_STRING = "nvalue";
-    private final static String CLOSED_BRACKET_STRING = "] ;";
-    private final static Integer NVALUE_BEGIN_OFFSET = 9;
-    private final static Integer CLOSED_BRACKET_OFFSET = 1;
-    private final static Pattern associationPattern = Pattern.compile("([0-9]*) -> ([0-9]*)");
+    private final static String  LINKED_NODE_ARROW           = "->";
+    private final static String  LABEL_STRING                = "label";
+    private final static String  INNER_NODE_INDICATOR_STRING = "ngini";
+    private final static String  LABEL_EQUAL_STRING          = "label=";
+    private final static Integer LABEL_BEGIN_OFFSET          = 7;
+    private final static Integer NGINI_END_OFFSET            = 1;
+    private final static String  NVALUE_STRING               = "nvalue";
+    private final static String  CLOSED_BRACKET_STRING       = "] ;";
+    private final static Integer NVALUE_BEGIN_OFFSET         = 9;
+    private final static Integer CLOSED_BRACKET_OFFSET       = 1;
+    private final static Pattern associationPattern          = Pattern.compile("([0-9]*) -> ([0-9]*)");
 
     private static List<String> featuresNames;
     private static List<String> classesNames;
@@ -164,7 +164,7 @@ public class TreeBuilder {
         var end = line.indexOf(INNER_NODE_INDICATOR_STRING) - NGINI_END_OFFSET;
         var comparissonParts = line.substring(begin, end).split(" ");
 
-        /* o problema ta aqui*/
+        /* TODO: o problema ta aqui*/
 
         comparisson.setColumn(
             Integer.parseInt(comparissonParts[0]

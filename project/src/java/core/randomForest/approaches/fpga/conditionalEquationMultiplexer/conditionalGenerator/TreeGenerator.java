@@ -7,7 +7,7 @@ import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.No
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
 import project.src.java.util.relatory.ReportGenerator;
 
 import java.util.ArrayList;
@@ -22,7 +22,9 @@ public class TreeGenerator extends BaseTreeGenerator {
     private String precision;
 
     public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCEM settings){
-        this.precision = settings.precision;
+        // TODO: ajustar o settings para receber a precisão
+//        this.precision = settings.precision;
+        this.precision = "integer";
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 
         ReportGenerator reportGenerator = new ReportGenerator();
@@ -42,8 +44,10 @@ public class TreeGenerator extends BaseTreeGenerator {
             src += generateConditionals(trees.get(index).getRoot(), 2);
             src += generateEndDelimiters();
 
-            FileBuilder.execute(src, String.format("FPGA/%s_conditional_%dtree_%sdeep_run/tree%d.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth, index));
+            FileBuilder.execute(src, String.format("output/%s_conditional_%dtree_%sdeep_run/tree%d.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth, index));
         }
+
+        // TODO: "ajustar para receber o max depth de forma correta"
         reportGenerator.createEntry(
             settings.dataset,
             settings.approach,

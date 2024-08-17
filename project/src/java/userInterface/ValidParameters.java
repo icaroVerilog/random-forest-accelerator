@@ -6,6 +6,7 @@ public class ValidParameters {
 
 	public static final String READ_SETTINGS   			= "read_settings";
 	public static final String RUN_SETTINGS    			= "run_settings";
+	public static final String READ_DATASET				= "read_dataset";
 	public static final String START_TRAINING  			= "start_training";
 
 	public static final String START_IF_INFERENCE 		= "start_if_inference";
@@ -26,6 +27,9 @@ public class ValidParameters {
 	public static final String MAX_DEPTH = "-d";
 
 	/* inference */
+
+	public static final String APPROACH = "-a";
+	public static final String BITWIDTH = "-bw";
 
 //	public static final String
 

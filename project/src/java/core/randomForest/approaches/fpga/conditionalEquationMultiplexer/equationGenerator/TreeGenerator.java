@@ -6,7 +6,7 @@ import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.No
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
 import project.src.java.util.relatory.ReportGenerator;
 
 import java.util.ArrayList;
@@ -19,7 +19,9 @@ public class TreeGenerator extends BaseTreeGenerator {
     private String precision;
 
     public void execute(List<Tree> trees, Integer classQnt, Integer featureQnt, SettingsCEM settings){
-        this.precision = settings.precision;
+        // TODO: ajustar o settings para receber a precisão
+//        this.precision = settings.precision;
+        this.precision = "integer";
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 
         ReportGenerator reportGenerator = new ReportGenerator();
@@ -48,6 +50,8 @@ public class TreeGenerator extends BaseTreeGenerator {
                 )
             );
         }
+
+        // TODO: "ajustar para receber o max depth de forma correta"
         reportGenerator.createEntry(
             settings.dataset,
             settings.approach,

@@ -18,7 +18,7 @@ public class PipelineFPGAGenerator {
 
 		treeGenerator	   .execute(treeList, classQnt, featureQnt, settings);
 		controllerGenerator.execute(treeList, classQnt, featureQnt, settings);
-		adderGenerator     .execute(treeList.size(), settings);
+//		adderGenerator     .execute(treeList.size(), settings);
 		majorityGenerator  .execute(treeList.size(), classQnt, settings);
 	}
 }

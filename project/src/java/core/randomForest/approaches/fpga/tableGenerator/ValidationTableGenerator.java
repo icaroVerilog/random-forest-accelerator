@@ -67,7 +67,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         reportGenerator.createEntry(
             settings.dataset,
             settings.approach,
-            settings.trainingParameters.maxDepth,
+				Integer.valueOf(settings.trainingParameters.maxDepth),
             nodeQntByTree
         );
     }

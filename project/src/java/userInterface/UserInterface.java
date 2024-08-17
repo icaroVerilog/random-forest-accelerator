@@ -41,8 +41,8 @@ public class UserInterface {
 				return parameter;
 			}
 			return null;
-		} catch (InvalidCommandException e) {
-			System.out.println(e.getMessage());
+		} catch (InvalidCommandException error) {
+			System.out.println(error.getMessage());
 			return null;
 		}
 	}
@@ -54,72 +54,87 @@ public class UserInterface {
 		Parameter parameter = null;
 		String currentParameter = "";
 
-		try {
-			for (int index = 0; index < commands.length; index++) {
-				if (index == 0){
-					switch (commands[index]){
-						case ValidParameters.READ_SETTINGS:
-							nextIsFile = true;
-							parameter = new Parameter();
-							parameter.add(ValidParameters.READ_SETTINGS, "", "");
-							break;
-						case ValidParameters.RUN_SETTINGS:
-							parameter.add(ValidParameters.RUN_SETTINGS, "", "");
-							return parameter;
-						case ValidParameters.START_TRAINING:
-							parameter = new Parameter(
-								Arrays.asList("-e", "-tp", "-d"),
-								Arrays.asList("numeric", "numeric", "numeric")
-							);
-							parameter.add(ValidParameters.START_TRAINING, "", "");
-							break;
-						case ValidParameters.START_IF_INFERENCE:
-							parameter.add(ValidParameters.START_IF_INFERENCE, "", "");
-							break;
-						case ValidParameters.START_MUX_INFERENCE:
-							parameter.add(ValidParameters.START_MUX_INFERENCE, "", "");
-							break;
-						case ValidParameters.START_EQUATION_INFERENCE:
-							parameter.add(ValidParameters.START_EQUATION_INFERENCE, "", "");
-							break;
-						case ValidParameters.START_TABLE_INFERENCE:
-							parameter.add(ValidParameters.START_TABLE_INFERENCE, "", "");
-							break;
-						case ValidParameters.EXIT:
-							parameter.add(ValidParameters.EXIT, "", "");
-							return parameter;
-						case ValidParameters.HELP:
-							parameter = new Parameter();
-							parameter.add(ValidParameters.HELP, "", "");
-							return parameter;
-						default:
-							parameter.add(commands[index], "", "");
-					}
-				} else {
-					if (nextIsFile){
-						parameter.add(currentParameter, "filename", commands[index]);
+		for (int index = 0; index < commands.length; index++) {
+			if (index == 0){
+				switch (commands[index]){
+					case ValidParameters.READ_SETTINGS:
+						nextIsFile = true;
+						parameter = new Parameter();
+						parameter.add(ValidParameters.READ_SETTINGS, "", "");
+						break;
+					case ValidParameters.RUN_SETTINGS:
+						parameter = new Parameter();
+						parameter.add(ValidParameters.RUN_SETTINGS, "", "");
 						return parameter;
-					} else {
-						if (parameter.getParameter().equals(ValidParameters.START_TRAINING)){
-							try {
-								if (!parameter.validityFlag(commands[index])) {
-									throw new InvalidCommandException(Error.INVALID_FLAG.replace("x", commands[index]));
-								}
-
-								parameter.add(parameter.getParameter(), commands[index], commands[index + 1]);
-								index++;
-							} catch (IndexOutOfBoundsException error) {
-								throw new InvalidCommandException(String.format("O parametro %s é invalido\n", commands[index]));
-							}
+					case ValidParameters.READ_DATASET:
+						nextIsFile = true;
+						parameter = new Parameter();
+						parameter.add(ValidParameters.READ_DATASET, "", "");
+						break;
+					case ValidParameters.START_TRAINING:
+						parameter = new Parameter(
+							Arrays.asList("-e", "-tp", "-d"),
+							Arrays.asList("numeric", "numeric", "numeric")
+						);
+						parameter.add(ValidParameters.START_TRAINING, "", "");
+						break;
+					case ValidParameters.START_IF_INFERENCE:
+						parameter = new Parameter(
+							Arrays.asList("-bw", "-a"),
+							Arrays.asList("numeric", "text")
+						);
+						parameter.add(ValidParameters.START_IF_INFERENCE, "", "");
+						break;
+					case ValidParameters.START_MUX_INFERENCE:
+						parameter = new Parameter(
+							Arrays.asList("-bw"),
+							Arrays.asList("numeric")
+						);
+						parameter.add(ValidParameters.START_MUX_INFERENCE, "", "");
+						break;
+					case ValidParameters.START_EQUATION_INFERENCE:
+						parameter = new Parameter(
+							Arrays.asList("-bw"),
+							Arrays.asList("numeric")
+						);
+						parameter.add(ValidParameters.START_EQUATION_INFERENCE, "", "");
+						break;
+					case ValidParameters.START_TABLE_INFERENCE:
+						parameter = new Parameter();
+						parameter.add(ValidParameters.START_TABLE_INFERENCE, "", "");
+						break;
+					case ValidParameters.EXIT:
+						parameter = new Parameter();
+						parameter.add(ValidParameters.EXIT, "", "");
+						return parameter;
+					case ValidParameters.HELP:
+						parameter = new Parameter();
+						parameter.add(ValidParameters.HELP, "", "");
+						return parameter;
+					default:
+						String commandError = Error.INVALID_COMMAND.replace("x", commands[index]);
+						throw new InvalidCommandException(commandError);
+				}
+			} else {
+				if (nextIsFile){
+					parameter.add(currentParameter, "filename", commands[index]);
+					return parameter;
+				} else {
+					try {
+						if (!parameter.validityFlag(commands[index])) {
+							throw new InvalidCommandException(Error.INVALID_FLAG.replace("x", commands[index]));
 						}
+
+						parameter.add(parameter.getParameter(), commands[index], commands[index + 1]);
+						index++;
+					} catch (IndexOutOfBoundsException error) {
+						throw new InvalidCommandException(Error.INVALID_FLAG_VALUE.replace("x", commands[index]));
 					}
 				}
 			}
-			parameter.verify();
-			return parameter;
-		} catch (InvalidParameterException error) {
-			throw new InvalidCommandException(error.getMessage());
 		}
+		parameter.verify();
+		return parameter;
 	}
 
 	private void renderHeader(){
