@@ -21,7 +21,15 @@ public class AdderGenerator extends BasicGenerator {
         src += generateAssign(treeQnt);
         src += "endmodule";
 
-        FileBuilder.execute(src, String.format("FPGA/%s_%s_%dtree_%sdeep_run/adder.v", settings.dataset, settings.approach, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
+        FileBuilder.execute(
+            src, String.format(
+                "output/%s_%s_%dtree_%sdeep_run/adder.v",
+                 settings.dataset,
+                 settings.approach,
+                 settings.trainingParameters.estimatorsQuantity,
+                 settings.trainingParameters.maxDepth
+            )
+        );
     }
 
     private String generateHeader(String module_name, int treeQnt){

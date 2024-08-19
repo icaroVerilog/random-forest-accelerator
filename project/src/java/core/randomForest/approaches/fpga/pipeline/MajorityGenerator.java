@@ -2,7 +2,7 @@ package project.src.java.core.randomForest.approaches.fpga.pipeline;
 
 import project.src.java.core.randomForest.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class MajorityGenerator extends BasicGenerator {
 
         FileBuilder.execute(
             src, String.format(
-                "FPGA/%s_%s_%dtree_%sdeep_run/majority.v",
+                "output/%s_%s_%dtree_%sdeep_run/majority.v",
                 settings.dataset,
                 settings.approach,
                 settings.trainingParameters.estimatorsQuantity,

@@ -4,5 +4,5 @@ Random-forest-acelerator.iml
 /project/assets/datasets/SUSY.csv
 /project/assets/datasets/*
 /project/assets/trees/*
-/output/iris_conditional_3tree_10deep_run/
-/trees/iris/
+/output/*
+/trees/*

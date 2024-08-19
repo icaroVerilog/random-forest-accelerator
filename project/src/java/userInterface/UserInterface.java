@@ -80,8 +80,8 @@ public class UserInterface {
 						break;
 					case ValidParameters.START_IF_INFERENCE:
 						parameter = new Parameter(
-							Arrays.asList("-bw", "-a"),
-							Arrays.asList("numeric", "text")
+							Arrays.asList("-bw"),
+							Arrays.asList("numeric")
 						);
 						parameter.add(ValidParameters.START_IF_INFERENCE, "", "");
 						break;
@@ -100,7 +100,10 @@ public class UserInterface {
 						parameter.add(ValidParameters.START_EQUATION_INFERENCE, "", "");
 						break;
 					case ValidParameters.START_TABLE_INFERENCE:
-						parameter = new Parameter();
+						parameter = new Parameter(
+							Arrays.asList("-tbw", "-cbw", "-ibw"),
+							Arrays.asList("numeric", "numeric", "numeric")
+						);
 						parameter.add(ValidParameters.START_TABLE_INFERENCE, "", "");
 						break;
 					case ValidParameters.EXIT:

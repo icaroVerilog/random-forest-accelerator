@@ -21,6 +21,7 @@ import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.Fields
 import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.InferenceParameters;
 import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
 import project.src.java.util.executionSettings.CLI.SettingsCLI;
+import project.src.java.util.executionSettings.CLI.Table.SettingsT;
 import project.src.java.util.executionSettings.CLI.TrainingParameters;
 import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ExecutionSettings;
 import project.src.java.util.executionSettings.JSON.ExecutionSettingsParser;
@@ -29,6 +30,8 @@ import project.src.java.util.messages.Messages;
 
 import java.io.IOException;
 import java.util.List;
+
+/* TODO: verificar valores proibidos para os parametros e tratar esses casos */
 
 public class Main {
     private static String path;
@@ -91,7 +94,7 @@ public class Main {
                         settingsCLI.dataset,
                         settingsCLI.trainingParameters.trainingPercent,
                         settingsCLI.trainingParameters.estimatorsQuantity,
-                        "1000",
+                        settingsCLI.trainingParameters.maxDepth,
                         "integer"
 //                      settingsCLI.trainingParameters.maxDepth
 //                      settingsCLI.precision
@@ -120,7 +123,6 @@ public class Main {
                     FPGA FPGAGenerator = new FPGA();
                     List<Tree> trees = Parser.execute(settingsCLI.dataset);
 
-
                     switch (parameter.getParameter()){
                         case ValidParameters.START_IF_INFERENCE -> FPGAGenerator.executeConditionalApproach(
                             trees,
@@ -128,21 +130,48 @@ public class Main {
                             Parser.getFeatureQuantity(),
                             settings
                         );
-//                        case ValidParameters.START_MUX_INFERENCE -> settings.approach = "multiplexer";
+                        case ValidParameters.START_MUX_INFERENCE -> FPGAGenerator.executeMultiplexerApproach(
+                            trees,
+                            Parser.getClassQuantity(),
+                            Parser.getFeatureQuantity(),
+                            settings
+                        );
                         case ValidParameters.START_EQUATION_INFERENCE -> FPGAGenerator.executeEquationApproach(
                             trees,
                             Parser.getClassQuantity(),
                             Parser.getFeatureQuantity(),
                             settings
                         );
+                        case ValidParameters.START_IF_PIPELINED_INFERENCE -> FPGAGenerator.executePipelineApproach(
+                            trees,
+                            Parser.getClassQuantity(),
+                            Parser.getFeatureQuantity(),
+                            settings
+                        );
                     }
-
                 } else {
                     System.out.println(Error.NOT_TRAINED_NOT_LOADED_DATASET);
                 }
             }
             else if (parameter.getParameter().equals(ValidParameters.START_TABLE_INFERENCE)){
                 System.out.println(parameter.getValue().keySet());
+                if (settingsCLI.dataset != null & settingsCLI.trainingParameters != null){
+
+                    SettingsT settings = new SettingsT();
+
+                    settings.dataset            = settingsCLI.dataset;
+                    settings.trainingParameters = settingsCLI.trainingParameters;
+                    settings.approach           = "table";
+
+                    settings.inferenceParameters = new project.src.java.util.executionSettings.CLI.Table.InferenceParameters();
+                    settings.inferenceParameters.fieldsBitwidth = new project.src.java.util.executionSettings.CLI.Table.FieldsBitwidth();
+                    settings.inferenceParameters.fieldsBitwidth.comparedValue  = Integer.valueOf(parameter.getValue().get("-tbw")); /*threshold bitwidth*/
+                    settings.inferenceParameters.fieldsBitwidth.index          = Integer.valueOf(parameter.getValue().get("-ibw"));
+                    settings.inferenceParameters.fieldsBitwidth.comparedColumn = Integer.valueOf(parameter.getValue().get("-cbw"));
+
+                } else {
+                    System.out.println(Error.NOT_TRAINED_NOT_LOADED_DATASET);
+                }
             }
 
 //            parameter.print();

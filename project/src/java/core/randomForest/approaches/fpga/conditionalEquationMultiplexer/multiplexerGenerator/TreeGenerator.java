@@ -42,7 +42,7 @@ public class TreeGenerator extends BaseTreeGenerator {
             src += ";\n";
             src += generateEndDelimiters();
 
-            FileBuilder.execute(src, String.format("FPGA/%s_multiplexer_%dtree_%sdeep_run/tree%d.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth, index));
+            FileBuilder.execute(src, String.format("output/%s_multiplexer_%dtree_%sdeep_run/tree%d.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth, index));
         }
         reportGenerator.createEntry(
                 settings.dataset,

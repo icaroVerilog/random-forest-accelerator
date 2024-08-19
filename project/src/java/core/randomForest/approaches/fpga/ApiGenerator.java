@@ -37,7 +37,7 @@ public class ApiGenerator extends BasicGenerator {
 
 		FileBuilder.execute(
 				src, String.format(
-						"FPGA/%s_%s_%dtree_%sdeep_run/fpga_api.v",
+						"output/%s_%s_%dtree_%sdeep_run/fpga_api.v",
 						settings.dataset,
 						settings.approach,
 						settings.trainingParameters.estimatorsQuantity,

@@ -55,20 +55,20 @@ public class FPGA {
             settings
         );
     }
-//
-//    public void executePipelineApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings) throws IOException {
-//        System.out.println("pipeline approach\n");
-//
-//        PipelineFPGAGenerator pipelineGenerator = new PipelineFPGAGenerator();
-//
-//        pipelineGenerator.execute(
-//                treeList,
-//                classQnt,
-//                featureQnt,
-//                settings
-//        );
-//
-//    }
+
+    public void executePipelineApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings) throws IOException {
+        System.out.println("pipeline approach\n");
+
+        PipelineFPGAGenerator pipelineGenerator = new PipelineFPGAGenerator();
+
+        pipelineGenerator.execute(
+            treeList,
+            classQnt,
+            featureQnt,
+            settings
+        );
+
+    }
 //
 //    private void executeTableApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsT settings) throws  IOException {
 //        System.out.println("table approach\n");

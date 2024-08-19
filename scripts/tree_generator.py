@@ -13,7 +13,7 @@ DATASET_TEST_PERCENT = int(sys.argv[3])
 TREE_QUANTITY = int(sys.argv[4])
 PRECISION = sys.argv[5]
 
-if sys.argv[6] == "None" or sys.argv[6] == "none":
+if sys.argv[6] == 0:
     MAX_DEPTH = None
 else:
     MAX_DEPTH = int(sys.argv[6])

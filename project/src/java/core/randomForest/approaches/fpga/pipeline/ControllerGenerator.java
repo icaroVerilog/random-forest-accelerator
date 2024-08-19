@@ -3,7 +3,7 @@ package project.src.java.core.randomForest.approaches.fpga.pipeline;
 import project.src.java.core.randomForest.approaches.fpga.BasicGenerator;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,7 @@ public class ControllerGenerator extends BasicGenerator {
         src += generateAlways(trees.size());
         src += generateEndDelimiters();
 
-        FileBuilder.execute(src, String.format("FPGA/%s_%s_%dtree_%sdeep_run/controller.v", settings.dataset, settings.approach, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
+        FileBuilder.execute(src, String.format("output/%s_%s_%dtree_%sdeep_run/controller.v", settings.dataset, settings.approach, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
     }
 
     private String generateImports(int treeQuantity){
