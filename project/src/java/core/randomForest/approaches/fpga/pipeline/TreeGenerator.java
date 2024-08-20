@@ -48,12 +48,21 @@ public class TreeGenerator extends BaseTreeGenerator {
 			src += generatePortDeclaration(featureQnt, classQnt, currentTree.getInnerNodes().size(), currentTree.getMaxDepth());
 			src += generateAlwaysBlock(featureQnt, classQnt, currentTree.innerNodes, currentTree.getMaxDepth());
 
-			FileBuilder.execute(src, String.format("output/%s_pipeline_%dtree_%sdeep_run/tree%d.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth, index));
+			FileBuilder.execute(
+				src, String.format(
+					"output/%s_%s_%dtree_%sdeep_run/tree%d.v",
+					settings.dataset,
+					settings.approach,
+					settings.trainingParameters.estimatorsQuantity,
+					settings.trainingParameters.maxDepth,
+					index
+				)
+			);
 		}
 		reportGenerator.createEntry(
 				settings.dataset,
 				settings.approach,
-				Integer.valueOf(settings.trainingParameters.maxDepth),
+				settings.trainingParameters.maxDepth,
 				nodeQntByTree
 		);
 	}

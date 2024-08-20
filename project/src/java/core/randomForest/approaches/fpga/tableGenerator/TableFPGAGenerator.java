@@ -12,7 +12,15 @@ public class TableFPGAGenerator {
 
     public void execute(List<Tree> treeList, int classQnt, int featureQnt, SettingsT settings){
 
-        var a = FileBuilder.createDir(String.format("FPGA/%s_table_%dtree_%sdeep_run", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
+        var a = FileBuilder.createDir(
+            String.format(
+                "FPGA/%s_%s_%dtree_%sdeep_run",
+                settings.dataset,
+                settings.approach,
+                settings.trainingParameters.estimatorsQuantity,
+                settings.trainingParameters.maxDepth
+            )
+        );
 
         /* calculate the needed bitwidth to represent each class */
         int classBitwidth = (int) Math.ceil(Math.log(classQnt) / Math.log(2));

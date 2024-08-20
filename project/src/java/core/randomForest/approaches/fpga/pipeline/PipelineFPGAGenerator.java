@@ -9,7 +9,15 @@ import java.util.List;
 
 public class PipelineFPGAGenerator {
 	public void execute(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings){
-		FileBuilder.createDir(String.format("output/%s_pipeline_%dtree_%sdeep_run", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
+		FileBuilder.createDir(
+			String.format(
+				"output/%s_%s_%dtree_%sdeep_run",
+				settings.dataset,
+				settings.approach,
+				settings.trainingParameters.estimatorsQuantity,
+				settings.trainingParameters.maxDepth
+			)
+		);
 
 		var treeGenerator 		= new TreeGenerator();
 		var controllerGenerator = new ControllerGenerator();

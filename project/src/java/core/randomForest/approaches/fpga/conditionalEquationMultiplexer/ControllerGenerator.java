@@ -38,10 +38,10 @@ public class ControllerGenerator extends BasicGenerator {
         FileBuilder.execute(
             src, String.format(
                 "output/%s_%s_%dtree_%sdeep_run/controller.v",
-                 settings.dataset,
-                 settings.approach,
-                 settings.trainingParameters.estimatorsQuantity,
-                 settings.trainingParameters.maxDepth
+                settings.dataset,
+                settings.approach,
+                settings.trainingParameters.estimatorsQuantity,
+                settings.trainingParameters.maxDepth
             )
         );
     }

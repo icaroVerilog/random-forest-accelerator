@@ -42,8 +42,9 @@ public class TreeGenerator extends BaseTreeGenerator {
 
             FileBuilder.execute(
                 src, String.format(
-                    "output/%s_equation_%dtree_%sdeep_run/tree%d.v",
+                    "output/%s_%s_%dtree_%sdeep_run/tree%d.v",
                     settings.dataset,
+                    settings.approach,
                     settings.trainingParameters.estimatorsQuantity,
                     settings.trainingParameters.maxDepth,
                     index

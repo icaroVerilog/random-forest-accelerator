@@ -12,7 +12,15 @@ import java.util.List;
 
 public class ConditionalFPGAGenerator {
     public void execute(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings){
-        var a = FileBuilder.createDir(String.format("output/%s_conditional_%dtree_%sdeep_run", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
+        var a = FileBuilder.createDir(
+            String.format(
+                "output/%s_%s_%dtree_%sdeep_run",
+                settings.dataset,
+                settings.approach,
+                settings.trainingParameters.estimatorsQuantity,
+                settings.trainingParameters.maxDepth
+            )
+        );
 
         var treeGenerator       = new TreeGenerator();
         var controllerGenerator = new ControllerGenerator();
@@ -24,7 +32,7 @@ public class ConditionalFPGAGenerator {
         controllerGenerator.execute(treeList.size(), classQnt, featureQnt, settings);
         adderGenerator     .execute(treeList.size(), settings);
         majorityGenerator  .execute(treeList.size(), classQnt, settings);
-        apiGenerator       .execute(classQnt, featureQnt, settings);
+//        apiGenerator       .execute(classQnt, featureQnt, settings);
 
     }
 

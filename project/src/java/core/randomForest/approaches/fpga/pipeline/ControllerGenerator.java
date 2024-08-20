@@ -45,7 +45,15 @@ public class ControllerGenerator extends BasicGenerator {
         src += generateAlways(trees.size());
         src += generateEndDelimiters();
 
-        FileBuilder.execute(src, String.format("output/%s_%s_%dtree_%sdeep_run/controller.v", settings.dataset, settings.approach, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
+        FileBuilder.execute(
+            src, String.format(
+                "output/%s_%s_%dtree_%sdeep_run/controller.v",
+                settings.dataset,
+                settings.approach,
+                settings.trainingParameters.estimatorsQuantity,
+                settings.trainingParameters.maxDepth
+            )
+        );
     }
 
     private String generateImports(int treeQuantity){

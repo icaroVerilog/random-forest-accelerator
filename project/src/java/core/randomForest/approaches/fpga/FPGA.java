@@ -5,12 +5,8 @@ import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMul
 import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMultiplexer.equationGenerator.EquationFPGAGenerator;
 import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMultiplexer.multiplexerGenerator.MultiplexerFPGAGenerator;
 import project.src.java.core.randomForest.approaches.fpga.pipeline.PipelineFPGAGenerator;
-import project.src.java.core.randomForest.approaches.fpga.tableGenerator.TableFPGAGenerator;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
-import project.src.java.util.executionSettings.CLI.SettingsCLI;
-import project.src.java.util.executionSettings.CLI.Table.SettingsT;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Settings;
 
 import java.io.IOException;
 import java.util.List;
@@ -56,8 +52,8 @@ public class FPGA {
         );
     }
 
-    public void executePipelineApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings) throws IOException {
-        System.out.println("pipeline approach\n");
+    public void executePipelinedConditionalApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings) throws IOException {
+        System.out.println("pipelined conditional approach\n");
 
         PipelineFPGAGenerator pipelineGenerator = new PipelineFPGAGenerator();
 

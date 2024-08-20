@@ -36,13 +36,13 @@ public class ApiGenerator extends BasicGenerator {
 		src += "endmodule\n";
 
 		FileBuilder.execute(
-				src, String.format(
-						"output/%s_%s_%dtree_%sdeep_run/fpga_api.v",
-						settings.dataset,
-						settings.approach,
-						settings.trainingParameters.estimatorsQuantity,
-						settings.trainingParameters.maxDepth
-				)
+			src, String.format(
+				"output/%s_%s_%dtree_%sdeep_run/fpga_api.v",
+				settings.dataset,
+				settings.approach,
+				settings.trainingParameters.estimatorsQuantity,
+				settings.trainingParameters.maxDepth
+			)
 		);
 	}
 

@@ -44,10 +44,17 @@ public class TreeGenerator extends BaseTreeGenerator {
             src += generateConditionals(trees.get(index).getRoot(), 2);
             src += generateEndDelimiters();
 
-            FileBuilder.execute(src, String.format("output/%s_conditional_%dtree_%sdeep_run/tree%d.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth, index));
+            FileBuilder.execute(
+                src, String.format(
+                    "output/%s_%s_%dtree_%sdeep_run/tree%d.v",
+                    settings.dataset,
+                    settings.approach,
+                    settings.trainingParameters.estimatorsQuantity,
+                    settings.trainingParameters.maxDepth,
+                    index
+                )
+            );
         }
-
-        // TODO: "ajustar para receber o max depth de forma correta"
         reportGenerator.createEntry(
             settings.dataset,
             settings.approach,

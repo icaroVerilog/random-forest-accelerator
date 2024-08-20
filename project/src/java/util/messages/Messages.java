@@ -9,6 +9,7 @@ public class Messages {
 			read_settings   [filename]  read all execution settings contained in json file
 			run_settings 			    run all execution cases readed using read_settings command
 		manual execution
+			%s    [filename]  read the dataset  	
 			%s  [options]   train the model generating the estimators     
 				-e						defines the quantity of estimators (trees) of the random forest
 				-tp						defines the percentage of the dataset used in the training
@@ -26,6 +27,7 @@ public class Messages {
 				-cbw					defines the bitwidth of the column who represent one dataset column
 				
 	""",
+			ValidParameters.READ_DATASET,
 			ValidParameters.START_TRAINING,
 			ValidParameters.START_IF_INFERENCE,
 			ValidParameters.START_IF_PIPELINED_INFERENCE,

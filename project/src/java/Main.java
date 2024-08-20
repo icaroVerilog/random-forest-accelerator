@@ -107,14 +107,14 @@ public class Main {
             else if (
                 parameter.getParameter().equals(ValidParameters.START_IF_INFERENCE) ||
                 parameter.getParameter().equals(ValidParameters.START_MUX_INFERENCE) ||
-                parameter.getParameter().equals(ValidParameters.START_EQUATION_INFERENCE)
+                parameter.getParameter().equals(ValidParameters.START_EQUATION_INFERENCE) ||
+                parameter.getParameter().equals(ValidParameters.START_IF_PIPELINED_INFERENCE)
             ){
                 if (settingsCLI.dataset != null & settingsCLI.trainingParameters != null){
 
                     SettingsCEM settings = new SettingsCEM();
                     settings.dataset            = settingsCLI.dataset;
                     settings.trainingParameters = settingsCLI.trainingParameters;
-                    settings.approach           = "conditional";
 
                     settings.inferenceParameters                = new InferenceParameters();
                     settings.inferenceParameters.fieldsBitwidth = new FieldsBitwidth();
@@ -124,30 +124,46 @@ public class Main {
                     List<Tree> trees = Parser.execute(settingsCLI.dataset);
 
                     switch (parameter.getParameter()){
-                        case ValidParameters.START_IF_INFERENCE -> FPGAGenerator.executeConditionalApproach(
-                            trees,
-                            Parser.getClassQuantity(),
-                            Parser.getFeatureQuantity(),
-                            settings
-                        );
-                        case ValidParameters.START_MUX_INFERENCE -> FPGAGenerator.executeMultiplexerApproach(
-                            trees,
-                            Parser.getClassQuantity(),
-                            Parser.getFeatureQuantity(),
-                            settings
-                        );
-                        case ValidParameters.START_EQUATION_INFERENCE -> FPGAGenerator.executeEquationApproach(
-                            trees,
-                            Parser.getClassQuantity(),
-                            Parser.getFeatureQuantity(),
-                            settings
-                        );
-                        case ValidParameters.START_IF_PIPELINED_INFERENCE -> FPGAGenerator.executePipelineApproach(
-                            trees,
-                            Parser.getClassQuantity(),
-                            Parser.getFeatureQuantity(),
-                            settings
-                        );
+                        case ValidParameters.START_IF_INFERENCE:
+                            settings.approach = "conditional";
+
+                            FPGAGenerator.executeConditionalApproach(
+                                trees,
+                                Parser.getClassQuantity(),
+                                Parser.getFeatureQuantity(),
+                                settings
+                            );
+                            break;
+                        case ValidParameters.START_MUX_INFERENCE:
+                            settings.approach = "multiplexer";
+
+                            FPGAGenerator.executeMultiplexerApproach(
+                                trees,
+                                Parser.getClassQuantity(),
+                                Parser.getFeatureQuantity(),
+                                settings
+                            );
+                            break;
+                        case ValidParameters.START_EQUATION_INFERENCE:
+                            settings.approach = "equation";
+
+                            FPGAGenerator.executeEquationApproach(
+                                trees,
+                                Parser.getClassQuantity(),
+                                Parser.getFeatureQuantity(),
+                                settings
+                            );
+                            break;
+                        case ValidParameters.START_IF_PIPELINED_INFERENCE:
+                            settings.approach = "conditional_pipelined";
+
+                            FPGAGenerator.executePipelinedConditionalApproach(
+                                trees,
+                                Parser.getClassQuantity(),
+                                Parser.getFeatureQuantity(),
+                                settings
+                            );
+                            break;
                     }
                 } else {
                     System.out.println(Error.NOT_TRAINED_NOT_LOADED_DATASET);
