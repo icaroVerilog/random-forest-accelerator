@@ -28,6 +28,7 @@ import project.src.java.util.executionSettings.JSON.ExecutionSettingsParser;
 import project.src.java.util.messages.Error;
 import project.src.java.util.messages.Messages;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -75,8 +76,13 @@ public class Main {
             }
             else if (parameter.getParameter().equals(ValidParameters.READ_DATASET)){
                 String filename = parameter.getValue().get("filename");
-                settingsCLI.dataset = filename;
+                boolean exists = (new File(path + "/datasets/" + filename)).exists();
 
+                if (exists){
+                    settingsCLI.dataset = filename;
+                } else {
+                    System.out.println(Error.INVALID_FILE);
+                }
             }
             else if (parameter.getParameter().equals(ValidParameters.START_TRAINING)){
 
@@ -120,7 +126,7 @@ public class Main {
                     settings.inferenceParameters.fieldsBitwidth = new FieldsBitwidth();
                     settings.inferenceParameters.fieldsBitwidth.comparedValue = Integer.valueOf(parameter.getValue().get("-bw"));
 
-                    FPGA FPGAGenerator = new FPGA();
+                     FPGA FPGAGenerator = new FPGA();
                     List<Tree> trees = Parser.execute(settingsCLI.dataset);
 
                     switch (parameter.getParameter()){
