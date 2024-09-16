@@ -11,41 +11,13 @@ DATASET_NAME = sys.argv[1]
 DATASET_PATH = sys.argv[2]
 DATASET_TEST_PERCENT = int(sys.argv[3])
 TREE_QUANTITY = int(sys.argv[4])
-PRECISION = sys.argv[5]
 
-if sys.argv[6] == 0:
+if sys.argv[5] == 0:
     MAX_DEPTH = None
 else:
-    MAX_DEPTH = int(sys.argv[6])
+    MAX_DEPTH = int(sys.argv[5])
 
-dataset = pd.read_csv(f"{DATASET_PATH}/project/assets/datasets/{DATASET_NAME}.csv")
-
-
-def max_decimal_places(value):
-    # Esta função retorna o número máximo de casas decimais em um valor
-    if isinstance(value, float):
-        decimal_part = str(value).split('.')[-1]
-        return len(decimal_part)
-    return 0
-
-
-def process_column(column):
-    # Esta função processa uma única coluna
-    max_decimals = column.apply(max_decimal_places).max()
-    multiplier = 10 ** max_decimals
-    return (column * multiplier).astype(int), max_decimals
-
-
-def process_dataset(dataset):
-    for column in dataset.columns:
-        if dataset[column].dtype in ['float64', 'float32']:
-            dataset[column], max_decimals = process_column(dataset[column])
-            # print(f"Coluna '{column}' processada com {max_decimals} casas decimais")
-    return dataset
-
-
-if PRECISION == "integer":
-    dataset = process_dataset(dataset)
+dataset = pd.read_csv(f"{DATASET_PATH}/datasets/{DATASET_NAME}")
 
 column_names = list(dataset)
 target_column_name = column_names[len(column_names) - 1]

@@ -2,7 +2,7 @@ package project.src.java.core.randomForest.approaches.fpga.conditionalEquationMu
 
 import project.src.java.core.randomForest.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,14 +10,28 @@ import java.util.List;
 public class ControllerGenerator extends BasicGenerator {
     private final String MODULE_NAME = "controller";
 
-    private int comparedValueBitwidth;
+    private int precision;
     private String approach;
 
-    public void execute(int treeQnt, int classQnt, int featureQnt, SettingsCEM settings){
+    public void execute(int treeQnt, int classQnt, int featureQnt, SettingsCliCEM settings){
         System.out.println("generating controller");
 
+        switch (settings.inferenceParameters.precision){
+            case "double":
+                this.precision = DOUBLE_PRECISION;
+                break;
+            case "normal":
+                this.precision = NORMAL_PRECISION;
+                break;
+            case "half":
+                this.precision = HALF_PRECISION;
+                break;
+            default:
+                this.precision = 0;
+                break;
+        }
+
         this.approach = settings.approach;
-        this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 
         String src = "";
 
@@ -42,7 +56,8 @@ public class ControllerGenerator extends BasicGenerator {
                 settings.approach,
                 settings.trainingParameters.estimatorsQuantity,
                 settings.trainingParameters.maxDepth
-            )
+            ),
+            false
         );
     }
 
@@ -102,7 +117,7 @@ public class ControllerGenerator extends BasicGenerator {
         src += "\n";
 
         for (int index = 0; index < featureQnt; index++){
-            src += tab(1) + generatePort("feature" + index, WIRE, INPUT, this.comparedValueBitwidth, true);
+            src += tab(1) + generatePort("feature" + index, WIRE, INPUT, this.precision, true);
         }
 
         src += "\n";

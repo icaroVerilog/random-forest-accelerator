@@ -13,7 +13,7 @@ import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.No
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsT;
+import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsJsonT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ public class TableEntryGenerator extends BasicGenerator {
     private int comparedColumnBitwidth;
     private int tableIndexerBitwidth;
 
-    public ArrayList<BinaryTableEntry> execute(List<Tree> treeList, SettingsT settings, boolean offlineMode){
+    public ArrayList<BinaryTableEntry> execute(List<Tree> treeList, SettingsJsonT settings, boolean offlineMode){
 
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
         this.comparedColumnBitwidth = settings.inferenceParameters.fieldsBitwidth.comparedColumn;
@@ -88,7 +88,7 @@ public class TableEntryGenerator extends BasicGenerator {
                     table += binaryTableEntries.get(index).value() + "\n";
                 }
             }
-            FileBuilder.execute(table, String.format("FPGA/%s_table_run/table_entries.bin", settings.dataset));
+            FileBuilder.execute(table, String.format("FPGA/%s_table_run/table_entries.bin", settings.dataset), false);
             return null;
         } else {
             return binaryTableEntries;
@@ -211,12 +211,12 @@ public class TableEntryGenerator extends BasicGenerator {
                 }
             }
             BinaryTableEntryDecimalPrecision entry = new BinaryTableEntryDecimalPrecision(
-                toBinary(outerNodeFlag ? 1 : 0, 1),
-                toBinary(comparedColumn,   this.comparedColumnBitwidth),
-                toBinary(leftNodeIndex,    this.tableIndexerBitwidth),
-                toBinary(rightNodeIndex,   this.tableIndexerBitwidth),
-                toBinary(thresholdInteger, this.comparedValueBitwidth),
-                toBinary(thresholdDecimal, this.comparedValueBitwidth)
+                toBin(outerNodeFlag ? 1 : 0, 1),
+                toBin(comparedColumn,   this.comparedColumnBitwidth),
+                toBin(leftNodeIndex,    this.tableIndexerBitwidth),
+                toBin(rightNodeIndex,   this.tableIndexerBitwidth),
+                toBin(thresholdInteger, this.comparedValueBitwidth),
+                toBin(thresholdDecimal, this.comparedValueBitwidth)
             );
             binaryTableEntries.add(entry);
         }
@@ -274,11 +274,11 @@ public class TableEntryGenerator extends BasicGenerator {
                 }
             }
             BinaryTableEntryIntegerPrecision entry = new BinaryTableEntryIntegerPrecision(
-                    toBinary(outerNodeFlag ? 1 : 0, 1),
-                    toBinary(comparedColumn, this.comparedColumnBitwidth),
-                    toBinary(leftNodeIndex,  this.tableIndexerBitwidth),
-                    toBinary(rightNodeIndex, this.tableIndexerBitwidth),
-                    toBinary(threshold,      this.comparedValueBitwidth)
+                    toBin(outerNodeFlag ? 1 : 0, 1),
+                    toBin(comparedColumn, this.comparedColumnBitwidth),
+                    toBin(leftNodeIndex,  this.tableIndexerBitwidth),
+                    toBin(rightNodeIndex, this.tableIndexerBitwidth),
+                    toBin(threshold,      this.comparedValueBitwidth)
             );
             binaryTableEntries.add(entry);
         }

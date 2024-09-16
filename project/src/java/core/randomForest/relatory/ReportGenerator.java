@@ -1,4 +1,4 @@
-package project.src.java.util.relatory;
+package project.src.java.core.randomForest.relatory;
 
 import project.src.java.util.FileBuilder;
 
@@ -34,7 +34,8 @@ public class ReportGenerator {
 			src += entryFileLine;
 		}
 
-		FileBuilder.execute(src, "report.txt");
+		entries.clear();
+		FileBuilder.execute(src, "report.txt", true);
 	}
 
 //	private static final ArrayList<Entry>   relatoryEntries = new ArrayList<>();

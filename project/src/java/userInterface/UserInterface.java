@@ -1,10 +1,9 @@
 package project.src.java.userInterface;
 
 import project.src.java.util.customExceptions.InvalidCommandException;
-import project.src.java.util.messages.Error;
+import project.src.java.core.randomForest.messages.Error;
 
 import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -32,13 +31,16 @@ public class UserInterface {
 			if (!commandLine.equals("")){
 				Parameter parameter = this.parseCommands(commandLine);
 
-				if (parameter.getParameter().equals(ValidParameters.CLEAR)){
-					System.out.println("lipar");
-					renderHeader();
+				if (parameter == null){
 					return null;
+				} else {
+					if (parameter.getParameter().equals(ValidParameters.CLEAR)){
+						System.out.println("lipar");
+						renderHeader();
+						return null;
+					}
+					return parameter;
 				}
-
-				return parameter;
 			}
 			return null;
 		} catch (InvalidCommandException error) {
@@ -71,6 +73,14 @@ public class UserInterface {
 						parameter = new Parameter();
 						parameter.add(ValidParameters.READ_DATASET, "", "");
 						break;
+					case ValidParameters.BINARIZE_DATASET:
+						nextIsFile = true;
+						parameter = new Parameter(
+							Arrays.asList("-bw"),
+							Arrays.asList("numeric")
+						);
+						parameter.add(ValidParameters.BINARIZE_DATASET, "", "");
+						break;
 					case ValidParameters.START_TRAINING:
 						parameter = new Parameter(
 							Arrays.asList("-e", "-tp", "-d"),
@@ -80,22 +90,29 @@ public class UserInterface {
 						break;
 					case ValidParameters.START_IF_INFERENCE:
 						parameter = new Parameter(
-							Arrays.asList("-bw"),
-							Arrays.asList("numeric")
+							Arrays.asList("-p"),
+							Arrays.asList("text")
 						);
 						parameter.add(ValidParameters.START_IF_INFERENCE, "", "");
 						break;
+					case ValidParameters.START_IF_PIPELINED_INFERENCE:
+						parameter = new Parameter(
+							Arrays.asList("-p"),
+							Arrays.asList("text")
+						);
+						parameter.add(ValidParameters.START_IF_PIPELINED_INFERENCE, "", "");
+						break;
 					case ValidParameters.START_MUX_INFERENCE:
 						parameter = new Parameter(
-							Arrays.asList("-bw"),
-							Arrays.asList("numeric")
+							Arrays.asList("-p"),
+							Arrays.asList("text")
 						);
 						parameter.add(ValidParameters.START_MUX_INFERENCE, "", "");
 						break;
 					case ValidParameters.START_EQUATION_INFERENCE:
 						parameter = new Parameter(
-							Arrays.asList("-bw"),
-							Arrays.asList("numeric")
+							Arrays.asList("-p"),
+							Arrays.asList("text")
 						);
 						parameter.add(ValidParameters.START_EQUATION_INFERENCE, "", "");
 						break;
@@ -120,8 +137,17 @@ public class UserInterface {
 				}
 			} else {
 				if (nextIsFile){
-					parameter.add(currentParameter, "filename", commands[index]);
-					return parameter;
+					try {
+						if (parameter.validityFile(commands[index])){
+							parameter.add(currentParameter, "filename", commands[index]);
+							nextIsFile = false;
+						} else {
+							throw new InvalidCommandException(Error.INVALID_FILENAME);
+						}
+					} catch (InvalidCommandException exeption) {
+						throw new InvalidCommandException(exeption.getMessage());
+					}
+
 				} else {
 					try {
 						if (!parameter.validityFlag(commands[index])) {
@@ -136,7 +162,9 @@ public class UserInterface {
 				}
 			}
 		}
-		parameter.verify();
+		if (!parameter.verify()){
+			return null;
+		}
 		return parameter;
 	}
 

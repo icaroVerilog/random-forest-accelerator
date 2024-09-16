@@ -1,9 +1,9 @@
 package project.src.java.util;
 
 import project.src.java.util.customExceptions.*;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ConditionalEquationMux.SettingsJsonCEM;
 import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ExecutionSettings;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsT;
+import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsJsonT;
 
 public class InputJsonValidator {
     public void execute(ExecutionSettings executionsSettings) {
@@ -18,14 +18,14 @@ public class InputJsonValidator {
             for (int index = 0; index < executionsSettings.executionsSettings.size(); index++) {
                 validateBasicFields(executionsSettings.executionsSettings.get(index));
 
-                if (executionsSettings.executionsSettings.get(index) instanceof SettingsT){
+                if (executionsSettings.executionsSettings.get(index) instanceof SettingsJsonT){
                     validateTableFields(
-                        (SettingsT)
+                        (SettingsJsonT)
                         executionsSettings.executionsSettings.get(index));
                 }
-                if (executionsSettings.executionsSettings.get(index) instanceof SettingsCEM){
+                if (executionsSettings.executionsSettings.get(index) instanceof SettingsJsonCEM){
                     validateConditionalEquationMuxFields(
-                        (SettingsCEM)
+                        (SettingsJsonCEM)
                         executionsSettings.executionsSettings.get(index));
                 }
             }
@@ -69,7 +69,7 @@ public class InputJsonValidator {
         }
     }
 
-    private void validateTableFields(SettingsT settings) throws JsonValidationException {
+    private void validateTableFields(SettingsJsonT settings) throws JsonValidationException {
         if (settings.inferenceParameters == null) {
             throw new JsonValidationException("input file error: field not found 'inference_parameters': object");
         }
@@ -87,14 +87,11 @@ public class InputJsonValidator {
         }
     }
 
-    private void validateConditionalEquationMuxFields(SettingsCEM settings) throws JsonValidationException {
+    private void validateConditionalEquationMuxFields(SettingsJsonCEM settings) throws JsonValidationException {
         if (settings.inferenceParameters == null) {
             throw new JsonValidationException("input file error: field not found 'inference_parameters': object");
         }
-        if (settings.inferenceParameters.fieldsBitwidth == null) {
-            throw new JsonValidationException("input file error: field not found 'fields_bitwidth': object");
-        }
-        if (settings.inferenceParameters.fieldsBitwidth.comparedValue == null) {
+        if (settings.inferenceParameters.precision == null) {
             throw new JsonValidationException("input file error: field not found 'comparedValue': integer");
         }
     }

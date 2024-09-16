@@ -3,6 +3,6 @@ package project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Condi
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class InferenceParameters {
-    @JsonProperty("fields_bitwidth")
-    public FieldsBitwidth fieldsBitwidth;
+    @JsonProperty("precision")
+    public String precision;
 }

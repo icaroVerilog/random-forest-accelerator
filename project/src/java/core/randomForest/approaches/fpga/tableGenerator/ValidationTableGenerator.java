@@ -3,8 +3,8 @@ package project.src.java.core.randomForest.approaches.fpga.tableGenerator;
 import project.src.java.core.randomForest.approaches.fpga.BasicGenerator;
 import project.src.java.core.randomForest.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsT;
-import project.src.java.util.relatory.ReportGenerator;
+import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsJsonT;
+import project.src.java.core.randomForest.relatory.ReportGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         int estimatorsQuantity,
         int classBitwidth,
         ArrayList<BinaryTableEntry> tableEntries,
-        SettingsT settings,
+        SettingsJsonT settings,
         boolean offlineMode
     ){
         System.out.println("generating validation table");
@@ -59,7 +59,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         src += generateComputeForestVoteAlways(classQuantity, classBitwidth);
         src += "\n" + "endmodule";
 
-        FileBuilder.execute(src, String.format("FPGA/%s_table_%dtree_%sdeep_run/validation_table.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
+        FileBuilder.execute(src, String.format("FPGA/%s_table_%dtree_%sdeep_run/validation_table.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth), false);
 
         ArrayList<Integer> nodeQntByTree = new ArrayList<>();
         nodeQntByTree.add(tableEntries.size());

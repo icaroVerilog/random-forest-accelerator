@@ -7,8 +7,8 @@ import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.No
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
-import project.src.java.util.relatory.ReportGenerator;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
+import project.src.java.core.randomForest.relatory.ReportGenerator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,15 +17,24 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TreeGenerator extends BaseTreeGenerator {
+    //TODO: agora que estou utilizando o padrao IEEE754 ajustar a comparação
+    private Integer precision;
 
-    private int comparedValueBitwidth;
-    private String precision;
-
-    public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCEM settings){
-        // TODO: ajustar o settings para receber a precisão
-//        this.precision = settings.precision;
-        this.precision = "integer";
-        this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
+    public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCliCEM settings){
+        switch (settings.inferenceParameters.precision){
+            case "double":
+                this.precision = DOUBLE_PRECISION;
+                break;
+            case "normal":
+                this.precision = NORMAL_PRECISION;
+                break;
+            case "half":
+                this.precision = HALF_PRECISION;
+                break;
+            default:
+                this.precision = 0;
+                break;
+        }
 
         ReportGenerator reportGenerator = new ReportGenerator();
         ArrayList<Integer> nodeQntByTree = new ArrayList<>();
@@ -52,7 +61,8 @@ public class TreeGenerator extends BaseTreeGenerator {
                     settings.trainingParameters.estimatorsQuantity,
                     settings.trainingParameters.maxDepth,
                     index
-                )
+                ),
+                false
             );
         }
         reportGenerator.createEntry(
@@ -97,18 +107,8 @@ public class TreeGenerator extends BaseTreeGenerator {
 
         src += tab + "input wire clock;\n\n";
 
-        if (this.precision.equals("integer")){
-            for (int index = 0; index < featureQnt; index++){
-                src += tab(1) + generatePort(String.format("feature%d", index), WIRE, INPUT, this.comparedValueBitwidth, true);
-            }
-        }
-        else if (this.precision.equals("decimal")){
-            for (int index = 0; index < featureQnt; index++){
-                src += tab(1) + generatePort(String.format("ft%d_exponent", index), WIRE, INPUT, this.comparedValueBitwidth, true);
-            }
-            for (int index = 0; index < featureQnt; index++){
-                src += tab(1) + generatePort(String.format("ft%d_fraction", index), WIRE, INPUT, this.comparedValueBitwidth, true);
-            }
+        for (int index = 0; index < featureQnt; index++){
+            src += tab(1) + generatePort(String.format("feature%d", index), WIRE, INPUT, this.precision, true);
         }
 
         src += "\n";
@@ -179,39 +179,14 @@ public class TreeGenerator extends BaseTreeGenerator {
 
         String src = "";
 
-        if (this.precision.equals("integer")){
-            /*
-            *  Como a comparação é menor ou igual, devemos arrendondar para baixo para funcionar corretamente
-            *   utilizando apenas numeros inteiros
-            */
+        int threshold = (int) Math.floor(comparison.getThreshold());
 
-            int threshold = (int) Math.floor(comparison.getThreshold());
-
-            src = String.format(
-                "feature%d <= %d'b%s",
-                comparison.getColumn(),
-                this.comparedValueBitwidth,
-                toBinary(threshold, this.comparedValueBitwidth)
-            );
-        }
-        if (this.precision.equals("decimal")){
-            var threshold = comparison.getThreshold().toString().split("\\.");
-            String integerThreshold = toBinary(Integer.parseInt(threshold[0]), this.comparedValueBitwidth);
-            String decimalThreshold = toBinary(Integer.parseInt(threshold[0]), this.comparedValueBitwidth);
-
-            src += String.format(
-                "(ft%d_exponent > %d'b%s) || ((ft%d_exponent == %d'b%s) && (ft%d_fraction >= %d'b%s))",
-                comparison.getColumn(),
-                this.comparedValueBitwidth,
-                integerThreshold,
-                comparison.getColumn(),
-                this.comparedValueBitwidth,
-                integerThreshold,
-                comparison.getColumn(),
-                this.comparedValueBitwidth,
-                decimalThreshold
-            );
-        }
+        src = String.format(
+            "feature%d <= %d'b%s",
+            comparison.getColumn(),
+            this.precision,
+            toBin(threshold, this.precision)
+        );
         return src;
     }
 

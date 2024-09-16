@@ -15,6 +15,8 @@ public class ValidParameters {
 	public static final String START_TABLE_INFERENCE    	= "gen_tb_design";
 	public static final String START_IF_PIPELINED_INFERENCE = "gen_ifp_design";
 
+	public static final String BINARIZE_DATASET				= "binarize_dataset";
+
 	public static final String HELP 		   				= "help";
 	public static final String EXIT 		   				= "exit";
 	public static final String CLEAR		   				= "clear";

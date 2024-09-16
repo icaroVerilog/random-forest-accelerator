@@ -2,7 +2,7 @@ package project.src.java.core.randomForest.approaches.fpga.tableGenerator;
 
 import project.src.java.core.randomForest.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsT;
+import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsJsonT;
 
 public class ControllerGenerator extends BasicGenerator {
 
@@ -15,7 +15,7 @@ public class ControllerGenerator extends BasicGenerator {
     private String mode;
     private String precision;
 
-    public void execute(int classBitwidth, int featureQuantity, SettingsT settings, boolean offlineMode){
+    public void execute(int classBitwidth, int featureQuantity, SettingsJsonT settings, boolean offlineMode){
         System.out.println("generating controller");
 
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
@@ -38,7 +38,14 @@ public class ControllerGenerator extends BasicGenerator {
         src += generateValidationTableInstantiation(featureQuantity, offlineMode);
         src += "endmodule";
 
-        FileBuilder.execute(src, String.format("FPGA/%s_table_%dtree_%sdeep_run/controller.v", settings.dataset, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
+        FileBuilder.execute(
+            src, String.format(
+                "FPGA/%s_table_%dtree_%sdeep_run/controller.v",
+                settings.dataset,
+                settings.trainingParameters.estimatorsQuantity,
+                settings.trainingParameters.maxDepth),
+            false
+        );
     }
 
     private String generateModuleImports(){

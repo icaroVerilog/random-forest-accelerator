@@ -2,14 +2,14 @@ package project.src.java.core.randomForest.approaches.fpga.conditionalEquationMu
 
 import project.src.java.core.randomForest.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class MajorityGenerator extends BasicGenerator {
-    public void execute(int treeQnt, int classQnt, SettingsCEM settings){
+    public void execute(int treeQnt, int classQnt, SettingsCliCEM settings){
         String src = "";
 
         src += generateHeader("majority", classQnt);
@@ -24,7 +24,8 @@ public class MajorityGenerator extends BasicGenerator {
                 settings.approach,
                 settings.trainingParameters.estimatorsQuantity,
                 settings.trainingParameters.maxDepth
-            )
+            ),
+            false
         );
     }
 
@@ -83,7 +84,7 @@ public class MajorityGenerator extends BasicGenerator {
         ArrayList<String> classWire = new ArrayList<>();
 
         for (int index = 0; index < classQnt; index++){
-            classBinary.add(toBinary(index, classRepresentBitwidth));
+            classBinary.add(toBin(index, classRepresentBitwidth));
             classWire.add(String.format("class%d_votes", index));
         }
 

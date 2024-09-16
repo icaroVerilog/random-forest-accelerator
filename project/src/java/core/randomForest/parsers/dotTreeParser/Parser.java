@@ -33,7 +33,7 @@ public class Parser {
     private static void readDatasetHeader(String dataset) throws IOException {
 
         /*TODO: ALTERAR FUTURAMENTE PARA PESQUISAR NA PASTA QUE O USUÁRIO TIVER O TERMINAL ABERTO, COMO EM OUTRAS CLI'S*/
-        var path = System.getProperty("user.dir") + "/datasets/" + dataset + ".csv";
+        var path = System.getProperty("user.dir") + "/datasets/" + dataset;
         var scanner = new Scanner(new File(path));
         var line = scanner.nextLine().split(",");
 

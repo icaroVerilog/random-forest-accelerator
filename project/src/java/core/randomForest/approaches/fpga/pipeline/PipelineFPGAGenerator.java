@@ -3,12 +3,12 @@ package project.src.java.core.randomForest.approaches.fpga.pipeline;
 import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMultiplexer.AdderGenerator;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
 
 import java.util.List;
 
 public class PipelineFPGAGenerator {
-	public void execute(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings){
+	public void execute(List<Tree> treeList, int classQnt, int featureQnt, SettingsCliCEM settings){
 		FileBuilder.createDir(
 			String.format(
 				"output/%s_%s_%dtree_%sdeep_run",

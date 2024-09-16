@@ -3,7 +3,7 @@ package project.src.java.core.randomForest.approaches.fpga.pipeline;
 import project.src.java.core.randomForest.approaches.fpga.BasicGenerator;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,16 +11,30 @@ import java.util.List;
 public class ControllerGenerator extends BasicGenerator {
     private final String MODULE_NAME = "controller";
 
-    private int comparedValueBitwidth;
+    private Integer precision;
     private Integer maxDepth;
     private String approach;
 
-    public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCEM settings){
+    public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCliCEM settings){
         System.out.println("generating controller");
+
+        switch (settings.inferenceParameters.precision){
+            case "double":
+                this.precision = DOUBLE_PRECISION;
+                break;
+            case "normal":
+                this.precision = NORMAL_PRECISION;
+                break;
+            case "half":
+                this.precision = HALF_PRECISION;
+                break;
+            default:
+                this.precision = 0;
+                break;
+        }
 
         this.maxDepth = 0;
         this.approach = settings.approach;
-        this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
 
         for (int index = 0; index < trees.size(); index++) {
             if (trees.get(index).getMaxDepth() > this.maxDepth) {
@@ -52,7 +66,8 @@ public class ControllerGenerator extends BasicGenerator {
                 settings.approach,
                 settings.trainingParameters.estimatorsQuantity,
                 settings.trainingParameters.maxDepth
-            )
+            ),
+            false
         );
     }
 
@@ -101,18 +116,17 @@ public class ControllerGenerator extends BasicGenerator {
     }
 
     private String generateIO(int featureQnt, int classQnt, int treeQnt){
-        int outputBitwidth = (int)(Math.log(Math.abs(treeQnt)) / Math.log(2)) + 1; // Logaritmo na base 2
+        int outputBitwidth = (int)(Math.log(Math.abs(classQnt)) / Math.log(2)) + 1; // Logaritmo na base 2
         String src = "";
 
         int sumBitwidth = (int) Math.ceil(Math.sqrt(treeQnt));
-        int bitwidth = (int) Math.ceil(Math.sqrt(classQnt));
 
         src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
-        src += tab(1) + generatePort("reset", WIRE, INPUT, bitwidth, true);
+        src += tab(1) + generatePort("reset", WIRE, INPUT, 1, true);
         src += "\n";
 
         for (int index = 0; index < featureQnt; index++){
-            src += tab(1) + generatePort("feature" + index, WIRE, INPUT, this.comparedValueBitwidth, true);
+            src += tab(1) + generatePort("feature" + index, WIRE, INPUT, this.precision, true);
         }
         src += "\n";
         src += tab(1) + generatePort("forest_vote", REGISTER, OUTPUT, outputBitwidth, true);
@@ -129,7 +143,7 @@ public class ControllerGenerator extends BasicGenerator {
         }
         src += "\n";
 
-        for (int index = 0; index < treeQnt; index++) {
+        for (int index = 0; index < classQnt; index++) {
             src += tab(1) + generatePort("sum_class" + index, WIRE, NONE, sumBitwidth, true);
         }
         src += "\n";

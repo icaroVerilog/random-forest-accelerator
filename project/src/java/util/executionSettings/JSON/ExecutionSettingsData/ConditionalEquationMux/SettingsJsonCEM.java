@@ -3,7 +3,7 @@ package project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Condi
 import com.fasterxml.jackson.annotation.JsonProperty;
 import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Settings;
 
-public class SettingsCEM extends Settings {
+public class SettingsJsonCEM extends Settings {
 	@JsonProperty("inference_parameters")
 	public InferenceParameters inferenceParameters;
 }

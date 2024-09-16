@@ -6,13 +6,14 @@ import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMul
 import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMultiplexer.multiplexerGenerator.MultiplexerFPGAGenerator;
 import project.src.java.core.randomForest.approaches.fpga.pipeline.PipelineFPGAGenerator;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
+import project.src.java.util.executionSettings.CLI.Table.SettingsCliT;
 
 import java.io.IOException;
 import java.util.List;
 
 public class FPGA {
-    public void executeEquationApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings) {
+    public void executeEquationApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCliCEM settings) {
         System.out.println("equation approach\n");
 
         EquationFPGAGenerator equationFPGAGenerator = new EquationFPGAGenerator();
@@ -26,7 +27,7 @@ public class FPGA {
 
     }
 
-    public void executeConditionalApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings) throws IOException {
+    public void executeConditionalApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCliCEM settings) throws IOException {
         System.out.println("conditional approach\n");
 
         ConditionalFPGAGenerator conditionalGenerator = new ConditionalFPGAGenerator();
@@ -39,7 +40,7 @@ public class FPGA {
         );
     }
 
-    public void executeMultiplexerApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings) throws IOException {
+    public void executeMultiplexerApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCliCEM settings) throws IOException {
         System.out.println("multiplexer approach\n");
 
         MultiplexerFPGAGenerator multiplexerFPGAGenerator = new MultiplexerFPGAGenerator();
@@ -52,7 +53,7 @@ public class FPGA {
         );
     }
 
-    public void executePipelinedConditionalApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCEM settings) throws IOException {
+    public void executePipelinedConditionalApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCliCEM settings) throws IOException {
         System.out.println("pipelined conditional approach\n");
 
         PipelineFPGAGenerator pipelineGenerator = new PipelineFPGAGenerator();
@@ -65,17 +66,17 @@ public class FPGA {
         );
 
     }
-//
-//    private void executeTableApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsT settings) throws  IOException {
-//        System.out.println("table approach\n");
+
+    public void executeTableApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCliT settings) throws  IOException {
+        System.out.println("table approach\n");
 //
 //        var tableGenerator = new TableFPGAGenerator();
-//
+
 //        tableGenerator.execute(
 //            treeList,
 //            classQnt,
 //            featureQnt,
 //            settings
 //        );
-//    }
+    }
 }

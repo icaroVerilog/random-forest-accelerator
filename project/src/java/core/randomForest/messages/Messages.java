@@ -1,4 +1,4 @@
-package project.src.java.util.messages;
+package project.src.java.core.randomForest.messages;
 
 import project.src.java.userInterface.ValidParameters;
 

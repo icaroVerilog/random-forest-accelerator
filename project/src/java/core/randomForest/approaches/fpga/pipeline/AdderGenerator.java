@@ -2,7 +2,7 @@ package project.src.java.core.randomForest.approaches.fpga.pipeline;
 
 import project.src.java.core.randomForest.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ConditionalEquationMux.SettingsJsonCEM;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ public class AdderGenerator extends BasicGenerator {
 
     private final String MODULE_NAME = "adder";
 
-    public void execute(int treeQnt, SettingsCEM settings){
+    public void execute(int treeQnt, SettingsJsonCEM settings){
         System.out.println("generating adder");
 
         String src = "";
@@ -21,7 +21,7 @@ public class AdderGenerator extends BasicGenerator {
         src += generateAssign(treeQnt);
         src += "endmodule";
 
-        FileBuilder.execute(src, String.format("FPGA/%s_%s_%dtree_%sdeep_run/adder.v", settings.dataset, settings.approach, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth));
+        FileBuilder.execute(src, String.format("FPGA/%s_%s_%dtree_%sdeep_run/adder.v", settings.dataset, settings.approach, settings.trainingParameters.estimatorsQuantity, settings.trainingParameters.maxDepth), false);
     }
 
     private String generateHeader(String module_name, int treeQnt){

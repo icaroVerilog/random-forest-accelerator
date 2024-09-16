@@ -38,7 +38,7 @@ public class BaseTreeGenerator extends BasicGenerator {
 
     protected String generateComparison(Comparison comparison, int comparedValueBitwidth){
         var threshold = comparison.getThreshold().toString().split("\\.");
-        return String.format("feature%d %s %d'b%s", comparison.getColumn(), comparison.getComparisonType(), comparedValueBitwidth, toBinary(Integer.parseInt(threshold[0]), comparedValueBitwidth));
+        return String.format("feature%d %s %d'b%s", comparison.getColumn(), comparison.getComparisonType(), comparedValueBitwidth, toBin(Integer.parseInt(threshold[0]), comparedValueBitwidth));
     }
 
     protected String generatePortDeclaration(int featureQnt, int classQnt, int comparedValueBitwidth){

@@ -6,8 +6,8 @@ import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.No
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
-import project.src.java.util.relatory.ReportGenerator;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
+import project.src.java.core.randomForest.relatory.ReportGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,13 +16,23 @@ import java.util.Map;
 public class TreeGenerator extends BaseTreeGenerator {
 
     private int comparedValueBitwidth;
-    private String precision;
+    private int precision;
 
-    public void execute(List<Tree> trees, Integer classQnt, Integer featureQnt, SettingsCEM settings){
-        // TODO: ajustar o settings para receber a precisão
-//        this.precision = settings.precision;
-        this.precision = "integer";
-        this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
+    public void execute(List<Tree> trees, Integer classQnt, Integer featureQnt, SettingsCliCEM settings){
+        switch (settings.inferenceParameters.precision){
+            case "double":
+                this.precision = DOUBLE_PRECISION;
+                break;
+            case "normal":
+                this.precision = NORMAL_PRECISION;
+                break;
+            case "half":
+                this.precision = HALF_PRECISION;
+                break;
+            default:
+                this.precision = 0;
+                break;
+        }
 
         ReportGenerator reportGenerator = new ReportGenerator();
         ArrayList<Integer> nodeQntByTree = new ArrayList<>();
@@ -48,7 +58,8 @@ public class TreeGenerator extends BaseTreeGenerator {
                     settings.trainingParameters.estimatorsQuantity,
                     settings.trainingParameters.maxDepth,
                     index
-                )
+                ),
+                false
             );
         }
 

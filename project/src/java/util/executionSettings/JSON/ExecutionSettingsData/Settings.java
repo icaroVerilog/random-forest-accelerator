@@ -4,17 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ConditionalEquationMux.SettingsCEM;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsT;
+import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.ConditionalEquationMux.SettingsJsonCEM;
+import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsJsonT;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "approach", visible = true)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = SettingsCEM.class, name = "conditional"),
-        @JsonSubTypes.Type(value = SettingsCEM.class, name = "equation"),
-        @JsonSubTypes.Type(value = SettingsCEM.class, name = "multiplexer"),
-        @JsonSubTypes.Type(value = SettingsCEM.class, name = "pipeline"),
-        @JsonSubTypes.Type(value = SettingsT.class, name = "table")
+        @JsonSubTypes.Type(value = SettingsJsonCEM.class, name = "conditional"),
+        @JsonSubTypes.Type(value = SettingsJsonCEM.class, name = "conditional_pipeline"),
+        @JsonSubTypes.Type(value = SettingsJsonCEM.class, name = "equation"),
+        @JsonSubTypes.Type(value = SettingsJsonCEM.class, name = "multiplexer"),
+        @JsonSubTypes.Type(value = SettingsJsonCEM.class, name = "pipeline"),
+        @JsonSubTypes.Type(value = SettingsJsonT.class, name = "table")
 })
 public abstract class Settings {
 

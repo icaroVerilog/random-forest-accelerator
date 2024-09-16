@@ -24,7 +24,7 @@ public class ConditionalGPUGenerator {
         sourceCode += generateClassInitialization(Parser.classesNames.size());
         sourceCode += generateIfTrees(trees);
         
-        FileBuilder.execute(sourceCode, "gpu/conditional/rf_with_if.cu");
+        FileBuilder.execute(sourceCode, "gpu/conditional/rf_with_if.cu", false);
     }
 
     private static String generateIfTrees(List<Tree> trees) {

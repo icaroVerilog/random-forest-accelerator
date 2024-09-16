@@ -6,8 +6,8 @@ import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.No
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
-import project.src.java.util.relatory.ReportGenerator;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
+import project.src.java.core.randomForest.relatory.ReportGenerator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,15 +16,26 @@ import java.util.List;
 
 public class TreeGenerator extends BaseTreeGenerator {
 
-	private Integer comparedValueBitwidth;
+	private Integer precision;
 	private Integer maxDepth;
-	private String precision;
 
-	public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCEM settings){
-		// TODO: ajustar o settings para receber a precisão
-//        this.precision = settings.precision;
-		this.precision = "integer";
-		this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
+	public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCliCEM settings){
+
+		switch (settings.inferenceParameters.precision){
+			case "double":
+				this.precision = DOUBLE_PRECISION;
+				break;
+			case "normal":
+				this.precision = NORMAL_PRECISION;
+				break;
+			case "half":
+				this.precision = HALF_PRECISION;
+				break;
+			default:
+				this.precision = 0;
+				break;
+		}
+
 		this.maxDepth = 0;
 
 		ReportGenerator reportGenerator = new ReportGenerator();
@@ -44,7 +55,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 			String src = "";
 
 			src += generateHeader(index, featureQnt);
-			src += generateParameters(classQnt);
+			src += generateParameters(currentTree.innerNodes, classQnt);
 			src += generatePortDeclaration(featureQnt, classQnt, currentTree.getInnerNodes().size(), currentTree.getMaxDepth());
 			src += generateAlwaysBlock(featureQnt, classQnt, currentTree.innerNodes, currentTree.getMaxDepth());
 
@@ -56,15 +67,19 @@ public class TreeGenerator extends BaseTreeGenerator {
 					settings.trainingParameters.estimatorsQuantity,
 					settings.trainingParameters.maxDepth,
 					index
-				)
+				),
+				false
 			);
 		}
+
 		reportGenerator.createEntry(
-				settings.dataset,
-				settings.approach,
-				settings.trainingParameters.maxDepth,
-				nodeQntByTree
+			settings.dataset,
+			settings.approach,
+			settings.trainingParameters.maxDepth,
+			nodeQntByTree
 		);
+
+		reportGenerator.generateReport();
 	}
 
 	public String generateHeader(int treeIndex, int featureQnt){
@@ -73,18 +88,8 @@ public class TreeGenerator extends BaseTreeGenerator {
 
 		src += String.format("module tree%d (\n", treeIndex);
 
-		if (this.precision.equals("integer")){
-			for (int index = 0; index < featureQnt; index++){
-				src += String.format("%sfeature%d,\n", tab(1), index);
-			}
-		}
-		else if (this.precision.equals("decimal")){
-			for (int index = 0; index < featureQnt; index++){
-				src += String.format("%sft%d_exponent,\n", tab(1), index);
-			}
-			for (int index = 0; index < featureQnt; index++){
-				src += String.format("%sft%d_fraction,\n", tab(1), index);
-			}
+		for (int index = 0; index < featureQnt; index++){
+			src += String.format("%sfeature%d,\n", tab(1), index);
 		}
 
 		src += tab(1) + "clock,\n";
@@ -96,7 +101,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 		return src;
 	}
 
-	public String generateParameters(int classQnt){
+	public String generateParameters(HashMap<Integer, InnerNode> innerNodes, int classQnt){
 
 		int[][] oneHotMatrix = new int[classQnt][classQnt];
 
@@ -121,6 +126,22 @@ public class TreeGenerator extends BaseTreeGenerator {
 		}
 		src += "\n";
 
+		int counter = 0;
+
+		for (int key: innerNodes.keySet()){
+
+			float threshold = innerNodes.get(key).getComparisson().getThreshold();
+
+			src += tab(1) + String.format(
+				"parameter threshold%d_%d = %d'b%s;\n",
+				counter,
+				innerNodes.get(key).getComparisson().getColumn(),
+				this.precision,
+				toIEEE754(threshold, this.precision)
+			);
+			counter++;
+		}
+		src += "\n";
 		return src;
 	}
 
@@ -132,18 +153,8 @@ public class TreeGenerator extends BaseTreeGenerator {
 		src += tab + "input wire clock;\n";
 		src += tab + "input wire reset;\n\n";
 
-		if (this.precision.equals("integer")){
-			for (int index = 0; index < featureQnt; index++){
-				src += tab(1) + generatePort(String.format("feature%d", index), WIRE, INPUT, this.comparedValueBitwidth, true);
-			}
-		}
-		else if (this.precision.equals("decimal")){
-			for (int index = 0; index < featureQnt; index++){
-				src += tab(1) + generatePort(String.format("ft%d_exponent", index), WIRE, INPUT, this.comparedValueBitwidth, true);
-			}
-			for (int index = 0; index < featureQnt; index++){
-				src += tab(1) + generatePort(String.format("ft%d_fraction", index), WIRE, INPUT, this.comparedValueBitwidth, true);
-			}
+		for (int index = 0; index < featureQnt; index++){
+			src += tab(1) + generatePort(String.format("feature%d", index), WIRE, INPUT, this.precision, true);
 		}
 
 		src += "\n";
@@ -151,23 +162,13 @@ public class TreeGenerator extends BaseTreeGenerator {
 		src += tab(1) + generatePort("compute_vote", REGISTER, OUTPUT, 1, true);
 		src += "\n";
 
-		if (this.precision.equals("integer")){
-			for (int index = 0; index < featureQnt; index++){
-				src += tab(1) + generatePort(String.format("r_feature%d", index), REGISTER, NONE, this.comparedValueBitwidth, true);
-			}
+		for (int index = 0; index < featureQnt; index++){
+			src += tab(1) + generatePort(String.format("r_feature%d", index), REGISTER, NONE, this.precision, true);
 		}
-		else if (this.precision.equals("decimal")){
-			for (int index = 0; index < featureQnt; index++){
-				src += tab(1) + generatePort(String.format("r_ft%d_exponent", index), REGISTER, NONE, this.comparedValueBitwidth, true);
-			}
-			for (int index = 0; index < featureQnt; index++){
-				src += tab(1) + generatePort(String.format("r_ft%d_fraction", index), REGISTER, NONE, this.comparedValueBitwidth, true);
-			}
-		}
+
 		src += "\n";
 		src += tab(1) + generatePort("c_register", REGISTER, NONE, innerNodeQnt, true);
 		src += "\n";
-
 
 		for (int index = 0; index < innerNodeQnt; index++) {
 			src += tab(1) + generatePort(String.format("node%d", index), REGISTER, NONE, classQnt, true);
@@ -209,8 +210,31 @@ public class TreeGenerator extends BaseTreeGenerator {
 		for (int key: innerNodes.keySet()){
 			innerNodeList.add(innerNodes.get(key).getId());
 
-			int threshold = (int) Math.floor(innerNodes.get(key).getComparisson().getThreshold());
-			src += tab(2) + String.format("c_register[%d] <= (r_feature%d <= %d'b%s);\n", counter, innerNodes.get(key).getComparisson().getColumn(), this.comparedValueBitwidth ,toBinary(threshold, 8));
+			src += tab(2) + String.format(
+				"c_register[%d] <= (r_feature%d[15] > threshold%d_%d[15] || ((r_feature%d[15] == threshold%d_%d[15]) && (r_feature%d[14:10] <= threshold%d_%d[14:10] || (r_feature%d[14:10] == threshold%d_%d[14:10] && r_feature%d[9:0] <= threshold%d_%d[9:0]))));\n",
+				counter,
+
+				innerNodes.get(key).getComparisson().getColumn(),
+				counter,
+				innerNodes.get(key).getComparisson().getColumn(),
+
+				innerNodes.get(key).getComparisson().getColumn(),
+				counter,
+				innerNodes.get(key).getComparisson().getColumn(),
+
+				innerNodes.get(key).getComparisson().getColumn(),
+				counter,
+				innerNodes.get(key).getComparisson().getColumn(),
+
+				innerNodes.get(key).getComparisson().getColumn(),
+				counter,
+				innerNodes.get(key).getComparisson().getColumn(),
+
+				innerNodes.get(key).getComparisson().getColumn(),
+				counter,
+				innerNodes.get(key).getComparisson().getColumn()
+				);
+
 			counter = counter + 1;
 		}
 

@@ -8,11 +8,11 @@ public class PythonDatasetParserCaller {
 
     /* Substituir por configurações a partir de um JSON ou XML */
 
-    private static final String scriptName = "dataset_parser_script";
+    private static final String scriptName = "dataset_parser";
     private static final String runtime = "python3";
 
-    public int execute(String basePath, int comparedValueBitwidth, String datasetName, String approach, String precision, String maxDepth, int treeQnt) {
-        String pythonScriptPath = String.format("%s/project/src/python/%s.py", basePath, scriptName);
+    public int execute(String basePath, int comparedValueBitwidth, String datasetName) {
+        String pythonScriptPath = String.format("%s/scripts/%s.py", basePath, scriptName);
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(
                 runtime,
@@ -20,11 +20,7 @@ public class PythonDatasetParserCaller {
                 basePath,
                 datasetName,
                 Boolean.toString(true),
-                Integer.toString(comparedValueBitwidth),
-                approach,
-                precision,
-                maxDepth,
-                Integer.toString(treeQnt)
+                Integer.toString(comparedValueBitwidth)
             );
 
             processBuilder.redirectErrorStream(true);

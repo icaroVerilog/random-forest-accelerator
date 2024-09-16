@@ -1,4 +1,4 @@
-package project.src.java.util.relatory;
+package project.src.java.core.randomForest.relatory;
 
 import java.util.ArrayList;
 

@@ -2,8 +2,8 @@
     "estimators_generation_policy": "regenerate",
     "runs": [
 	{
-	    "approach": "table",
-	    "dataset": "adult",
+	    "approach": "conditional_pipeline",
+	    "dataset": "iris",
 	    "precision": "integer",
 	    "target": "synthesis",
 	    "platform": {

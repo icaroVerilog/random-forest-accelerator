@@ -1,30 +1,39 @@
 package project.src.java.core.randomForest.approaches.fpga;
 
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
-import project.src.java.util.executionSettings.CLI.Table.SettingsT;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
+import project.src.java.util.executionSettings.CLI.Table.SettingsCliT;
 import project.src.java.util.executionSettings.CLI.SettingsCLI;
 
 public class ApiGenerator extends BasicGenerator {
 	private int IOPinQnt;
-	private int comparedValueBitwidth;
-	private String precision;
+	private int precision;
 	private String approach;
 
 	public void execute(int classQnt, int featureQnt, SettingsCLI settings){
 
-		if (settings instanceof SettingsCEM) {
-			this.comparedValueBitwidth = ((SettingsCEM) settings).inferenceParameters.fieldsBitwidth.comparedValue;
+		if (settings instanceof SettingsCliCEM) {
+			switch (((SettingsCliCEM) settings).inferenceParameters.precision){
+				case "double":
+					this.precision = DOUBLE_PRECISION;
+					break;
+				case "normal":
+					this.precision = NORMAL_PRECISION;
+					break;
+				case "half":
+					this.precision = HALF_PRECISION;
+					break;
+				default:
+					this.precision = 0;
+					break;
+			}
 		}
-		if (settings instanceof SettingsT){
-			this.comparedValueBitwidth = ((SettingsT) settings).inferenceParameters.fieldsBitwidth.comparedValue;
+		if (settings instanceof SettingsCliT){
+			// TODO: ajustar isso
+			this.precision = ((SettingsCliT) settings).inferenceParameters.fieldsBitwidth.comparedValue;
 		}
 
-		/* TODO: AJUSTAR OS PARAMETROS DE PLATAFORMA E PRECISÃO*/
-//		this.IOPinQnt = settings.platform.inputBitwidth - 3;
-//		this.precision = settings.precision;
 		this.IOPinQnt = 10;
-		this.precision = "integer";
 		this.approach = settings.approach;
 
 		String src = "";
@@ -42,7 +51,8 @@ public class ApiGenerator extends BasicGenerator {
 				settings.approach,
 				settings.trainingParameters.estimatorsQuantity,
 				settings.trainingParameters.maxDepth
-			)
+			),
+			false
 		);
 	}
 
@@ -69,7 +79,7 @@ public class ApiGenerator extends BasicGenerator {
 
 	private String generatePortDeclarations(int classQnt, int featureQnt){
 		int outputDataBitwidth = (int) Math.ceil(Math.sqrt(classQnt));
-		int inputDataBitwidth = featureQnt * this.comparedValueBitwidth;
+		int inputDataBitwidth = featureQnt * this.precision;
 
 		String src = "";
 
@@ -116,11 +126,11 @@ public class ApiGenerator extends BasicGenerator {
 			int offset = 0;
 			for (int index = 0; index < featureQnt; index++) {
 				if (index == featureQnt - 1){
-					src += tab(2) + String.format(".feature%d(input_buffer[%d:%d])", index, offset + this.comparedValueBitwidth - 1, offset);
+					src += tab(2) + String.format(".feature%d(input_buffer[%d:%d])", index, offset + this.precision - 1, offset);
 				} else {
-					src += tab(2) + String.format(".feature%d(input_buffer[%d:%d]),\n", index, offset + this.comparedValueBitwidth - 1, offset);
+					src += tab(2) + String.format(".feature%d(input_buffer[%d:%d]),\n", index, offset + this.precision - 1, offset);
 				}
-				offset = offset + this.comparedValueBitwidth;
+				offset = offset + this.precision;
 			}
 		}
 		else {
@@ -128,11 +138,11 @@ public class ApiGenerator extends BasicGenerator {
 			int offset = 0;
 			for (int index = 0; index < featureQnt; index++) {
 				if (index == featureQnt - 1){
-					src += tab(2) + String.format(".feature%d(input_buffer[%d:%d])", index, offset + this.comparedValueBitwidth - 1, offset);
+					src += tab(2) + String.format(".feature%d(input_buffer[%d:%d])", index, offset + this.precision - 1, offset);
 				} else {
-					src += tab(2) + String.format(".feature%d(input_buffer[%d:%d]),\n", index, offset + this.comparedValueBitwidth - 1, offset);
+					src += tab(2) + String.format(".feature%d(input_buffer[%d:%d]),\n", index, offset + this.precision - 1, offset);
 				}
-				offset = offset + this.comparedValueBitwidth;
+				offset = offset + this.precision;
 			}
 		}
 
@@ -148,7 +158,7 @@ public class ApiGenerator extends BasicGenerator {
 
 	private String generateAlwaysBlock(int classQnt, int featureQnt){
 		int outputDataBitwidth = (int) Math.ceil(Math.sqrt(classQnt));
-		int inputDataBitwidth = featureQnt * this.comparedValueBitwidth;
+		int inputDataBitwidth = featureQnt * this.precision;
 		int bufferQnt = (int) Math.ceil((float) inputDataBitwidth / (this.IOPinQnt - outputDataBitwidth));
 
 		String resetBlock = CONDITIONAL_BLOCK;
@@ -168,10 +178,10 @@ public class ApiGenerator extends BasicGenerator {
 		String computeVoteBlockExp  = "";
 
 		if (this.approach.equals("conditional")){
-			computeVoteBlockExp  = String.format("counter == 12'b%s", toBinary(bufferQnt + 3, 12));
+			computeVoteBlockExp  = String.format("counter == 12'b%s", toBin(bufferQnt + 3, 12));
 		}
 		else {
-			computeVoteBlockExp  = String.format("counter == 12'b%s", toBinary(bufferQnt + 2, 12));
+			computeVoteBlockExp  = String.format("counter == 12'b%s", toBin(bufferQnt + 2, 12));
 		}
 
 		String computeVoteBlockBody = "";

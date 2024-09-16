@@ -9,7 +9,7 @@ public class PythonTreeGeneratorCaller {
     private static final String scriptName = "tree_generator";
     private static final String runtime = "python3";
 
-    public int execute(String basePath, String dataset, Integer datasetTestPercent, Integer estimatorQnt, Integer max_depth, String precision) {
+    public int execute(String basePath, String dataset, Integer datasetTestPercent, Integer estimatorQnt, Integer max_depth) {
         String pythonScriptPath = String.format("%s/scripts/%s.py", basePath, scriptName);
 
         System.out.println("\nstarting training");
@@ -23,7 +23,6 @@ public class PythonTreeGeneratorCaller {
                 basePath,
                 Integer.toString(datasetTestPercent),
                 Integer.toString(estimatorQnt),
-                precision,
                 Integer.toString(max_depth)
             );
 

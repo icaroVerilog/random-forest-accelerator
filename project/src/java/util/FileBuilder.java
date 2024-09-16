@@ -4,16 +4,27 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class FileBuilder {
 
-    public static void execute(String content, String filePath){
+    public static void execute(String content, String filePath, Boolean appendIfExists){
         try {
             var path = System.getProperty("user.dir") + "/" + filePath;
-            var fileWriter = new FileWriter(path);
+
+            boolean fileExists = Files.exists(Paths.get(path));
+            FileWriter fileWriter;
+
+            if (appendIfExists && fileExists) {
+                fileWriter = new FileWriter(path, true);
+            } else {
+                fileWriter = new FileWriter(path);
+            }
+
             BufferedWriter out = new BufferedWriter(fileWriter);
             out.write(content);
             out.close();
@@ -48,10 +59,6 @@ public class FileBuilder {
                 folder.mkdir();
             }
         }
-
         return true;
-
-//        System.out.println(path);
-
     }
 }

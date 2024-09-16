@@ -10,5 +10,5 @@ public class TrainingParameters {
     public Integer trainingPercent;
 
     @JsonProperty("max_depth")
-    public String maxDepth;
+    public Integer maxDepth;
 }

@@ -3,14 +3,14 @@ package project.src.java.core.randomForest.approaches.fpga.tableGenerator;
 import project.src.java.core.randomForest.approaches.fpga.ApiGenerator;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsT;
+import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsJsonT;
 
 
 import java.util.List;
 
 public class TableFPGAGenerator {
 
-    public void execute(List<Tree> treeList, int classQnt, int featureQnt, SettingsT settings){
+    public void execute(List<Tree> treeList, int classQnt, int featureQnt, SettingsJsonT settings){
 
         var a = FileBuilder.createDir(
             String.format(

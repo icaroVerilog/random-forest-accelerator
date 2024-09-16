@@ -2,7 +2,7 @@ package project.src.java.core.randomForest.approaches.fpga.conditionalEquationMu
 
 import project.src.java.core.randomForest.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ public class AdderGenerator extends BasicGenerator {
 
     private final String MODULE_NAME = "adder";
 
-    public void execute(int treeQnt, SettingsCEM settings){
+    public void execute(int treeQnt, SettingsCliCEM settings){
         System.out.println("generating adder");
 
         String src = "";
@@ -28,7 +28,8 @@ public class AdderGenerator extends BasicGenerator {
                 settings.approach,
                 settings.trainingParameters.estimatorsQuantity,
                 settings.trainingParameters.maxDepth
-            )
+            ),
+            false
         );
     }
 
