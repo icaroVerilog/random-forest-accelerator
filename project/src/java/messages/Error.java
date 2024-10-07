@@ -1,4 +1,4 @@
-package project.src.java.core.randomForest.messages;
+package project.src.java.messages;
 
 public class Error {
 	public static final String INVALID_FILE      = "file cannot be found";

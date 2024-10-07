@@ -1,4 +1,4 @@
-package project.src.java.core.randomForest.relatory;
+package project.src.java.relatory;
 
 import project.src.java.util.FileBuilder;
 

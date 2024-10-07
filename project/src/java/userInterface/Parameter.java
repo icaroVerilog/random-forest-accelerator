@@ -1,7 +1,7 @@
 package project.src.java.userInterface;
 
 import project.src.java.util.customExceptions.InvalidCommandException;
-import project.src.java.core.randomForest.messages.Error;
+import project.src.java.messages.Error;
 
 import java.util.*;
 

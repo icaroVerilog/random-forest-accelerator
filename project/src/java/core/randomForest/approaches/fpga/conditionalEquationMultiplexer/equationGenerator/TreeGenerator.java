@@ -7,7 +7,7 @@ import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.No
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
-import project.src.java.core.randomForest.relatory.ReportGenerator;
+import project.src.java.relatory.ReportGenerator;
 
 import java.util.ArrayList;
 import java.util.List;

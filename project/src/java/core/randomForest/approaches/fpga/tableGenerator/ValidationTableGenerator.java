@@ -4,7 +4,7 @@ import project.src.java.core.randomForest.approaches.fpga.BasicGenerator;
 import project.src.java.core.randomForest.approaches.fpga.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsJsonT;
-import project.src.java.core.randomForest.relatory.ReportGenerator;
+import project.src.java.relatory.ReportGenerator;
 
 import java.util.ArrayList;
 import java.util.List;

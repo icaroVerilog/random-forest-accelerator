@@ -27,14 +27,16 @@ import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Execut
 import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Settings;
 import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsJsonT;
 import project.src.java.util.executionSettings.JSON.ExecutionSettingsParser;
-import project.src.java.core.randomForest.messages.Error;
-import project.src.java.core.randomForest.messages.Messages;
+import project.src.java.messages.Error;
+import project.src.java.messages.Messages;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+
+import static project.src.java.messages.Error.INVALID_FLAG_VALUE;
 
 /* TODO: verificar valores proibidos para os parametros e tratar esses casos */
 
@@ -85,7 +87,8 @@ public class Main {
                     PythonDatasetParserCaller a = new PythonDatasetParserCaller();
                     a.execute(path, bitwidth, filename);
                 }
-            } else if (parameter.getParameter().equals(ValidParameters.START_TRAINING)) {
+            }
+            else if (parameter.getParameter().equals(ValidParameters.START_TRAINING)) {
                 if (settingsCLI.dataset != null) {
                     settingsCLI.trainingParameters = new TrainingParameters();
 
@@ -114,12 +117,21 @@ public class Main {
                 parameter.getParameter().equals(ValidParameters.START_IF_PIPELINED_INFERENCE)
             ) {
                 if (settingsCLI.dataset != null & settingsCLI.trainingParameters != null) {
-
                     SettingsCliCEM settings = new SettingsCliCEM();
                     settings.dataset = settingsCLI.dataset;
                     settings.trainingParameters = settingsCLI.trainingParameters;
 
                     settings.inferenceParameters = new InferenceParameters();
+
+                    if (
+                        !Objects.equals(parameter.getValue().get("-p"), "half") ||
+                        !Objects.equals(parameter.getValue().get("-p"), "normal") ||
+                        !Objects.equals(parameter.getValue().get("-p"), "double")
+                    ){
+                        System.out.println(INVALID_FLAG_VALUE.replace("x", "-p"));
+                        continue;
+                    }
+
                     settings.inferenceParameters.precision = parameter.getValue().get("-p");
 
                     FPGA FPGAGenerator = new FPGA();

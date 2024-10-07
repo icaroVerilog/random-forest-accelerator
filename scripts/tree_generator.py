@@ -12,7 +12,7 @@ DATASET_PATH = sys.argv[2]
 DATASET_TEST_PERCENT = int(sys.argv[3])
 TREE_QUANTITY = int(sys.argv[4])
 
-if sys.argv[5] == 0:
+if sys.argv[5] == 999:
     MAX_DEPTH = None
 else:
     MAX_DEPTH = int(sys.argv[5])

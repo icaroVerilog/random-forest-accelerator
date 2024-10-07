@@ -1,4 +1,4 @@
-package project.src.java.core.randomForest.messages;
+package project.src.java.messages;
 
 import project.src.java.userInterface.ValidParameters;
 
@@ -19,7 +19,10 @@ public class Messages {
 			%s  [options]   generate the inference design in verilog using conditional constructs with pipeline
 			%s  [options]   generate the inference design in verilog using multiplexers
 			%s   [options]   generate the inference design in verilog using boolean equations
-				-bw						defines the bitwidth of the threshold value register
+				-p			[value] 	defines the precision of the IEEE375 float point representation
+				 \u21B3 half:   16 bits
+				 \u21B3 normal: 32 bits
+				 \u21B3 double: 64 bits
 				
 			%s   [options]   generate the inference design in verilog using validation tables
 				-tbw					defines the threshold bitwidth i.e the bitwidth of the values who are compared
