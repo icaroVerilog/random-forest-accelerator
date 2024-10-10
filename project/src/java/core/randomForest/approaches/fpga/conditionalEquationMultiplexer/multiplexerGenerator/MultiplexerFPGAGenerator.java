@@ -6,7 +6,7 @@ import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMul
 import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMultiplexer.MajorityGenerator;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCli;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ public class MultiplexerFPGAGenerator {
             List<Tree> treeList,
             int classQnt,
             int featureQnt,
-            SettingsCliCEM settings
+            SettingsCli settings
     ){
         var a = FileBuilder.createDir(
             String.format(

@@ -3,7 +3,7 @@ package project.src.java.core.randomForest.approaches.fpga.pipeline;
 import project.src.java.core.randomForest.approaches.fpga.BasicGenerator;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCli;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ public class ControllerGenerator extends BasicGenerator {
     private Integer maxDepth;
     private String approach;
 
-    public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCliCEM settings){
+    public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCli settings){
         System.out.println("generating controller");
 
         switch (settings.inferenceParameters.precision){

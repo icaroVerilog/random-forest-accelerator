@@ -1,12 +1,12 @@
 package project.src.java.core.randomForest.approaches.fpga.tableGenerator.tableEntryDataStructures.raw;
 
-public class RawTableEntryInnerNodeIntegerPrecision extends RawTableEntry {
-    private Integer threshold;
+public class RawTableEntryInnerNode extends RawTableEntry {
+    private Double threshold;
     private Integer column;
 
-    public RawTableEntryInnerNodeIntegerPrecision(
+    public RawTableEntryInnerNode(
             Integer id,
-            Integer threshold,
+            Double threshold,
             Integer column
     ) {
         this.id = id;
@@ -14,7 +14,7 @@ public class RawTableEntryInnerNodeIntegerPrecision extends RawTableEntry {
         this.threshold = threshold;
     }
 
-    public Integer getThreshold() {
+    public Double getThreshold() {
         return this.threshold;
     }
     public Integer getColumn() {

@@ -6,7 +6,7 @@ import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.No
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCli;
 import project.src.java.relatory.ReportGenerator;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 
     private Integer precision;
 
-    public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCliCEM settings){
+    public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCli settings){
         switch (settings.inferenceParameters.precision){
             case "double":
                 this.precision = DOUBLE_PRECISION;

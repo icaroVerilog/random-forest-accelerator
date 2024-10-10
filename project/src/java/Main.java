@@ -18,7 +18,7 @@ import project.src.java.userInterface.UserInterface;
 import project.src.java.userInterface.ValidParameters;
 import project.src.java.util.*;
 import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.InferenceParameters;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCli;
 import project.src.java.util.executionSettings.CLI.SettingsCLI;
 import project.src.java.util.executionSettings.CLI.Table.SettingsCliT;
 import project.src.java.util.executionSettings.CLI.TrainingParameters;
@@ -117,15 +117,15 @@ public class Main {
                 parameter.getParameter().equals(ValidParameters.START_IF_PIPELINED_INFERENCE)
             ) {
                 if (settingsCLI.dataset != null & settingsCLI.trainingParameters != null) {
-                    SettingsCliCEM settings = new SettingsCliCEM();
+                    SettingsCli settings = new SettingsCli();
                     settings.dataset = settingsCLI.dataset;
                     settings.trainingParameters = settingsCLI.trainingParameters;
 
                     settings.inferenceParameters = new InferenceParameters();
 
                     if (
-                        !Objects.equals(parameter.getValue().get("-p"), "half") ||
-                        !Objects.equals(parameter.getValue().get("-p"), "normal") ||
+                        !Objects.equals(parameter.getValue().get("-p"), "half") &&
+                        !Objects.equals(parameter.getValue().get("-p"), "normal") &&
                         !Objects.equals(parameter.getValue().get("-p"), "double")
                     ){
                         System.out.println(INVALID_FLAG_VALUE.replace("x", "-p"));
@@ -195,9 +195,17 @@ public class Main {
 
                     settings.inferenceParameters = new project.src.java.util.executionSettings.CLI.Table.InferenceParameters();
                     settings.inferenceParameters.fieldsBitwidth = new project.src.java.util.executionSettings.CLI.Table.FieldsBitwidth();
-                    settings.inferenceParameters.fieldsBitwidth.comparedValue = Integer.valueOf(parameter.getValue().get("-tbw")); /*threshold bitwidth*/
-                    settings.inferenceParameters.fieldsBitwidth.index = Integer.valueOf(parameter.getValue().get("-ibw"));
-                    settings.inferenceParameters.fieldsBitwidth.comparedColumn = Integer.valueOf(parameter.getValue().get("-cbw"));
+                    settings.inferenceParameters.precision = parameter.getValue().get("-p");
+
+                    FPGA FPGAGenerator = new FPGA();
+                    List<Tree> trees = Parser.execute(settingsCLI.dataset);
+
+                    FPGAGenerator.executeTableApproach(
+                        trees,
+                        Parser.getClassQuantity(),
+                        Parser.getFeatureQuantity(),
+                        settings
+                    );
 
                 } else {
                     System.out.println(Error.NOT_TRAINED_NOT_LOADED_DATASET);
@@ -261,7 +269,7 @@ public class Main {
                         List<Tree> trees = Parser.execute(jsonSettings.dataset);
 
                         if (jsonSettings instanceof SettingsJsonCEM) {
-                            SettingsCliCEM settings = new SettingsCliCEM();
+                            SettingsCli settings = new SettingsCli();
                             settings.inferenceParameters.precision = ((SettingsJsonCEM) jsonSettings).inferenceParameters.precision;
                             settings.trainingParameters.trainingPercent = jsonSettings.trainingParameters.trainingPercent;
                             settings.trainingParameters.estimatorsQuantity = jsonSettings.trainingParameters.estimatorsQuantity;

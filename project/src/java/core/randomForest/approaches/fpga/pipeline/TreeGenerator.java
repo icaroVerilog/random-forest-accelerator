@@ -6,7 +6,7 @@ import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.No
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Nodes.OuterNode;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCli;
 import project.src.java.relatory.ReportGenerator;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 	private Integer precision;
 	private Integer maxDepth;
 
-	public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCliCEM settings){
+	public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCli settings){
 
 		switch (settings.inferenceParameters.precision){
 			case "double":
@@ -55,6 +55,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 			String src = "";
 
 			src += generateHeader(index, featureQnt);
+			src += generateIEE754ComparatorFunction(this.precision);
 			src += generateParameters(currentTree.innerNodes, classQnt);
 			src += generatePortDeclaration(featureQnt, classQnt, currentTree.getInnerNodes().size(), currentTree.getMaxDepth());
 			src += generateAlwaysBlock(featureQnt, classQnt, currentTree.innerNodes, currentTree.getMaxDepth());
@@ -130,7 +131,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 
 		for (int key: innerNodes.keySet()){
 
-			float threshold = innerNodes.get(key).getComparisson().getThreshold();
+			double threshold = innerNodes.get(key).getComparisson().getThreshold();
 
 			src += tab(1) + String.format(
 				"parameter threshold%d_%d = %d'b%s;\n",
@@ -211,29 +212,12 @@ public class TreeGenerator extends BaseTreeGenerator {
 			innerNodeList.add(innerNodes.get(key).getId());
 
 			src += tab(2) + String.format(
-				"c_register[%d] <= (r_feature%d[15] > threshold%d_%d[15] || ((r_feature%d[15] == threshold%d_%d[15]) && (r_feature%d[14:10] <= threshold%d_%d[14:10] || (r_feature%d[14:10] == threshold%d_%d[14:10] && r_feature%d[9:0] <= threshold%d_%d[9:0]))));\n",
+				"c_register[%d] <= IEEE754_comparator(threshold%d_%d, r_feature%d);\n",
 				counter,
-
-				innerNodes.get(key).getComparisson().getColumn(),
 				counter,
 				innerNodes.get(key).getComparisson().getColumn(),
-
-				innerNodes.get(key).getComparisson().getColumn(),
-				counter,
-				innerNodes.get(key).getComparisson().getColumn(),
-
-				innerNodes.get(key).getComparisson().getColumn(),
-				counter,
-				innerNodes.get(key).getComparisson().getColumn(),
-
-				innerNodes.get(key).getComparisson().getColumn(),
-				counter,
-				innerNodes.get(key).getComparisson().getColumn(),
-
-				innerNodes.get(key).getComparisson().getColumn(),
-				counter,
 				innerNodes.get(key).getComparisson().getColumn()
-				);
+			);
 
 			counter = counter + 1;
 		}

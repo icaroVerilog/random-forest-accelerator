@@ -2,11 +2,11 @@ package project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure;
 
 public class Comparison {
     private String  featureName;
-    private Float threshold;
+    private Double threshold;
     private Integer column;
     private String comparisonType;
 
-    public Comparison(String featureName, Float threshold, Integer column, String comparisonType) {
+    public Comparison(String featureName, Double threshold, Integer column, String comparisonType) {
         this.featureName = featureName;
         this.threshold = threshold;
         this.column = column;
@@ -29,10 +29,10 @@ public class Comparison {
     public void setFeatureName(String featureName) {
         this.featureName = featureName;
     }
-    public Float getThreshold() {
+    public Double getThreshold() {
         return threshold;
     }
-    public void setThreshold(Float threshold) {
+    public void setThreshold(Double threshold) {
         this.threshold = threshold;
     }
     public Integer getColumn() {

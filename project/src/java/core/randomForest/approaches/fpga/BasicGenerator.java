@@ -26,7 +26,6 @@ public class BasicGenerator {
     protected final String CONDITIONAL_ELSE_BLOCK = "\nind" + "else begin\ny indend";
     protected final String ALWAYS_BLOCK = "\nind" + "always @(border signal) begin \nsrc \nindend\n";
     protected final String CONDITIONAL_BLOCK = "ind" + "if (x) begin\n` indend";
-
     protected final String MODULE_VARIABLE_INSTANCE = "\nind" + "moduleName moduleVariableName(\nports \nind);\n";
 
 
@@ -76,14 +75,15 @@ public class BasicGenerator {
         return String.format("%" + bitwidth + "s", Integer.toBinaryString(value)).replaceAll(" ", "0");
     }
 
-    protected String toIEEE754(float value, int precision){
-        if (precision == 32){
-            int intBits = Float.floatToIntBits(value);
+    // TODO: testar se converte corretamente
+    protected String toIEEE754(double value, int precision) {
+        if (precision == 32) {
+            int intBits = Float.floatToIntBits((float) value);
             return String.format("%32s", Integer.toBinaryString(intBits)).replace(' ', '0');
         }
-        else if (precision == 16){
+        else if (precision == 16) {
             // Obtenha os bits em formato de 32 bits IEEE 754
-            int intBits = Float.floatToIntBits(value);
+            int intBits = Float.floatToIntBits((float) value);
 
             // Extraia o sinal, expoente e mantissa dos 32 bits
             int sign = (intBits >> 31) & 0x1;
@@ -120,9 +120,97 @@ public class BasicGenerator {
             // Retorne a string binária de 16 bits
             return binaryString.toString();
         }
+        else if (precision == 64) {
+            // Obtenha os bits em formato de 64 bits IEEE 754
+            long longBits = Double.doubleToLongBits(value);
+
+            // Construa a string binária de 64 bits
+            StringBuilder binaryString = new StringBuilder(Long.toBinaryString(longBits));
+
+            // Preencha com zeros à esquerda se a string for menor que 64 bits
+            while (binaryString.length() < 64) {
+                binaryString.insert(0, "0");
+            }
+
+            // Retorne a string binária de 64 bits
+            return binaryString.toString();
+        }
         else {
             return "";
         }
+    }
+
+    protected String generateIEE754ComparatorFunction(int precision){
+        String src = "";
+        int maxBit = 0;
+        int exponentMaxBit = 0;
+        int mantissaMaxBit = 0;
+
+        if (precision == 16){
+            maxBit = 15;
+            exponentMaxBit = 14;
+            mantissaMaxBit = 9;
+        }
+        if (precision == 32){
+            maxBit = 31;
+            exponentMaxBit = 30;
+            mantissaMaxBit = 22;
+        }
+        if (precision == 64){
+            maxBit = 63;
+            exponentMaxBit = 62;
+            mantissaMaxBit = 51;
+        }
+
+        src += tab(1) + "function IEEE754_comparator (\n";
+        src += tab(2) + String.format("input [%d:0] a,\n", maxBit);
+        src += tab(2) + String.format("input [%d:0] b\n", maxBit);
+        src += tab(1) + ");\n";
+
+        src += tab(2) + String.format("IEEE754_comparator = (a[%d] == 0 && b[%d] == 1) || (a == b) ||\n", maxBit, maxBit);
+        src += tab(7) + String.format(
+            " (a[%d] == b[%d] && a[%d:%d] > b[%d:%d]) ||\n",
+            maxBit,
+            maxBit,
+            exponentMaxBit,
+            mantissaMaxBit + 1,
+            exponentMaxBit,
+            mantissaMaxBit + 1
+        );
+
+        src += tab(7) + String.format(
+            " (a[%d] == b[%d] && a[%d:%d] == b[%d:%d] && a[%d:%d] > b[%d:%d] && a[%d] == 0) ||\n",
+            maxBit,
+            maxBit,
+            exponentMaxBit,
+            mantissaMaxBit + 1,
+            exponentMaxBit,
+            mantissaMaxBit + 1,
+            mantissaMaxBit,
+            0,
+            mantissaMaxBit,
+            0,
+            maxBit
+        );
+
+        src += tab(7) + String.format(
+            " (a[%d] == b[%d] && a[%d:%d] == b[%d:%d] && a[%d:%d] < b[%d:%d] && a[%d] == 1);\n",
+            maxBit,
+            maxBit,
+            exponentMaxBit,
+            mantissaMaxBit + 1,
+            exponentMaxBit,
+            mantissaMaxBit + 1,
+            mantissaMaxBit,
+            0,
+            mantissaMaxBit,
+            0,
+            maxBit
+        );
+
+        src += tab(1) + "endfunction\n\n";
+
+        return src;
     }
 
     protected String generateEndDelimiters(){

@@ -6,12 +6,12 @@ import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMul
 import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMultiplexer.MajorityGenerator;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCli;
 
 import java.util.List;
 
 public class ConditionalFPGAGenerator {
-    public void execute(List<Tree> treeList, int classQnt, int featureQnt, SettingsCliCEM settings){
+    public void execute(List<Tree> treeList, int classQnt, int featureQnt, SettingsCli settings){
         var a = FileBuilder.createDir(
             String.format(
                 "output/%s_%s_%dtree_%sdeep_run",

@@ -172,7 +172,7 @@ public class TreeBuilder {
             .replace("]", "")
             .replace("x", "")));
         comparisson.setComparisonType(comparissonParts[1]);
-        comparisson.setThreshold(Float.parseFloat(comparissonParts[2]));
+        comparisson.setThreshold(Double.parseDouble(comparissonParts[2]));
         comparisson.setFeatureName(featuresNames.get(comparisson.getColumn()));
         return comparisson;
     }

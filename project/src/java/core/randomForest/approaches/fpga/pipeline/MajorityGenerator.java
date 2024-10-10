@@ -2,14 +2,14 @@ package project.src.java.core.randomForest.approaches.fpga.pipeline;
 
 import project.src.java.core.randomForest.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCli;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class MajorityGenerator extends BasicGenerator {
-    public void execute(int treeQnt, int classQnt, SettingsCliCEM settings){
+    public void execute(int treeQnt, int classQnt, SettingsCli settings){
         String src = "";
 
         src += generateHeader("majority", classQnt);

@@ -2,7 +2,7 @@ package project.src.java.core.randomForest.approaches.fpga.tableGenerator;
 
 import project.src.java.core.randomForest.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsJsonT;
+import project.src.java.util.executionSettings.CLI.Table.SettingsCliT;
 
 public class ControllerGenerator extends BasicGenerator {
 
@@ -15,14 +15,14 @@ public class ControllerGenerator extends BasicGenerator {
     private String mode;
     private String precision;
 
-    public void execute(int classBitwidth, int featureQuantity, SettingsJsonT settings, boolean offlineMode){
+    public void execute(int classBitwidth, int featureQuantity, SettingsCliT settings, boolean offlineMode){
         System.out.println("generating controller");
 
         this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
         this.comparedColumnBitwidth = settings.inferenceParameters.fieldsBitwidth.comparedColumn;
         this.tableIndexerBitwidth   = settings.inferenceParameters.fieldsBitwidth.index;
 //        this.mode                   = settings.target;
-        this.precision              = settings.precision;
+        this.precision              = settings.inferenceParameters.precision;
 
         String src = "";
 

@@ -1,7 +1,7 @@
 package project.src.java.core.randomForest.approaches.fpga;
 
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCliCEM;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCli;
 import project.src.java.util.executionSettings.CLI.Table.SettingsCliT;
 import project.src.java.util.executionSettings.CLI.SettingsCLI;
 
@@ -12,8 +12,8 @@ public class ApiGenerator extends BasicGenerator {
 
 	public void execute(int classQnt, int featureQnt, SettingsCLI settings){
 
-		if (settings instanceof SettingsCliCEM) {
-			switch (((SettingsCliCEM) settings).inferenceParameters.precision){
+		if (settings instanceof SettingsCli) {
+			switch (((SettingsCli) settings).inferenceParameters.precision){
 				case "double":
 					this.precision = DOUBLE_PRECISION;
 					break;

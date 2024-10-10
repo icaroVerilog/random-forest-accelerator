@@ -118,8 +118,8 @@ public class UserInterface {
 						break;
 					case ValidParameters.START_TABLE_INFERENCE:
 						parameter = new Parameter(
-							Arrays.asList("-tbw", "-cbw", "-ibw"),
-							Arrays.asList("numeric", "numeric", "numeric")
+							Arrays.asList("-p"),
+							Arrays.asList("text")
 						);
 						parameter.add(ValidParameters.START_TABLE_INFERENCE, "", "");
 						break;

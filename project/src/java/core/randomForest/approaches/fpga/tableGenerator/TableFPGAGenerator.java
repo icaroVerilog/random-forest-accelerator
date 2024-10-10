@@ -3,18 +3,18 @@ package project.src.java.core.randomForest.approaches.fpga.tableGenerator;
 import project.src.java.core.randomForest.approaches.fpga.ApiGenerator;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
-import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Table.SettingsJsonT;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCli;
 
 
 import java.util.List;
 
 public class TableFPGAGenerator {
 
-    public void execute(List<Tree> treeList, int classQnt, int featureQnt, SettingsJsonT settings){
+    public void execute(List<Tree> treeList, int classQnt, int featureQnt, SettingsCli settings){
 
-        var a = FileBuilder.createDir(
+        FileBuilder.createDir(
             String.format(
-                "FPGA/%s_%s_%dtree_%sdeep_run",
+                "output/%s_%s_%dtree_%sdeep_run",
                 settings.dataset,
                 settings.approach,
                 settings.trainingParameters.estimatorsQuantity,
@@ -32,8 +32,8 @@ public class TableFPGAGenerator {
 
         var tableEntries = tableEntryGenerator.execute(treeList, settings, true);
 
-        validationTableGenerator.execute(classQnt, featureQnt, treeList.size(), classBitwidth, tableEntries, settings, false);
-        controllerGenerator     .execute(classBitwidth, featureQnt, settings, true);
+        validationTableGenerator.execute(classQnt, featureQnt, treeList.size(), classBitwidth, tableEntries, settings, true);
+//        controllerGenerator     .execute(classBitwidth, featureQnt, settings, true);
 //        apiGenerator            .execute(classQnt, featureQnt, settings);
     }
 }
