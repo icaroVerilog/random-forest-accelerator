@@ -2,27 +2,37 @@ package project.src.java.core.randomForest.approaches.fpga.tableGenerator;
 
 import project.src.java.core.randomForest.approaches.fpga.BasicGenerator;
 import project.src.java.util.FileBuilder;
+import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCli;
 import project.src.java.util.executionSettings.CLI.Table.SettingsCliT;
 
 public class ControllerGenerator extends BasicGenerator {
 
     private final String MODULE_NAME = "controller";
 
-    private int comparedValueBitwidth;
+    private Integer precision;
     private int comparedColumnBitwidth;
     private int tableIndexerBitwidth;
-    private int voteCounterBitwidth;
-    private String mode;
-    private String precision;
 
-    public void execute(int classBitwidth, int featureQuantity, SettingsCliT settings, boolean offlineMode){
+    public void execute(int classBitwidth, int featureQuantity, SettingsCli settings, boolean offlineMode){
         System.out.println("generating controller");
 
-        this.comparedValueBitwidth  = settings.inferenceParameters.fieldsBitwidth.comparedValue;
-        this.comparedColumnBitwidth = settings.inferenceParameters.fieldsBitwidth.comparedColumn;
-        this.tableIndexerBitwidth   = settings.inferenceParameters.fieldsBitwidth.index;
-//        this.mode                   = settings.target;
-        this.precision              = settings.inferenceParameters.precision;
+        switch (settings.inferenceParameters.precision){
+            case "double":
+                this.precision = DOUBLE_PRECISION;
+                break;
+            case "normal":
+                this.precision = NORMAL_PRECISION;
+                break;
+            case "half":
+                this.precision = HALF_PRECISION;
+                break;
+            default:
+                this.precision = 0;
+                break;
+        }
+
+        this.comparedColumnBitwidth = 8;
+        this.tableIndexerBitwidth   = 32;
 
         String src = "";
 
@@ -36,14 +46,16 @@ public class ControllerGenerator extends BasicGenerator {
 
         src += generateIO(featureQuantity, classBitwidth, offlineMode);
         src += generateValidationTableInstantiation(featureQuantity, offlineMode);
-        src += "endmodule";
+        src += generateAlways();
 
         FileBuilder.execute(
             src, String.format(
-                "FPGA/%s_table_%dtree_%sdeep_run/controller.v",
+                "output/%s_%s_%dtree_%sdeep_run/controller.v",
                 settings.dataset,
+                settings.approach,
                 settings.trainingParameters.estimatorsQuantity,
-                settings.trainingParameters.maxDepth),
+                settings.trainingParameters.maxDepth
+            ),
             false
         );
     }
@@ -61,8 +73,8 @@ public class ControllerGenerator extends BasicGenerator {
             "feature",
             "voted",
             "read_new_sample",
-            "new_table_entry",
-            "new_table_entry_counter",
+//            "new_table_entry",
+//            "new_table_entry_counter",
             "compute_vote_flag"
         };
 
@@ -90,14 +102,7 @@ public class ControllerGenerator extends BasicGenerator {
 
         src += "\n";
 
-        int featuresBusBitwidth = 0;
-
-        if (this.precision.equals("integer")){
-            featuresBusBitwidth = this.comparedValueBitwidth  * featureQuantity;
-        }
-        if (this.precision.equals("decimal")){
-            featuresBusBitwidth = (this.comparedValueBitwidth * 2) * featureQuantity;
-        }
+        int featuresBusBitwidth = this.precision  * featureQuantity;
 
         src += tab(1) + generatePort("feature", WIRE, INPUT, featuresBusBitwidth, true);
 
@@ -106,9 +111,11 @@ public class ControllerGenerator extends BasicGenerator {
             src += tab(1) + generatePort("new_table_entry_counter", WIRE, INPUT, 16, true);
         }
         src += "\n";
-        src += tab(1) + generatePort("voted", WIRE, OUTPUT, classBitwidth, true);
-        src += tab(1) + generatePort("compute_vote_flag", WIRE, OUTPUT, 1, true);
-        src += tab(1) + generatePort("read_new_sample", WIRE, OUTPUT, 1, true);
+        src += tab(1) + generatePort("voted", REGISTER, OUTPUT, classBitwidth, true);
+        src += tab(1) + generatePort("compute_vote", REGISTER, OUTPUT, 1, true);
+        src += tab(1) + generatePort("read_new_sample", REGISTER, OUTPUT, 1, true);
+        src += "\n";
+        src += tab(1) + generatePort("w_forest_vote", WIRE, NONE, classBitwidth, true);
         src += "\n";
 
         return src;
@@ -116,31 +123,61 @@ public class ControllerGenerator extends BasicGenerator {
 
     private String generateValidationTableInstantiation(int featureQuantity, boolean offlineMode){
 
-        int featureBusBitwidth = this.comparedValueBitwidth * featureQuantity;
+        int featureBusBitwidth = this.precision * featureQuantity;
 
         String src = "";
 
         src += tab(1) + "validation_table validation_table (\n";
         src += tab(2) + String.format(".%s(%s),\n", "clock", "clock");
         src += tab(2) + String.format(".%s(%s),\n", "reset", "reset");
-        src += tab(2) + String.format(".%s(%s),\n", "forest_vote", "voted");
+        src += tab(2) + String.format(".%s(%s),\n", "forest_vote", "w_forest_vote");
 
         if (!offlineMode){
             src += tab(2) + String.format(".%s(%s),\n", "read_new_sample", "read_new_sample");
             src += tab(2) + String.format(".%s(%s),\n", "new_table_entry", "new_table_entry");
         }
-        src += tab(2) + String.format(".%s(%s),\n", "compute_vote_flag", "compute_vote_flag");
+        src += tab(2) + String.format(".%s(%s),\n", "compute_vote", "compute_vote");
         src += tab(2) + String.format(".%s(%s),\n", "read_new_sample", "read_new_sample");
 
-        if (this.precision.equals("integer")){
-            src += tab(2) + String.format(".feature(feature[%d:%d])\n", (featureBusBitwidth - 1), 0);
-        }
-        if (this.precision.equals("decimal")){
-            src += tab(2) + String.format(".feature_integer(feature[%d:%d]),\n", (featureBusBitwidth - 1) + featureBusBitwidth, featureBusBitwidth);
-            src += tab(2) + String.format(".feature_decimal(feature[%d:%d])\n", featureBusBitwidth - 1, 0);
-        }
+        src += tab(2) + String.format(".feature(feature[%d:%d])\n", (featureBusBitwidth - 1), 0);
         src += tab(1) + ");\n";
 
         return src;
+    }
+
+    private String generateAlways(){
+
+        String computeVoteConditional = CONDITIONAL_BLOCK;
+        String computeVoteExpr = "";
+        String computeVoteBody = "";
+
+        computeVoteExpr += "compute_vote";
+
+        computeVoteBody += tab(3) + "voted <= w_forest_vote;\n";
+        computeVoteBody += tab(3) + "compute_vote <= 1'b1;\n";
+
+        computeVoteConditional = computeVoteConditional
+            .replace("x", computeVoteExpr)
+            .replace("`", computeVoteBody)
+            .replace("ind", tab(2));
+
+
+        String computeVoteConditionalElse = CONDITIONAL_ELSE_BLOCK;
+        String computeVoteConditionalElseBody = tab(3) + "compute_vote <= 1'b0;\n";
+
+        computeVoteConditionalElse = computeVoteConditionalElse
+            .replace("y", computeVoteConditionalElseBody)
+            .replace("ind", tab(2));
+
+        String always = ALWAYS_BLOCK;
+        String src = computeVoteConditional + computeVoteConditionalElse;
+
+        always = always
+            .replace("border", "posedge")
+            .replace("signal", "clock")
+            .replace("src", src)
+            .replace("ind", tab(1));
+
+        return always + "\nendmodule";
     }
 }

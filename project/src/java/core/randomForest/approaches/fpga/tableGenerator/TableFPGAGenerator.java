@@ -33,7 +33,7 @@ public class TableFPGAGenerator {
         var tableEntries = tableEntryGenerator.execute(treeList, settings, true);
 
         validationTableGenerator.execute(classQnt, featureQnt, treeList.size(), classBitwidth, tableEntries, settings, true);
-//        controllerGenerator     .execute(classBitwidth, featureQnt, settings, true);
+        controllerGenerator     .execute(classBitwidth, featureQnt, settings, true);
 //        apiGenerator            .execute(classQnt, featureQnt, settings);
     }
 }

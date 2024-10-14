@@ -34,7 +34,7 @@ public class MultiplexerFPGAGenerator {
         var apiGenerator        = new ApiGenerator();
 
         treeGenerator      .execute(treeList, classQnt, featureQnt, settings);
-        controllerGenerator.execute(treeList.size(), classQnt, featureQnt, settings);
+        controllerGenerator.execute(treeList, classQnt, featureQnt, settings);
         adderGenerator     .execute(treeList.size(), settings);
         majorityGenerator  .execute(treeList.size(), classQnt, settings);
 //        apiGenerator       .execute(classQnt, featureQnt, settings);

@@ -1,4 +1,4 @@
-package project.src.java.core.randomForest.approaches.fpga.pipeline;
+package project.src.java.core.randomForest.approaches.fpga.conditionalEquationMultiplexer.pipeline;
 
 import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMultiplexer.BaseTreeGenerator;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Nodes.InnerNode;
@@ -295,7 +295,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 						.replace("y", nodeBodyFalse)
 						.replace("ind", tab(3));
 
-					levelSyncBody += nodeConditionalTrue + nodeConditionalFalse + "\n";
+					levelSyncBody += nodeConditionalTrue + "\n" + nodeConditionalFalse;
 					comparisonCounter--;
 				}
 			}
@@ -372,9 +372,9 @@ public class TreeGenerator extends BaseTreeGenerator {
 					src += tab(2) + String.format("delay_node%d <= delay_node%d;\n", index, index - 1);
 				}
 			}
-			src += tab(2) + String.format("voted_class <= delay_node%d;", (this.maxDepth - maxDepth) - 1);
+			src += tab(2) + String.format("voted_class <= delay_node%d;\n", (this.maxDepth - maxDepth) - 1);
 		} else {
-			src += tab(2) + "voted_class <= node0;";
+			src += tab(2) + "voted_class <= node0;\n";
 		}
 
 		String registers = "";

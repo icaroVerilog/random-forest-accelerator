@@ -1,16 +1,7 @@
 package project.src.java;
 
-//import project.src.java.approaches.fpga.FPGA;
-//import project.src.java.dotTreeParser.treeStructure.Tree;
-//import project.src.java.util.*;
-//import project.src.java.util.executionSettings.ExecutionSettingsData.ConditionalEquationMux.SettingsJsonCEM;
-//import project.src.java.util.executionSettings.ExecutionSettingsData.Table.SettingsJsonT;
-//import project.src.java.util.executionSettings.ExecutionSettingsData.ExecutionSettings;
-//import project.src.java.util.executionSettings.ExecutionSettingsData.Settings;
-//import project.src.java.util.executionSettings.ExecutionSettingsParser;
-//import project.src.java.util.relatory.ReportGenerator;
-
 import project.src.java.core.randomForest.approaches.fpga.FPGA;
+import project.src.java.core.randomForest.dataset.Binarize;
 import project.src.java.core.randomForest.parsers.dotTreeParser.Parser;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.userInterface.Parameter;
@@ -46,6 +37,8 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         path = System.getProperty("user.dir");
+        Binarize b = new Binarize();
+        b.execute("iris.csv", path);
         System.out.println(path);
 
         ExecutionSettingsParser settingsParser = new ExecutionSettingsParser();
@@ -114,7 +107,8 @@ public class Main {
                 parameter.getParameter().equals(ValidParameters.START_IF_INFERENCE) ||
                 parameter.getParameter().equals(ValidParameters.START_MUX_INFERENCE) ||
                 parameter.getParameter().equals(ValidParameters.START_EQUATION_INFERENCE) ||
-                parameter.getParameter().equals(ValidParameters.START_IF_PIPELINED_INFERENCE)
+                parameter.getParameter().equals(ValidParameters.START_IF_PIPELINED_INFERENCE) ||
+                parameter.getParameter().equals(ValidParameters.START_TABLE_INFERENCE)
             ) {
                 if (settingsCLI.dataset != null & settingsCLI.trainingParameters != null) {
                     SettingsCli settings = new SettingsCli();
@@ -178,35 +172,17 @@ public class Main {
                                 settings
                             );
                             break;
+                        case ValidParameters.START_TABLE_INFERENCE:
+                            settings.approach = "table";
+
+                            FPGAGenerator.executeTableApproach(
+                                trees,
+                                Parser.getClassQuantity(),
+                                Parser.getFeatureQuantity(),
+                                settings
+                            );
+                            break;
                     }
-                } else {
-                    System.out.println(Error.NOT_TRAINED_NOT_LOADED_DATASET);
-                }
-            }
-            else if (parameter.getParameter().equals(ValidParameters.START_TABLE_INFERENCE)) {
-                System.out.println(parameter.getValue().keySet());
-                if (settingsCLI.dataset != null & settingsCLI.trainingParameters != null) {
-
-                    SettingsCliT settings = new SettingsCliT();
-
-                    settings.dataset = settingsCLI.dataset;
-                    settings.trainingParameters = settingsCLI.trainingParameters;
-                    settings.approach = "table";
-
-                    settings.inferenceParameters = new project.src.java.util.executionSettings.CLI.Table.InferenceParameters();
-                    settings.inferenceParameters.fieldsBitwidth = new project.src.java.util.executionSettings.CLI.Table.FieldsBitwidth();
-                    settings.inferenceParameters.precision = parameter.getValue().get("-p");
-
-                    FPGA FPGAGenerator = new FPGA();
-                    List<Tree> trees = Parser.execute(settingsCLI.dataset);
-
-                    FPGAGenerator.executeTableApproach(
-                        trees,
-                        Parser.getClassQuantity(),
-                        Parser.getFeatureQuantity(),
-                        settings
-                    );
-
                 } else {
                     System.out.println(Error.NOT_TRAINED_NOT_LOADED_DATASET);
                 }

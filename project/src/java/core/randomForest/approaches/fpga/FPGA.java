@@ -4,11 +4,12 @@ package project.src.java.core.randomForest.approaches.fpga;
 import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMultiplexer.conditionalGenerator.ConditionalFPGAGenerator;
 import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMultiplexer.equationGenerator.EquationFPGAGenerator;
 import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMultiplexer.multiplexerGenerator.MultiplexerFPGAGenerator;
-import project.src.java.core.randomForest.approaches.fpga.pipeline.PipelineFPGAGenerator;
+import project.src.java.core.randomForest.approaches.fpga.conditionalEquationMultiplexer.pipeline.PipelineFPGAGenerator;
 import project.src.java.core.randomForest.approaches.fpga.tableGenerator.TableFPGAGenerator;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCli;
 import project.src.java.util.executionSettings.CLI.Table.SettingsCliT;
+import project.src.java.util.executionSettings.JSON.ExecutionSettingsData.Settings;
 
 import java.io.IOException;
 import java.util.List;
@@ -68,7 +69,7 @@ public class FPGA {
 
     }
 
-    public void executeTableApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCliT settings) throws  IOException {
+    public void executeTableApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCli settings) throws  IOException {
         System.out.println("table approach\n");
 
         var tableGenerator = new TableFPGAGenerator();

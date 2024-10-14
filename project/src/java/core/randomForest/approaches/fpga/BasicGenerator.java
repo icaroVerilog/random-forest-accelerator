@@ -23,8 +23,8 @@ public class BasicGenerator {
 
     protected final String MODULE_INSTANCE = "\nind" + "moduleName moduleName(\nports \nind);\n";
 
-    protected final String CONDITIONAL_ELSE_BLOCK = "\nind" + "else begin\ny indend";
-    protected final String ALWAYS_BLOCK = "\nind" + "always @(border signal) begin \nsrc \nindend\n";
+    protected final String CONDITIONAL_ELSE_BLOCK = "ind" + "else begin\ny indend\n";
+    protected final String ALWAYS_BLOCK = "\nind" + "always @(border signal) begin \nsrc indend\n";
     protected final String CONDITIONAL_BLOCK = "ind" + "if (x) begin\n` indend";
     protected final String MODULE_VARIABLE_INSTANCE = "\nind" + "moduleName moduleVariableName(\nports \nind);\n";
 
