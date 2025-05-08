@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 
 DATASET_NAME = sys.argv[1]
 DATASET_PATH = sys.argv[2]
-DATASET_TEST_PERCENT = int(sys.argv[3])
+DATASET_TRAIN_PERCENT = int(sys.argv[3])
 TREE_QUANTITY = int(sys.argv[4])
 
 if sys.argv[5] == 999:
@@ -26,7 +26,7 @@ dataset.rename(columns={target_column_name: "target"}, inplace=True)
 X = dataset.drop(["target"], axis=1)
 Y = dataset["target"]
 
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=(DATASET_TEST_PERCENT / 100))
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, train_size=(DATASET_TRAIN_PERCENT / 100))
 
 clf = RandomForestClassifier(n_estimators=TREE_QUANTITY, max_depth=MAX_DEPTH)
 

@@ -15,7 +15,6 @@ import java.util.Map;
 
 public class TreeGenerator extends BaseTreeGenerator {
 
-    private int comparedValueBitwidth;
     private int precision;
 
     public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCli settings){
@@ -45,7 +44,8 @@ public class TreeGenerator extends BaseTreeGenerator {
             String src = "";
 
             src += generateHeader(String.format("tree%d", index), featureQnt);
-            src += generatePortDeclaration(featureQnt, classQnt, this.comparedValueBitwidth);
+            src += generateIEE754ComparatorFunction(this.precision);
+            src += generatePortDeclaration(featureQnt, classQnt, this.precision);
             src += generateComparisonWires(trees.get(index));
             src += generateComparisonAssigns(trees.get(index), classQnt);
             src += generateEndDelimiters();
@@ -86,7 +86,7 @@ public class TreeGenerator extends BaseTreeGenerator {
             Integer key = entry.getKey();
             InnerNode node = entry.getValue();
             var featureIndex = node.getComparisson().getColumn();
-            src += "\tassign c"+key+" = "+generateComparison(node.getComparisson(), this.comparedValueBitwidth)+";\n";
+            src += "\tassign c"+key+" = "+generateComparison(node.getComparisson(), this.precision)+";\n";
         }
         return src;
     }

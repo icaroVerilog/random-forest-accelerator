@@ -47,6 +47,7 @@ public class TreeGenerator extends BaseTreeGenerator {
             String src = "";
 
             src += generateHeader(index, featureQnt);
+            src += generateIEE754ComparatorFunction(this.precision);
             src += generatePortDeclaration(featureQnt, classQnt);
             src += generateParameters(classQnt);
             src += generateAlwaysBlock();
@@ -167,16 +168,13 @@ public class TreeGenerator extends BaseTreeGenerator {
     }
 
     public String generateComparison(Comparison comparison){
-
         String src = "";
 
-        int threshold = (int) Math.floor(comparison.getThreshold());
-
         src = String.format(
-            "feature%d <= %d'b%s",
+            "IEEE754_comparator(feature%d, %d'b%s)",
             comparison.getColumn(),
             this.precision,
-            toBin(threshold, this.precision)
+            toIEEE754(comparison.getThreshold(), this.precision)
         );
         return src;
     }
