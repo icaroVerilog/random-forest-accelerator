@@ -1,7 +1,6 @@
 package project.src.java;
 
-import project.src.java.core.parsers.XGBoostJsonTreeParser;
-import project.src.java.core.randomForest.approaches.fpga.FPGA;
+import project.src.java.core.randomForest.RandomForest;
 import project.src.java.core.randomForest.parsers.dotTreeParser.Parser;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.userInterface.Parameter;
@@ -23,8 +22,6 @@ import project.src.java.messages.Messages;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -136,14 +133,14 @@ public class Main {
 
                     settings.inferenceParameters.precision = parameter.getValue().get("-p");
 
-                    FPGA FPGAGenerator = new FPGA();
+                    RandomForest randomForestGenerator = new RandomForest();
                     List<Tree> trees = Parser.execute(settingsCLI.dataset);
 
                     switch (parameter.getParameter()) {
                         case ValidParameters.START_IF_INFERENCE:
                             settings.approach = "conditional";
 
-                            FPGAGenerator.executeConditionalApproach(
+                            randomForestGenerator.executeConditionalApproach(
                                 trees,
                                 Parser.getClassQuantity(),
                                 Parser.getFeatureQuantity(),
@@ -153,7 +150,7 @@ public class Main {
                         case ValidParameters.START_MUX_INFERENCE:
                             settings.approach = "multiplexer";
 
-                            FPGAGenerator.executeMultiplexerApproach(
+                            randomForestGenerator.executeMultiplexerApproach(
                                 trees,
                                 Parser.getClassQuantity(),
                                 Parser.getFeatureQuantity(),
@@ -163,7 +160,7 @@ public class Main {
                         case ValidParameters.START_EQUATION_INFERENCE:
                             settings.approach = "equation";
 
-                            FPGAGenerator.executeEquationApproach(
+                            randomForestGenerator.executeEquationApproach(
                                 trees,
                                 Parser.getClassQuantity(),
                                 Parser.getFeatureQuantity(),
@@ -173,7 +170,7 @@ public class Main {
                         case ValidParameters.START_IF_PIPELINED_INFERENCE:
                             settings.approach = "conditional_pipelined";
 
-                            FPGAGenerator.executePipelinedConditionalApproach(
+                            randomForestGenerator.executePipelinedConditionalApproach(
                                 trees,
                                 Parser.getClassQuantity(),
                                 Parser.getFeatureQuantity(),
@@ -183,7 +180,7 @@ public class Main {
                         case ValidParameters.START_TABLE_INFERENCE:
                             settings.approach = "table";
 
-                            FPGAGenerator.executeTableApproach(
+                            randomForestGenerator.executeTableApproach(
                                 trees,
                                 Parser.getClassQuantity(),
                                 Parser.getFeatureQuantity(),
@@ -193,7 +190,7 @@ public class Main {
                         case ValidParameters.START_PARALLEL_TABLE_INFERENCE:
                             settings.approach = "parallel_table";
 
-                            FPGAGenerator.executeParallelTableApproach(
+                            randomForestGenerator.executeParallelTableApproach(
                                 trees,
                                 Parser.getClassQuantity(),
                                 Parser.getFeatureQuantity(),
@@ -220,7 +217,7 @@ public class Main {
                     System.out.println(Error.NOT_LOADED_SETTINGS);
                 } else {
                     PythonTreeGeneratorCaller treeGeneratorCaller = new PythonTreeGeneratorCaller();
-                    FPGA FPGAGenerator = new FPGA();
+                    RandomForest randomForestGenerator = new RandomForest();
 
                     HashMap<String, Boolean> estimatorsGenerationController = new HashMap<>();
 
@@ -272,7 +269,7 @@ public class Main {
                             switch (jsonSettings.approach) {
                                 case "conditional":
                                     settings.approach = "conditional";
-                                    FPGAGenerator.executeConditionalApproach(
+                                    randomForestGenerator.executeConditionalApproach(
                                         trees,
                                         Parser.getClassQuantity(),
                                         Parser.getFeatureQuantity(),
@@ -282,7 +279,7 @@ public class Main {
                                 case "multiplexer":
                                     settings.approach = "multiplexer";
 
-                                    FPGAGenerator.executeMultiplexerApproach(
+                                    randomForestGenerator.executeMultiplexerApproach(
                                         trees,
                                         Parser.getClassQuantity(),
                                         Parser.getFeatureQuantity(),
@@ -292,7 +289,7 @@ public class Main {
                                 case "equation":
                                     settings.approach = "equation";
 
-                                    FPGAGenerator.executeEquationApproach(
+                                    randomForestGenerator.executeEquationApproach(
                                         trees,
                                         Parser.getClassQuantity(),
                                         Parser.getFeatureQuantity(),
@@ -302,7 +299,7 @@ public class Main {
                                 case "conditional_pipeline":
                                     settings.approach = "conditional_pipeline";
 
-                                    FPGAGenerator.executePipelinedConditionalApproach(
+                                    randomForestGenerator.executePipelinedConditionalApproach(
                                         trees,
                                         Parser.getClassQuantity(),
                                         Parser.getFeatureQuantity(),
@@ -322,7 +319,7 @@ public class Main {
 
                             System.out.println(settings.inferenceParameters.fieldsBitwidth.toString());
 
-//                            FPGAGenerator.executeTableApproach(
+//                            randomForestGenerator.executeTableApproach(
 //                                trees,
 //                                Parser.getClassQuantity(),
 //                                Parser.getFeatureQuantity(),

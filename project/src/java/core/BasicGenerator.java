@@ -1,4 +1,4 @@
-package project.src.java.core.randomForest.approaches.fpga;
+package project.src.java.core;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
