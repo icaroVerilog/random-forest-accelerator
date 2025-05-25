@@ -87,6 +87,11 @@ public class BasicGenerator {
         return String.format("%" + bitwidth + "s", Integer.toBinaryString(value)).replaceAll(" ", "0");
     }
 
+    protected String toE4M3(double value){
+        return "";
+    }
+
+
     protected String toIEEE754(double value, int precision) {
         if (precision == 32) {
             int intBits = Float.floatToIntBits((float) value);

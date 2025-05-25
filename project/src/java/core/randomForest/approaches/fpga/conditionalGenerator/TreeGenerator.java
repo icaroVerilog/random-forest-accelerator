@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TreeGenerator extends BaseTreeGenerator {
-    //TODO: agora que estou utilizando o padrao IEEE754 ajustar a comparação
     private Integer precision;
 
     public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCli settings){
@@ -157,7 +156,7 @@ public class TreeGenerator extends BaseTreeGenerator {
         else {
             InnerNode newNode = (InnerNode) node;
             String code = "";
-            code += tabs + "if (" + generateComparison(newNode.getComparisson()) +") begin\n";
+            code += tabs + "if (" + generateComparison(newNode.getComparisson(), this.precision) +") begin\n";
             code += generateConditionals(newNode.getLeftNode(), tab + 1);
             code += tabs + "end \n" + tabs + "else begin\n";
             code += generateConditionals(newNode.getRightNode(), tab + 1);
@@ -165,18 +164,6 @@ public class TreeGenerator extends BaseTreeGenerator {
 
             return code;
         }
-    }
-
-    public String generateComparison(Comparison comparison){
-        String src = "";
-
-        src = String.format(
-            "IEEE754_comparator(feature%d, %d'b%s)",
-            comparison.getColumn(),
-            this.precision,
-            toIEEE754(comparison.getThreshold(), this.precision)
-        );
-        return src;
     }
 
     public String generateEndDelimiters(){

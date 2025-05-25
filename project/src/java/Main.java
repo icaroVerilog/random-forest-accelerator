@@ -1,5 +1,6 @@
 package project.src.java;
 
+import project.src.java.core.parsers.XGBoostJsonTreeParser;
 import project.src.java.core.randomForest.approaches.fpga.FPGA;
 import project.src.java.core.randomForest.parsers.dotTreeParser.Parser;
 import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
@@ -22,6 +23,8 @@ import project.src.java.messages.Messages;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -45,6 +48,11 @@ public class Main {
         UserInterface userInterface = new UserInterface();
 
         SettingsCLI settingsCLI = new SettingsCLI();
+
+//        XGBoostJsonTreeParser xgboostJsonTreeParser = new XGBoostJsonTreeParser();
+//        xgboostJsonTreeParser.execute(path + "/trees/gbdt/xgboost_tree_0.json");
+
+        var x = true;
 
         while (true) {
             Parameter parameter = userInterface.execute();
