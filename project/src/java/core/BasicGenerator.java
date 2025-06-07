@@ -87,10 +87,84 @@ public class BasicGenerator {
         return String.format("%" + bitwidth + "s", Integer.toBinaryString(value)).replaceAll(" ", "0");
     }
 
-    protected String toE4M3(double value){
-        return "";
+    protected String toE4M3GPT(double value){
+        if (value == 0.0) return "00000000";
+
+        int signBit = value < 0 ? 1 : 0;
+        value = Math.abs(value);
+
+        int exponent = 0;
+
+        // Normaliza para o intervalo [1, 2)
+        if (value >= 2.0) {
+            while (value >= 2.0) {
+                value /= 2.0;
+                exponent++;
+            }
+        } else if (value < 1.0) {
+            while (value < 1.0) {
+                value *= 2.0;
+                exponent--;
+            }
+        }
+
+        int biasedExponent = exponent + 7;
+
+        if (biasedExponent <= 0) {
+            // Subnormal ou underflow: tudo zero exceto sinal
+            return String.format("%d0000000", signBit);
+        } else if (biasedExponent >= 15) {
+            // Overflow: infinidade (expoente 1111, mantissa 000)
+            return String.format("%d1110000", signBit);
+        }
+
+        value -= 1.0; // Remove o bit implícito
+        int mantissa = (int)(value * 8); // 3 bits de mantissa
+
+        int result = (signBit << 7) | (biasedExponent << 3) | mantissa;
+        return String.format("%8s", Integer.toBinaryString(result)).replace(' ', '0');
     }
 
+    protected String toE4M3DS(double value){
+        long bits = Double.doubleToRawLongBits(value);
+        int sign = (int) ((bits >> 63) & 0x01); // Bit de sinal (0 ou 1)
+        int exponent = (int) ((bits >> 52) & 0x7FF); // Expoente do IEEE 754
+        long mantissa = bits & 0x000FFFFFFFFFFFFFL; // Mantissa do IEEE 754
+
+        byte e4m3;
+
+        // Casos especiais: NaN, Infinito e Zero
+        if (exponent == 0x7FF) { // NaN ou Infinito
+            if (mantissa != 0) { // NaN
+                e4m3 = (byte) ((sign << 7) | 0b01111111); // Expoente 15, mantissa não zero
+            } else { // Infinito
+                e4m3 = (byte) ((sign << 7) | 0b01111000); // Expoente 15, mantissa zero
+            }
+        } else if (value == 0) { // Zero
+            e4m3 = (byte) (sign << 7);
+        } else { // Números normais ou subnormais
+            int actualExponent = exponent - 1023; // Remove bias do IEEE 754 (1023)
+            int storedExponent = actualExponent + 7; // Adiciona bias do E4M3 (7)
+
+            // Clamping do expoente (E4M3: 1 <= expoente <= 14)
+            if (storedExponent < 1) { // Underflow → zero
+                e4m3 = (byte) (sign << 7);
+            } else if (storedExponent > 14) { // Overflow → valor máximo
+                e4m3 = (byte) ((sign << 7) | (14 << 3) | 0b00000111);
+            } else { // Expoente válido
+                int truncatedMantissa = (int) ((mantissa >> (52 - 3)) & 0x07); // 3 bits da mantissa
+                e4m3 = (byte) (
+                    (sign << 7) | // Bit de sinal
+                        ((storedExponent << 3) & 0x78) | // 4 bits do expoente
+                        (truncatedMantissa & 0x07) // 3 bits da mantissa
+                );
+            }
+        }
+
+        // Converte para string binária de 8 bits
+        return String.format("%8s", Integer.toBinaryString(e4m3 & 0xFF))
+            .replace(' ', '0');
+    }
 
     protected String toIEEE754(double value, int precision) {
         if (precision == 32) {

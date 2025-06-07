@@ -86,11 +86,12 @@ public class TreeGenerator extends BaseTreeGenerator {
 
 		src += String.format("module tree%d (\n", treeIndex);
 
-		src += tab(1) + "clock,\n";
-		src += tab(1) + "reset,\n";
+		src += tab(1) + "clk,\n";
+		src += tab(1) + "rst,\n";
+		src += tab(1) + "valid_data,\n";
 		src += tab(1) + "voted_class,\n";
 		src += tab(1) + "compute_vote,\n";
-		src += tab(1) + "features\n";
+		src += tab(1) + "data\n";
 		src += ");\n";
 
 		return src;
@@ -143,9 +144,10 @@ public class TreeGenerator extends BaseTreeGenerator {
 		String tab = tab(1);
 		String src = "";
 
-		src += tab + "input wire clock;\n";
-		src += tab + "input wire reset;\n\n";
-		src += tab(1) + generatePort("features", WIRE, INPUT, this.precision * featureQnt, true);
+		src += tab + "input wire clk;\n";
+		src += tab + "input wire rst;\n\n";
+		src += tab + "input wire valid_data;\n\n";
+		src += tab(1) + generatePort("data", WIRE, INPUT, this.precision * featureQnt, true);
 		src += "\n";
 		src += tab(1) + generatePort("voted_class", REGISTER, OUTPUT, classQnt, true);
 		src += tab(1) + generatePort("compute_vote", REGISTER, OUTPUT, 1, true);
@@ -185,15 +187,36 @@ public class TreeGenerator extends BaseTreeGenerator {
 	public String generateAlwaysBlock(int featureQnt, HashMap<Integer, InnerNode> innerNodes, int maxDepth){
 		String src = "";
 
+		String validDataCheck = CONDITIONAL_BLOCK;
+		String validDataCheckBody = "";
+
 		for (int index = 0; index < featureQnt; index++) {
 			int upperBit = ((featureQnt * this.precision) - 1) - (index * this.precision);
 			int lowerBit = ((featureQnt * this.precision)) - ((index + 1) * this.precision);
-			src += tab(2) + String.format("feature%d <= features[%d:%d];\n", index, upperBit, lowerBit);
+			validDataCheckBody += tab(3) + String.format("feature%d <= data[%d:%d];\n", index, upperBit, lowerBit);
 		}
-		src += tab(2) + "sync_flag[0] <= ~reset;\n";
+
+		validDataCheckBody += tab(3) + "sync_flag[0] <= 1'b1;\n";
+
+		validDataCheck = validDataCheck
+			.replace("x", "valid_data")
+			.replace("`", validDataCheckBody)
+			.replace("ind", tab(2));
+
+		String validDataCheckElse = CONDITIONAL_ELSE_BLOCK;
+		String validDataCheckBodyElse = "";
+
+		validDataCheckBodyElse += tab(3) + "sync_flag[0] <= 1'b0;\n";
+
+		validDataCheckElse = validDataCheckElse
+			.replace("y", validDataCheckBodyElse)
+			.replace("ind", tab(2));
+
+		src += validDataCheck;
+		src += "\n";
+		src += validDataCheckElse;
 		src += "\n";
 
-		int maxLevel = 0;
 		int counter = 0;
 
 		ArrayList<Integer> innerNodeList = new ArrayList<>();
@@ -376,7 +399,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 		String always = ALWAYS_BLOCK;
 		always = always
 			.replace("border", "posedge")
-			.replace("signal", "clock")
+			.replace("signal", "clk")
 			.replace("src", src)
 			.replace("ind", tab(1));
 
