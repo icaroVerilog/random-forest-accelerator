@@ -1,8 +1,8 @@
 package project.src.java;
 
 import project.src.java.core.randomForest.RandomForest;
-import project.src.java.core.randomForest.parsers.dotTreeParser.Parser;
-import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
+import project.src.java.core.parsers.dotTreeParser.Parser;
+import project.src.java.core.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.userInterface.Parameter;
 import project.src.java.userInterface.UserInterface;
 import project.src.java.userInterface.ValidParameters;

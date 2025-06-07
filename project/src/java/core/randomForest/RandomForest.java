@@ -1,13 +1,13 @@
 package project.src.java.core.randomForest;
 
 
-import project.src.java.core.randomForest.conditionalGenerator.ConditionalFPGAGenerator;
-import project.src.java.core.randomForest.equationGenerator.EquationFPGAGenerator;
-import project.src.java.core.randomForest.multiplexerGenerator.MultiplexerFPGAGenerator;
-import project.src.java.core.randomForest.pipeline.PipelineFPGAGenerator;
-import project.src.java.core.randomForest.table.parallelTableGenerator.ParallelTableFPGAGenerator;
-import project.src.java.core.randomForest.table.tableGenerator.TableFPGAGenerator;
-import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
+import project.src.java.core.randomForest.conditionalGenerator.ConditionalGenerator;
+import project.src.java.core.randomForest.equationGenerator.EquationGenerator;
+import project.src.java.core.randomForest.multiplexerGenerator.MultiplexerGenerator;
+import project.src.java.core.randomForest.pipelineGenerator.PipelineGenerator;
+import project.src.java.core.randomForest.tableGenerator.parallelTableGenerator.ParallelTableFPGAGenerator;
+import project.src.java.core.randomForest.tableGenerator.tableGenerator.TableFPGAGenerator;
+import project.src.java.core.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCli;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ public class RandomForest {
     public void executeEquationApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCli settings) {
         System.out.println("equation approach\n");
 
-        EquationFPGAGenerator equationFPGAGenerator = new EquationFPGAGenerator();
+        EquationGenerator equationFPGAGenerator = new EquationGenerator();
 
         equationFPGAGenerator.execute(
             treeList,
@@ -31,7 +31,7 @@ public class RandomForest {
     public void executeConditionalApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCli settings) throws IOException {
         System.out.println("conditional approach\n");
 
-        ConditionalFPGAGenerator conditionalGenerator = new ConditionalFPGAGenerator();
+        ConditionalGenerator conditionalGenerator = new ConditionalGenerator();
 
         conditionalGenerator.execute(
             treeList,
@@ -44,7 +44,7 @@ public class RandomForest {
     public void executeMultiplexerApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCli settings) throws IOException {
         System.out.println("multiplexer approach\n");
 
-        MultiplexerFPGAGenerator multiplexerFPGAGenerator = new MultiplexerFPGAGenerator();
+        MultiplexerGenerator multiplexerFPGAGenerator = new MultiplexerGenerator();
 
         multiplexerFPGAGenerator.execute(
             treeList,
@@ -57,7 +57,7 @@ public class RandomForest {
     public void executePipelinedConditionalApproach(List<Tree> treeList, int classQnt, int featureQnt, SettingsCli settings) throws IOException {
         System.out.println("pipelined conditional approach\n");
 
-        PipelineFPGAGenerator pipelineGenerator = new PipelineFPGAGenerator();
+        PipelineGenerator pipelineGenerator = new PipelineGenerator();
 
         pipelineGenerator.execute(
             treeList,

@@ -1,7 +1,7 @@
 package project.src.java.core.randomForest;
 
 import project.src.java.core.BasicGenerator;
-import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Comparison;
+import project.src.java.core.parsers.dotTreeParser.treeStructure.Comparison;
 
 import java.util.ArrayList;
 import java.util.List;

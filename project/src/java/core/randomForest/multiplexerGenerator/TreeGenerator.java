@@ -1,10 +1,10 @@
 package project.src.java.core.randomForest.multiplexerGenerator;
 
 import project.src.java.core.randomForest.BaseTreeGenerator;
-import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Nodes.InnerNode;
-import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Nodes.Node;
-import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Nodes.OuterNode;
-import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
+import project.src.java.core.parsers.dotTreeParser.treeStructure.Nodes.InnerNode;
+import project.src.java.core.parsers.dotTreeParser.treeStructure.Nodes.Node;
+import project.src.java.core.parsers.dotTreeParser.treeStructure.Nodes.OuterNode;
+import project.src.java.core.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCli;
 import project.src.java.relatory.ReportGenerator;

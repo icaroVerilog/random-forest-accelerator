@@ -1,7 +1,7 @@
 package project.src.java.core.randomForest;
 
 import project.src.java.core.BasicGenerator;
-import project.src.java.core.randomForest.parsers.dotTreeParser.treeStructure.Tree;
+import project.src.java.core.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCli;
 
@@ -43,7 +43,7 @@ public class ControllerGenerator extends BasicGenerator {
 
         String src = "";
 
-        src += generateHeader(this.MODULE_NAME, featureQnt);
+        src += generateHeader();
         src += generateIO(featureQnt, classQnt, trees.size());
 
         for (int index = 0; index < trees.size(); index++){
@@ -68,16 +68,16 @@ public class ControllerGenerator extends BasicGenerator {
         );
     }
 
-    private String generateHeader(String module_name, int featureQnt){
+    private String generateHeader(){
         String src = "";
 
         src += "module controller (\n";
 
-        src += tab(1) + "clock,\n";
-        src += tab(1) + "reset,\n";
+        src += tab(1) + "clk,\n";
+        src += tab(1) + "rst,\n";
         src += tab(1) + "compute_vote,\n";
         src += tab(1) + "forest_vote,\n";
-        src += tab(1) + "features\n";
+        src += tab(1) + "data\n";
         src += ");\n";
 
         return src;
@@ -89,11 +89,12 @@ public class ControllerGenerator extends BasicGenerator {
 
         int sumBitwidth = (int) Math.ceil(Math.sqrt(treeQnt));
 
-        src += tab(1) + generatePort("clock", WIRE, INPUT, 1, true);
-        src += tab(1) + generatePort("reset", WIRE, INPUT, 1, true);
+        src += tab(1) + generatePort("clk", WIRE, INPUT, 1, true);
+        src += tab(1) + generatePort("rst", WIRE, INPUT, 1, true);
+        src += tab(1) + generatePort("valid_data", WIRE, INPUT, 1, true);
         src += "\n";
 
-        src += tab(1) + generatePort("features", WIRE, INPUT, this.precision * featureQnt, true);
+        src += tab(1) + generatePort("data", WIRE, INPUT, this.precision * featureQnt, true);
 
         src += "\n";
         src += tab(1) + generatePort("forest_vote", REGISTER, OUTPUT, outputBitwidth, true);
@@ -123,11 +124,12 @@ public class ControllerGenerator extends BasicGenerator {
     private String generateTreeModuleInstantiation(int featureQnt, int treeIndex){
         String src = "";
 
-        src += tab(2) + ".clock(clock),\n";
-        src += tab(2) + ".reset(reset),\n";
+        src += tab(2) + ".clk(clk),\n";
+        src += tab(2) + ".rst(rst),\n";
+        src += tab(2) + ".data(data),\n";
+        src += tab(2) + ".valid_data(valid_data),\n";
         src += tab(2) + String.format(".voted_class(voted_class%d),\n", treeIndex);
-        src += tab(2) + String.format(".compute_vote(compute_vote%d),\n", treeIndex);
-        src += tab(2) + ".features(features)";
+        src += tab(2) + String.format(".compute_vote(compute_vote%d)", treeIndex);
 
         String module = MODULE_INSTANCE;
         module = module
@@ -217,7 +219,7 @@ public class ControllerGenerator extends BasicGenerator {
 
         always = always
             .replace("border", "posedge")
-            .replace("signal", "clock")
+            .replace("signal", "clk")
             .replace("src", src)
             .replace("ind", tab(1));
 

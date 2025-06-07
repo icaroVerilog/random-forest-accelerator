@@ -1,10 +1,5 @@
 .idea
 out
 Random-forest-acelerator.iml
-/datasets/SUSY.csv
-/datasets/*
-/project/assets/trees/*
-/output/*
-/trees/*
-datasets/*
-/datasets/
+datasets/
+report.txt
