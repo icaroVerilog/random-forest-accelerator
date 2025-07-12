@@ -27,6 +27,9 @@ public class ControllerGenerator extends BasicGenerator {
             case "half":
                 this.precision = HALF_PRECISION;
                 break;
+            case "e4m3":
+                this.precision = E4M3;
+                break;
             default:
                 this.precision = 0;
                 break;
@@ -77,6 +80,7 @@ public class ControllerGenerator extends BasicGenerator {
         src += tab(1) + "rst,\n";
         src += tab(1) + "compute_vote,\n";
         src += tab(1) + "forest_vote,\n";
+        src += tab(1) + "valid_data,\n";
         src += tab(1) + "data\n";
         src += ");\n";
 

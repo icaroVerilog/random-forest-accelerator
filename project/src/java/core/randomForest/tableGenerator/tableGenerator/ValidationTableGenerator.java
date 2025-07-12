@@ -66,7 +66,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         String src = "";
 
         src += generateHeader();
-        src += generateIEE754ComparatorFunction(this.precision);
+        src += generateFloatingPointComparatorFunction(this.precision);
         src += generatePortInstantiation(featureQnt, classQnt);
         src += generateInternalVariables(tableEntries.size(), classQnt);
         src += generateWireAssign(featureQnt);

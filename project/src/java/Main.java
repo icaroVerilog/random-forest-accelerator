@@ -123,6 +123,7 @@ public class Main {
                     settings.inferenceParameters = new InferenceParameters();
 
                     if (
+                        !Objects.equals(parameter.getValue().get("-p"), "e4m3") &&
                         !Objects.equals(parameter.getValue().get("-p"), "half") &&
                         !Objects.equals(parameter.getValue().get("-p"), "normal") &&
                         !Objects.equals(parameter.getValue().get("-p"), "double")

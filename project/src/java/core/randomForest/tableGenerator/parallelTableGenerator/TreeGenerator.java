@@ -62,7 +62,7 @@ public class TreeGenerator extends BasicGenerator {
 			String src = "";
 
 			src += generateHeader(index);
-			src += generateIEE754ComparatorFunction(this.precision);
+			src += generateFloatingPointComparatorFunction(this.precision);
 			src += generatePortInstantiation(featureQuantity);
 			src += generateInternalVariables(nodeQnt, classQuantity);
 			src += generateWireAssign(featureQuantity);

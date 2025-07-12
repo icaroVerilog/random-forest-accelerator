@@ -31,6 +31,9 @@ public class TreeGenerator extends BaseTreeGenerator {
 			case "half":
 				this.precision = HALF_PRECISION;
 				break;
+			case "e4m3":
+				this.precision = E4M3;
+				break;
 			default:
 				this.precision = 0;
 				break;
@@ -55,7 +58,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 			String src = "";
 
 			src += generateHeader(index);
-			src += generateIEE754ComparatorFunction(this.precision);
+			src += generateFloatingPointComparatorFunction(this.precision);
 			src += generateParameters(currentTree.innerNodes, classQnt);
 			src += generatePortDeclaration(featureQnt, classQnt, currentTree.getInnerNodes().size(), currentTree.getMaxDepth());
 			src += generateAlwaysBlock(featureQnt, currentTree.innerNodes, currentTree.getMaxDepth());
@@ -127,13 +130,24 @@ public class TreeGenerator extends BaseTreeGenerator {
 
 			double threshold = innerNodes.get(key).getComparisson().getThreshold();
 
-			src += tab(1) + String.format(
-				"parameter threshold%d_%d = %d'b%s;\n",
-				counter,
-				innerNodes.get(key).getComparisson().getColumn(),
-				this.precision,
-				toIEEE754(threshold, this.precision)
-			);
+			if (this.precision == E4M3){
+//				System.out.printf("%s %s %s\n",threshold, toE4M3DS(threshold), toE4M3GPT(threshold));
+				src += tab(1) + String.format(
+					"parameter threshold%d_%d = %d'b%s;\n",
+					counter,
+					innerNodes.get(key).getComparisson().getColumn(),
+					this.precision,
+					toE4M3DS(threshold)
+				);
+			} else {
+				src += tab(1) + String.format(
+					"parameter threshold%d_%d = %d'b%s;\n",
+					counter,
+					innerNodes.get(key).getComparisson().getColumn(),
+					this.precision,
+					toIEEE754(threshold, this.precision)
+				);
+			}
 			counter++;
 		}
 		src += "\n";
@@ -224,14 +238,23 @@ public class TreeGenerator extends BaseTreeGenerator {
 		for (int key: innerNodes.keySet()){
 			innerNodeList.add(innerNodes.get(key).getId());
 
-			src += tab(2) + String.format(
-				"comparison[%d] <= IEEE754_comparator(threshold%d_%d, feature%d);\n",
-				counter,
-				counter,
-				innerNodes.get(key).getComparisson().getColumn(),
-				innerNodes.get(key).getComparisson().getColumn()
-			);
-
+			if (this.precision == E4M3){
+				src += tab(2) + String.format(
+					"comparison[%d] <= E4M3_comparator(threshold%d_%d, feature%d);\n",
+					counter,
+					counter,
+					innerNodes.get(key).getComparisson().getColumn(),
+					innerNodes.get(key).getComparisson().getColumn()
+				);
+			} else {
+				src += tab(2) + String.format(
+					"comparison[%d] <= IEEE754_comparator(threshold%d_%d, feature%d);\n",
+					counter,
+					counter,
+					innerNodes.get(key).getComparisson().getColumn(),
+					innerNodes.get(key).getComparisson().getColumn()
+				);
+			}
 			counter = counter + 1;
 		}
 

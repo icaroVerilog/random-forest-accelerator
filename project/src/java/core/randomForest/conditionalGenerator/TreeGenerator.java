@@ -29,6 +29,9 @@ public class TreeGenerator extends BaseTreeGenerator {
             case "half":
                 this.precision = HALF_PRECISION;
                 break;
+            case "e4m3":
+                this.precision = E4M3;
+                break;
             default:
                 this.precision = 0;
                 break;
@@ -45,7 +48,7 @@ public class TreeGenerator extends BaseTreeGenerator {
             String src = "";
 
             src += generateHeader(index, featureQnt);
-            src += generateIEE754ComparatorFunction(this.precision);
+            src += generateFloatingPointComparatorFunction(this.precision);
             src += generatePortDeclaration(featureQnt, classQnt);
             src += generateParameters(classQnt);
             src += generateAlwaysBlock();

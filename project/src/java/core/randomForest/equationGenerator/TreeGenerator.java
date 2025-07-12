@@ -44,7 +44,7 @@ public class TreeGenerator extends BaseTreeGenerator {
             String src = "";
 
             src += generateHeader(String.format("tree%d", index), featureQnt);
-            src += generateIEE754ComparatorFunction(this.precision);
+            src += generateFloatingPointComparatorFunction(this.precision);
             src += generatePortDeclaration(featureQnt, classQnt, this.precision);
             src += generateComparisonWires(trees.get(index));
             src += generateComparisonAssigns(trees.get(index), classQnt);

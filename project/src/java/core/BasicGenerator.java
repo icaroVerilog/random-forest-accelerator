@@ -10,6 +10,7 @@ public class BasicGenerator {
     protected static final int HALF_PRECISION = 16;
     protected static final int NORMAL_PRECISION = 32;
     protected static final int DOUBLE_PRECISION = 64;
+    protected static final int E4M3 = 8;
 
     protected final String WIRE = "wire";
     protected final String REGISTER = "reg";
@@ -219,12 +220,17 @@ public class BasicGenerator {
         }
     }
 
-    protected String generateIEE754ComparatorFunction(int precision){
+    protected String generateFloatingPointComparatorFunction(int precision){
         String src = "";
         int maxBit = 0;
         int exponentMaxBit = 0;
         int mantissaMaxBit = 0;
 
+        if (precision == 8){
+            maxBit = 7;
+            exponentMaxBit = 6;
+            mantissaMaxBit = 2;
+        }
         if (precision == 16){
             maxBit = 15;
             exponentMaxBit = 14;
@@ -241,12 +247,21 @@ public class BasicGenerator {
             mantissaMaxBit = 51;
         }
 
-        src += tab(1) + "function IEEE754_comparator (\n";
+        if (precision == E4M3){
+            src += tab(1) + "function E4M3_comparator (\n";
+        } else {
+            src += tab(1) + "function IEEE754_comparator (\n";
+        }
         src += tab(2) + String.format("input [%d:0] a,\n", maxBit);
         src += tab(2) + String.format("input [%d:0] b\n", maxBit);
         src += tab(1) + ");\n";
 
-        src += tab(2) + String.format("IEEE754_comparator = (a[%d] == 0 && b[%d] == 1) || (a == b) ||\n", maxBit, maxBit);
+        if (precision == E4M3){
+            src += tab(2) + String.format("E4M3_comparator = (a[%d] == 0 && b[%d] == 1) || (a == b) ||\n", maxBit, maxBit);
+        } else {
+            src += tab(2) + String.format("IEEE754_comparator = (a[%d] == 0 && b[%d] == 1) || (a == b) ||\n", maxBit, maxBit);
+        }
+
         src += tab(7) + String.format(
             " (a[%d] == b[%d] && a[%d:%d] > b[%d:%d]) ||\n",
             maxBit,
