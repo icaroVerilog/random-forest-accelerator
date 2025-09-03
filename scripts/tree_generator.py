@@ -12,6 +12,9 @@ DATASET_NAME = sys.argv[1]
 DATASET_PATH = sys.argv[2]
 DATASET_TRAIN_PERCENT = int(sys.argv[3])
 TREE_QUANTITY = int(sys.argv[4])
+NORMALIZE_MIN_VALUE = float(sys.argv[6])
+NORMALIZE_MAX_VALUE = float(sys.argv[7])
+CLASS_COLUMN = "label"
 
 if sys.argv[5] == 0:
     MAX_DEPTH = None
@@ -21,7 +24,7 @@ else:
 def normalize_dataset(df, min_val, max_val):
     result = df.copy()
     for col in result.columns:
-        if col == 'target':
+        if col == CLASS_COLUMN:
             continue
 
         if not pd.api.types.is_numeric_dtype(result[col]):
@@ -41,7 +44,7 @@ def normalize_dataset(df, min_val, max_val):
 def normalize_dataset_int(df, min_val, max_val):
     result = df.copy()
     for col in result.columns:
-        if col == 'target':
+        if col == CLASS_COLUMN:
             continue
         if not pd.api.types.is_numeric_dtype(result[col]):
             continue
@@ -63,18 +66,19 @@ def normalize_dataset_int(df, min_val, max_val):
 dataset = pd.read_csv(f"{DATASET_PATH}/datasets/{DATASET_NAME}")
 
 column_names = list(dataset)
-target_column_name = column_names[len(column_names) - 1]
-dataset.rename(columns={target_column_name: "target"}, inplace=True)
+#target_column_name = column_names[len(column_names) - 1]
+#dataset.rename(columns={target_column_name: "target"}, inplace=True)
 
-# IEE75416
-# dataset = normalize_dataset(dataset=dataset, min_val=-65504, max_val=65504)
+if NORMALIZE_MIN_VALUE != NORMALIZE_MAX_VALUE:
+    # IEE75416
+    # dataset = normalize_dataset(dataset=dataset, min_val=-65504, max_val=65504)
 
-# dataset = normalize_dataset(dataset=dataset, min_val=-448, max_val=448)
-# dataset.to_csv(DATASET_NAME)
+    print(f"normalizing dataset in range {int(NORMALIZE_MIN_VALUE)} {int(NORMALIZE_MAX_VALUE)}")
+    dataset = normalize_dataset_int(dataset, int(NORMALIZE_MIN_VALUE), int(NORMALIZE_MAX_VALUE))
 
 
-X = dataset.drop(["target"], axis=1)
-Y = dataset["target"]
+X = dataset.drop([CLASS_COLUMN], axis=1)
+Y = dataset[CLASS_COLUMN]
 
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, train_size=(DATASET_TRAIN_PERCENT / 100))
 

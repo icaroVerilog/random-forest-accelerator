@@ -16,6 +16,8 @@ public class Parser {
 
     public static List<Tree> execute(String dataset) throws IOException {
         readDatasetHeader(dataset);
+        System.out.println(classesNames);
+        System.out.println(featuresNames);
         return readDatasetSamples(dataset);
     }
 
@@ -42,7 +44,10 @@ public class Parser {
 
         while(scanner.hasNext()){
             line = scanner.nextLine().split(",");
-            classesNames.add(line[line.length - 1]);
+
+            // TODO: ALTERAR, DO JEITO QUE ESTÁ SO FUNCIONA PARA DATASETS CUJA COLUNA DE CLASSES É A ULTIMA
+//            classesNames.add(line[line.length - 1]);
+            classesNames.add(line[0]);
         }
         scanner.close();
     }

@@ -8,39 +8,19 @@ import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.Settin
 import java.util.List;
 
 public class ControllerGenerator extends BasicGenerator {
-    private final String MODULE_NAME = "controller";
-
     private Integer precision;
-    private Integer maxDepth;
-    private String approach;
 
-    public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCli settings){
+	public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCli settings){
         System.out.println("generating controller");
 
-        switch (settings.inferenceParameters.precision){
-            case "double":
-                this.precision = DOUBLE_PRECISION;
-                break;
-            case "normal":
-                this.precision = NORMAL_PRECISION;
-                break;
-            case "half":
-                this.precision = HALF_PRECISION;
-                break;
-            case "e4m3":
-                this.precision = E4M3;
-                break;
-            default:
-                this.precision = 0;
-                break;
-        }
+        this.precision = parsePrecision(settings.inferenceParameters.precision);
 
-        this.maxDepth = 0;
-        this.approach = settings.approach;
+		Integer maxDepth = 0;
+		String approach = settings.approach;
 
         for (int index = 0; index < trees.size(); index++) {
-            if (trees.get(index).getMaxDepth() > this.maxDepth) {
-                this.maxDepth = trees.get(index).getMaxDepth();
+            if (trees.get(index).getMaxDepth() > maxDepth) {
+                maxDepth = trees.get(index).getMaxDepth();
             }
         }
 

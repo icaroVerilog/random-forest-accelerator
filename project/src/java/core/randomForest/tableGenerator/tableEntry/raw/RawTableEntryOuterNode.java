@@ -1,4 +1,4 @@
-package project.src.java.core.randomForest.tableGenerator.tableEntryDataStructures.raw;
+package project.src.java.core.randomForest.tableGenerator.tableEntry.raw;
 
 public class RawTableEntryOuterNode extends RawTableEntry {
     private Integer nodeClass;

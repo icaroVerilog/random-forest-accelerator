@@ -11,6 +11,7 @@ public class BasicGenerator {
     protected static final int NORMAL_PRECISION = 32;
     protected static final int DOUBLE_PRECISION = 64;
     protected static final int E4M3 = 8;
+    protected static final int INTEGER4 = 4;
 
     protected final String WIRE = "wire";
     protected final String REGISTER = "reg";
@@ -220,91 +221,102 @@ public class BasicGenerator {
         }
     }
 
-    protected String generateFloatingPointComparatorFunction(int precision){
+    protected String generateComparatorFunction(int precision){
         String src = "";
-        int maxBit = 0;
-        int exponentMaxBit = 0;
-        int mantissaMaxBit = 0;
+        int maxBit = 0; int exponentMaxBit = 0; int mantissaMaxBit = 0;
 
-        if (precision == 8){
-            maxBit = 7;
-            exponentMaxBit = 6;
-            mantissaMaxBit = 2;
+        if (precision == 4){
+            maxBit = 3;
         }
-        if (precision == 16){
-            maxBit = 15;
-            exponentMaxBit = 14;
-            mantissaMaxBit = 9;
+        else if (precision == 8){
+            maxBit = 7; exponentMaxBit = 6; mantissaMaxBit = 2;
         }
-        if (precision == 32){
-            maxBit = 31;
-            exponentMaxBit = 30;
-            mantissaMaxBit = 22;
+        else if (precision == 16){
+            maxBit = 15; exponentMaxBit = 14; mantissaMaxBit = 9;
         }
-        if (precision == 64){
-            maxBit = 63;
-            exponentMaxBit = 62;
-            mantissaMaxBit = 51;
+        else if (precision == 32){
+            maxBit = 31; exponentMaxBit = 30; mantissaMaxBit = 22;
+        }
+        else if (precision == 64){
+            maxBit = 63; exponentMaxBit = 62; mantissaMaxBit = 51;
         }
 
-        if (precision == E4M3){
+        if (precision == INTEGER4){
+            src += tab(1) + "function comparator (\n";
+        }
+        else if (precision == E4M3){
             src += tab(1) + "function E4M3_comparator (\n";
-        } else {
+        }
+        else if (precision == DOUBLE_PRECISION || precision == NORMAL_PRECISION || precision == HALF_PRECISION ){
             src += tab(1) + "function IEEE754_comparator (\n";
         }
         src += tab(2) + String.format("input [%d:0] a,\n", maxBit);
         src += tab(2) + String.format("input [%d:0] b\n", maxBit);
         src += tab(1) + ");\n";
 
-        if (precision == E4M3){
-            src += tab(2) + String.format("E4M3_comparator = (a[%d] == 0 && b[%d] == 1) || (a == b) ||\n", maxBit, maxBit);
+        if (precision == INTEGER4){
+            src += tab(2) + "comparator = a > b;\n";
         } else {
-            src += tab(2) + String.format("IEEE754_comparator = (a[%d] == 0 && b[%d] == 1) || (a == b) ||\n", maxBit, maxBit);
+            if (precision == E4M3){
+                src += tab(2) + String.format("E4M3_comparator = (a[%d] == 0 && b[%d] == 1) || (a == b) ||\n", maxBit, maxBit);
+            }
+            else if (precision == DOUBLE_PRECISION || precision == NORMAL_PRECISION || precision == HALF_PRECISION) {
+                src += tab(2) + String.format("IEEE754_comparator = (a[%d] == 0 && b[%d] == 1) || (a == b) ||\n", maxBit, maxBit);
+            }
+
+            src += tab(7) + String.format(
+                " (a[%d] == b[%d] && a[%d:%d] > b[%d:%d]) ||\n",
+                maxBit,maxBit,
+                exponentMaxBit,
+                mantissaMaxBit + 1,
+                exponentMaxBit,
+                mantissaMaxBit + 1
+            );
+
+            src += tab(7) + String.format(
+                " (a[%d] == b[%d] && a[%d:%d] == b[%d:%d] && a[%d:%d] > b[%d:%d] && a[%d] == 0) ||\n",
+                maxBit,
+                maxBit,
+                exponentMaxBit,
+                mantissaMaxBit + 1,
+                exponentMaxBit,
+                mantissaMaxBit + 1,
+                mantissaMaxBit,
+                0,
+                mantissaMaxBit,
+                0,
+                maxBit
+            );
+
+            src += tab(7) + String.format(
+                " (a[%d] == b[%d] && a[%d:%d] == b[%d:%d] && a[%d:%d] < b[%d:%d] && a[%d] == 1);\n",
+                maxBit,
+                maxBit,
+                exponentMaxBit,
+                mantissaMaxBit + 1,
+                exponentMaxBit,
+                mantissaMaxBit + 1,
+                mantissaMaxBit,
+                0,
+                mantissaMaxBit,
+                0,
+                maxBit
+            );
         }
-
-        src += tab(7) + String.format(
-            " (a[%d] == b[%d] && a[%d:%d] > b[%d:%d]) ||\n",
-            maxBit,
-            maxBit,
-            exponentMaxBit,
-            mantissaMaxBit + 1,
-            exponentMaxBit,
-            mantissaMaxBit + 1
-        );
-
-        src += tab(7) + String.format(
-            " (a[%d] == b[%d] && a[%d:%d] == b[%d:%d] && a[%d:%d] > b[%d:%d] && a[%d] == 0) ||\n",
-            maxBit,
-            maxBit,
-            exponentMaxBit,
-            mantissaMaxBit + 1,
-            exponentMaxBit,
-            mantissaMaxBit + 1,
-            mantissaMaxBit,
-            0,
-            mantissaMaxBit,
-            0,
-            maxBit
-        );
-
-        src += tab(7) + String.format(
-            " (a[%d] == b[%d] && a[%d:%d] == b[%d:%d] && a[%d:%d] < b[%d:%d] && a[%d] == 1);\n",
-            maxBit,
-            maxBit,
-            exponentMaxBit,
-            mantissaMaxBit + 1,
-            exponentMaxBit,
-            mantissaMaxBit + 1,
-            mantissaMaxBit,
-            0,
-            mantissaMaxBit,
-            0,
-            maxBit
-        );
-
         src += tab(1) + "endfunction\n\n";
 
         return src;
+    }
+
+    protected Integer parsePrecision(String precision){
+		return switch (precision) {
+			case "double" -> DOUBLE_PRECISION;
+			case "normal" -> NORMAL_PRECISION;
+			case "half" -> HALF_PRECISION;
+			case "e4m3" -> E4M3;
+            case "int4" -> INTEGER4;
+			default -> 0;
+		};
     }
 
     protected String generateEndDelimiters(){

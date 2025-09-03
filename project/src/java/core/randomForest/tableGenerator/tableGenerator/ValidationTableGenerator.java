@@ -1,8 +1,8 @@
 package project.src.java.core.randomForest.tableGenerator.tableGenerator;
 
 import project.src.java.core.BasicGenerator;
-import project.src.java.core.randomForest.tableGenerator.TableEntryGenerator;
-import project.src.java.core.randomForest.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
+import project.src.java.core.randomForest.tableGenerator.tableEntry.TableEntryGenerator;
+import project.src.java.core.randomForest.tableGenerator.tableEntry.binary.BinaryTableEntry;
 import project.src.java.core.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.util.FileBuilder;
 import project.src.java.util.executionSettings.CLI.ConditionalEquationMux.SettingsCli;
@@ -27,20 +27,7 @@ public class ValidationTableGenerator extends BasicGenerator {
     ){
         System.out.println("generating validation table");
 
-        switch (settings.inferenceParameters.precision){
-            case "double":
-                this.precision = DOUBLE_PRECISION;
-                break;
-            case "normal":
-                this.precision = NORMAL_PRECISION;
-                break;
-            case "half":
-                this.precision = HALF_PRECISION;
-                break;
-            default:
-                this.precision = 0;
-                break;
-        }
+        this.precision = parsePrecision(settings.inferenceParameters.precision);
 
         // TODO: Ajustar para serem parâmetros variáveis
         this.comparedColumnBitwidth = 8;
@@ -66,7 +53,7 @@ public class ValidationTableGenerator extends BasicGenerator {
         String src = "";
 
         src += generateHeader();
-        src += generateFloatingPointComparatorFunction(this.precision);
+        src += generateComparatorFunction(this.precision);
         src += generatePortInstantiation(featureQnt, classQnt);
         src += generateInternalVariables(tableEntries.size(), classQnt);
         src += generateWireAssign(featureQnt);
@@ -227,7 +214,15 @@ public class ValidationTableGenerator extends BasicGenerator {
         String thGreaterThanValueBlock = CONDITIONAL_BLOCK;
         String thGreaterThanValueBlockExpr = "";
 
-        thGreaterThanValueBlockExpr += "IEEE754_comparator(threshold_w, feature_w)";
+        if (this.precision == E4M3){
+            thGreaterThanValueBlockExpr += "E4M3_comparator(threshold_w, feature_w)";
+        }
+        else if (this.precision == INTEGER4){
+            thGreaterThanValueBlockExpr += "comparator(threshold_w, feature_w)";
+        }
+        else if (this.precision == DOUBLE_PRECISION || this.precision == NORMAL_PRECISION || this.precision == HALF_PRECISION){
+            thGreaterThanValueBlockExpr += "IEEE754_comparator(threshold_w, feature_w)";
+        }
 
         String thGreaterThanValueBlockBody = tab(6) + String.format(
             "next <= nodes_table[next][%d:%d];\n",

@@ -1,10 +1,10 @@
-package project.src.java.core.randomForest.tableGenerator;
+package project.src.java.core.randomForest.tableGenerator.tableEntry;
 
 import project.src.java.core.BasicGenerator;
-import project.src.java.core.randomForest.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
-import project.src.java.core.randomForest.tableGenerator.tableEntryDataStructures.raw.RawTableEntry;
-import project.src.java.core.randomForest.tableGenerator.tableEntryDataStructures.raw.RawTableEntryInnerNode;
-import project.src.java.core.randomForest.tableGenerator.tableEntryDataStructures.raw.RawTableEntryOuterNode;
+import project.src.java.core.randomForest.tableGenerator.tableEntry.binary.BinaryTableEntry;
+import project.src.java.core.randomForest.tableGenerator.tableEntry.raw.RawTableEntry;
+import project.src.java.core.randomForest.tableGenerator.tableEntry.raw.RawTableEntryInnerNode;
+import project.src.java.core.randomForest.tableGenerator.tableEntry.raw.RawTableEntryOuterNode;
 import project.src.java.core.parsers.dotTreeParser.treeStructure.Nodes.InnerNode;
 import project.src.java.core.parsers.dotTreeParser.treeStructure.Nodes.Node;
 import project.src.java.core.parsers.dotTreeParser.treeStructure.Nodes.OuterNode;
@@ -144,22 +144,63 @@ public class TableEntryGenerator extends BasicGenerator {
                 }
             }
             BinaryTableEntry entry = null;
-            if (onehot && outerNodeFlag) {
-                entry = new BinaryTableEntry(
-                    toBin(1, 1),
-                    toBin(comparedColumn, comparedColumnBitwidth),
-                    toBin(leftNodeIndex,  tableIndexerBitwidth),
-                    toOneHot(rightNodeIndex, tableIndexerBitwidth),
-                    toIEEE754(threshold,  precision)
-                );
-            } else {
-                entry = new BinaryTableEntry(
-                    toBin(outerNodeFlag ? 1 : 0, 1),
-                    toBin(comparedColumn, comparedColumnBitwidth),
-                    toBin(leftNodeIndex,  tableIndexerBitwidth),
-                    toBin(rightNodeIndex, tableIndexerBitwidth),
-                    toIEEE754(threshold,  precision)
-                );
+
+            if (precision == E4M3){
+                if (onehot && outerNodeFlag) {
+                    entry = new BinaryTableEntry(
+                        toBin(1, 1),
+                        toBin(comparedColumn, comparedColumnBitwidth),
+                        toBin(leftNodeIndex,  tableIndexerBitwidth),
+                        toOneHot(rightNodeIndex, tableIndexerBitwidth),
+                        toE4M3DS(threshold)
+                    );
+                } else {
+                    entry = new BinaryTableEntry(
+                        toBin(outerNodeFlag ? 1 : 0, 1),
+                        toBin(comparedColumn, comparedColumnBitwidth),
+                        toBin(leftNodeIndex,  tableIndexerBitwidth),
+                        toBin(rightNodeIndex, tableIndexerBitwidth),
+                        toE4M3DS(threshold)
+                    );
+                }
+            }
+            else if (precision == INTEGER4) {
+                if (onehot && outerNodeFlag) {
+                    entry = new BinaryTableEntry(
+                        toBin(1, 1),
+                        toBin(comparedColumn, comparedColumnBitwidth),
+                        toBin(leftNodeIndex,  tableIndexerBitwidth),
+                        toOneHot(rightNodeIndex, tableIndexerBitwidth),
+                        toBin((int) Math.floor(threshold), precision)
+                    );
+                } else {
+                    entry = new BinaryTableEntry(
+                        toBin(outerNodeFlag ? 1 : 0, 1),
+                        toBin(comparedColumn, comparedColumnBitwidth),
+                        toBin(leftNodeIndex,  tableIndexerBitwidth),
+                        toBin(rightNodeIndex, tableIndexerBitwidth),
+                        toBin((int) Math.floor(threshold), precision)
+                    );
+                }
+            }
+            else if (precision == DOUBLE_PRECISION || precision == NORMAL_PRECISION || precision == HALF_PRECISION) {
+                if (onehot && outerNodeFlag) {
+                    entry = new BinaryTableEntry(
+                        toBin(1, 1),
+                        toBin(comparedColumn, comparedColumnBitwidth),
+                        toBin(leftNodeIndex, tableIndexerBitwidth),
+                        toOneHot(rightNodeIndex, tableIndexerBitwidth),
+                        toIEEE754(threshold, precision)
+                    );
+                } else {
+                    entry = new BinaryTableEntry(
+                        toBin(outerNodeFlag ? 1 : 0, 1),
+                        toBin(comparedColumn, comparedColumnBitwidth),
+                        toBin(leftNodeIndex, tableIndexerBitwidth),
+                        toBin(rightNodeIndex, tableIndexerBitwidth),
+                        toIEEE754(threshold, precision)
+                    );
+                }
             }
             this.binaryTableEntries.add(entry);
         }

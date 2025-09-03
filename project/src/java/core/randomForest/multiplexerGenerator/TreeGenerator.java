@@ -18,20 +18,7 @@ public class TreeGenerator extends BaseTreeGenerator {
     private Integer precision;
 
     public void execute(List<Tree> trees, int classQnt, int featureQnt, SettingsCli settings){
-        switch (settings.inferenceParameters.precision){
-            case "double":
-                this.precision = DOUBLE_PRECISION;
-                break;
-            case "normal":
-                this.precision = NORMAL_PRECISION;
-                break;
-            case "half":
-                this.precision = HALF_PRECISION;
-                break;
-            default:
-                this.precision = 0;
-                break;
-        }
+        this.precision = parsePrecision(settings.inferenceParameters.precision);
 
         ReportGenerator reportGenerator = new ReportGenerator();
         ArrayList<Integer> nodeQntByTree = new ArrayList<>();
@@ -44,7 +31,7 @@ public class TreeGenerator extends BaseTreeGenerator {
             String src = "";
 
             src += generateHeader(String.format("tree%d", index), featureQnt);
-            src += generateFloatingPointComparatorFunction(this.precision);
+            src += generateComparatorFunction(this.precision);
             src += generatePortDeclaration(featureQnt, classQnt, this.precision);
             src += generateParameters(classQnt);
             src += "\n\tassign voted_class = \n";

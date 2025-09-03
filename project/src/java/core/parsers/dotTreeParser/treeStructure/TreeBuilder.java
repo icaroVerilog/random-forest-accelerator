@@ -37,7 +37,7 @@ public class TreeBuilder {
 
         while (scanner.hasNext()) {
             String line = scanner.nextLine();
-
+            line = line.replaceAll("([0-9]+)\\\\n([0-9]+)", "$1, $2");
             final boolean isAssociationLine = line.contains(LINKED_NODE_ARROW);
             final boolean isNewNode = line.contains(LABEL_STRING);
 
@@ -99,10 +99,8 @@ public class TreeBuilder {
     }
 
     private static void createOuterNode(Tree tree, String line) {
-
         var node = new OuterNode();
         node.setId(Integer.parseInt(line.split(" ")[0]));
-
         var begin = line.indexOf(NVALUE_STRING) + NVALUE_BEGIN_OFFSET;
         var end = line.indexOf(CLOSED_BRACKET_STRING) - CLOSED_BRACKET_OFFSET;
         final var values = (ArrayList<Integer>)Arrays
@@ -116,7 +114,6 @@ public class TreeBuilder {
             .stream()
             .map(Integer::parseInt)
             .collect(Collectors.toList());
-        
         node.setValues(values);
         node.setClassNumber(values.indexOf(values
                 .stream()
@@ -163,8 +160,6 @@ public class TreeBuilder {
         var begin = line.indexOf(LABEL_EQUAL_STRING) + LABEL_BEGIN_OFFSET;
         var end = line.indexOf(INNER_NODE_INDICATOR_STRING) - NGINI_END_OFFSET;
         var comparissonParts = line.substring(begin, end).split(" ");
-
-        /* TODO: o problema ta aqui*/
 
         comparisson.setColumn(
             Integer.parseInt(comparissonParts[0]

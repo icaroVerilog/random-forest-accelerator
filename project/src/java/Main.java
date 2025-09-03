@@ -29,6 +29,7 @@ import java.util.Objects;
 import static project.src.java.messages.Error.INVALID_FLAG_VALUE;
 
 /* TODO: verificar valores proibidos para os parametros e tratar esses casos */
+/* TODO: Verificar o motivo que trava ao executar duas rodadas, treino as arvores, gero o verilog, mas se tento ler um novo dataset trava*/
 
 public class Main {
     private static String path;
@@ -64,7 +65,7 @@ public class Main {
                 System.out.println(Messages.HELP);
             }
             else if (parameter.getParameter().equals(ValidParameters.READ_DATASET)) {
-                String filename = parameter.getValue().get("filename");
+                String filename = parameter.getValue("filename");
                 boolean exists = (new File(path + "/datasets/" + filename)).exists();
 
                 if (exists) {
@@ -74,8 +75,8 @@ public class Main {
                 }
             }
             else if (parameter.getParameter().equals(ValidParameters.BINARIZE_DATASET)) {
-                String filename = parameter.getValue().get("filename");
-                int bitwidth = Integer.parseInt(parameter.getValue().get("-bw"));
+                String filename = parameter.getValue("filename");
+                int bitwidth = Integer.parseInt(parameter.getValue("-bw"));
 
                 if (!(new File(path + "/datasets/" + filename)).exists()) {
                     System.out.println(Error.INVALID_FILE);
@@ -89,9 +90,11 @@ public class Main {
                 if (settingsCLI.dataset != null) {
                     settingsCLI.trainingParameters = new TrainingParameters();
 
-                    settingsCLI.trainingParameters.estimatorsQuantity = Integer.valueOf(parameter.getValue().get("-e"));
-                    settingsCLI.trainingParameters.trainingPercent = Integer.valueOf(parameter.getValue().get("-tp"));
-                    settingsCLI.trainingParameters.maxDepth = Integer.valueOf(parameter.getValue().get("-d"));
+                    settingsCLI.trainingParameters.estimatorsQuantity = Integer.valueOf(parameter.getValue("-e"));
+                    settingsCLI.trainingParameters.trainingPercent = Integer.valueOf(parameter.getValue("-tp"));
+                    settingsCLI.trainingParameters.maxDepth = Integer.valueOf(parameter.getValue("-d"));
+                    settingsCLI.trainingParameters.normalizeMaxValue = Double.valueOf(parameter.getValue("-n0"));
+                    settingsCLI.trainingParameters.normalizeMinValue = Double.valueOf(parameter.getValue("-n1"));
 
                     PythonTreeGeneratorCaller treeGeneratorCaller = new PythonTreeGeneratorCaller();
 
@@ -100,7 +103,9 @@ public class Main {
                         settingsCLI.dataset,
                         settingsCLI.trainingParameters.trainingPercent,
                         settingsCLI.trainingParameters.estimatorsQuantity,
-                        settingsCLI.trainingParameters.maxDepth
+                        settingsCLI.trainingParameters.maxDepth,
+                        settingsCLI.trainingParameters.normalizeMaxValue,
+                        settingsCLI.trainingParameters.normalizeMinValue
                     );
 
                 } else {
@@ -123,16 +128,17 @@ public class Main {
                     settings.inferenceParameters = new InferenceParameters();
 
                     if (
-                        !Objects.equals(parameter.getValue().get("-p"), "e4m3") &&
-                        !Objects.equals(parameter.getValue().get("-p"), "half") &&
-                        !Objects.equals(parameter.getValue().get("-p"), "normal") &&
-                        !Objects.equals(parameter.getValue().get("-p"), "double")
+                        !Objects.equals(parameter.getValue("-p"), "e4m3") &&
+                        !Objects.equals(parameter.getValue("-p"), "half") &&
+                        !Objects.equals(parameter.getValue("-p"), "normal") &&
+                        !Objects.equals(parameter.getValue("-p"), "double") &&
+                        !Objects.equals(parameter.getValue("-p"), "int4")
                     ){
                         System.out.println(INVALID_FLAG_VALUE.replace("x", "-p"));
                         continue;
                     }
 
-                    settings.inferenceParameters.precision = parameter.getValue().get("-p");
+                    settings.inferenceParameters.precision = parameter.getValue("-p");
 
                     RandomForest randomForestGenerator = new RandomForest();
                     List<Tree> trees = Parser.execute(settingsCLI.dataset);
@@ -204,7 +210,7 @@ public class Main {
                 }
             }
             else if (parameter.getParameter().equals(ValidParameters.READ_SETTINGS)) {
-                String filename = parameter.getValue().get("filename");
+                String filename = parameter.getValue("filename");
                 try {
                     executionSettings = settingsParser.execute(path, filename);
                     inputJsonValidator.execute(executionSettings);
@@ -213,126 +219,126 @@ public class Main {
                     System.out.println(Error.INVALID_FILE);
                 }
             }
-            else if (parameter.getParameter().equals(ValidParameters.RUN_SETTINGS)) {
-                if (executionSettings == null) {
-                    System.out.println(Error.NOT_LOADED_SETTINGS);
-                } else {
-                    PythonTreeGeneratorCaller treeGeneratorCaller = new PythonTreeGeneratorCaller();
-                    RandomForest randomForestGenerator = new RandomForest();
-
-                    HashMap<String, Boolean> estimatorsGenerationController = new HashMap<>();
-
-                    for (int index = 0; index < executionSettings.executionsSettings.size(); index++) {
-                        Settings jsonSettings = executionSettings.executionsSettings.get(index);
-
-                        /* verifica se a flag que indica se devera ou não regerar novas arvores pro mesmo dataset */
-                        /*
-                         *  caso no HashMap não ouver uma chave (nome do dataset) retornará null e gerará as arvores para o mesmo
-                         *  caso não retorne null significa que as arvores ja foram geradas, dando continuidade à execução do algoritmo
-                         * */
-
-                        if (Objects.equals(executionSettings.estimatorsGenerationPolicy, "regenerate")) {
-                            treeGeneratorCaller.execute(
-                                path,
-                                jsonSettings.dataset,
-                                jsonSettings.trainingParameters.trainingPercent,
-                                jsonSettings.trainingParameters.estimatorsQuantity,
-                                jsonSettings.trainingParameters.maxDepth
-                            );
-                        } else if (Objects.equals(executionSettings.estimatorsGenerationPolicy, "not regenerate")) {
-                            if (estimatorsGenerationController.get(executionSettings.executionsSettings.get(index).dataset) == null) {
-                                treeGeneratorCaller.execute(
-                                    path,
-                                    jsonSettings.dataset,
-                                    jsonSettings.trainingParameters.trainingPercent,
-                                    jsonSettings.trainingParameters.estimatorsQuantity,
-                                    jsonSettings.trainingParameters.maxDepth
-                                );
-                                estimatorsGenerationController.put(
-                                    executionSettings.executionsSettings.get(index).dataset,
-                                    true
-                                );
-                            }
-                        } else if (Objects.equals(executionSettings.estimatorsGenerationPolicy, "keep")) {
-                            ;
-                            ;
-                        }
-
-                        List<Tree> trees = Parser.execute(jsonSettings.dataset);
-
-                        if (jsonSettings instanceof SettingsJsonCEM) {
-                            SettingsCli settings = new SettingsCli();
-                            settings.inferenceParameters.precision = ((SettingsJsonCEM) jsonSettings).inferenceParameters.precision;
-                            settings.trainingParameters.trainingPercent = jsonSettings.trainingParameters.trainingPercent;
-                            settings.trainingParameters.estimatorsQuantity = jsonSettings.trainingParameters.estimatorsQuantity;
-                            settings.trainingParameters.maxDepth = jsonSettings.trainingParameters.maxDepth;
-
-                            switch (jsonSettings.approach) {
-                                case "conditional":
-                                    settings.approach = "conditional";
-                                    randomForestGenerator.executeConditionalApproach(
-                                        trees,
-                                        Parser.getClassQuantity(),
-                                        Parser.getFeatureQuantity(),
-                                        settings
-                                    );
-                                    break;
-                                case "multiplexer":
-                                    settings.approach = "multiplexer";
-
-                                    randomForestGenerator.executeMultiplexerApproach(
-                                        trees,
-                                        Parser.getClassQuantity(),
-                                        Parser.getFeatureQuantity(),
-                                        settings
-                                    );
-                                    break;
-                                case "equation":
-                                    settings.approach = "equation";
-
-                                    randomForestGenerator.executeEquationApproach(
-                                        trees,
-                                        Parser.getClassQuantity(),
-                                        Parser.getFeatureQuantity(),
-                                        settings
-                                    );
-                                    break;
-                                case "conditional_pipeline":
-                                    settings.approach = "conditional_pipeline";
-
-                                    randomForestGenerator.executePipelinedConditionalApproach(
-                                        trees,
-                                        Parser.getClassQuantity(),
-                                        Parser.getFeatureQuantity(),
-                                        settings
-                                    );
-                                    break;
-                            }
-                        } else if (jsonSettings instanceof SettingsJsonT) {
-                            SettingsCliT settings = new SettingsCliT();
-                            settings.inferenceParameters.fieldsBitwidth.comparedValue  = ((SettingsJsonT) jsonSettings).inferenceParameters.fieldsBitwidth.comparedValue;
-                            settings.inferenceParameters.fieldsBitwidth.index          = ((SettingsJsonT) jsonSettings).inferenceParameters.fieldsBitwidth.index;
-                            settings.inferenceParameters.fieldsBitwidth.comparedColumn = ((SettingsJsonT) jsonSettings).inferenceParameters.fieldsBitwidth.comparedColumn;
-                            settings.trainingParameters.trainingPercent                = jsonSettings.trainingParameters.trainingPercent;
-                            settings.trainingParameters.estimatorsQuantity             = jsonSettings.trainingParameters.estimatorsQuantity;
-                            settings.trainingParameters.maxDepth                       = jsonSettings.trainingParameters.maxDepth;
-                            settings.approach = "table";
-
-                            System.out.println(settings.inferenceParameters.fieldsBitwidth.toString());
-
-//                            randomForestGenerator.executeTableApproach(
-//                                trees,
-//                                Parser.getClassQuantity(),
-//                                Parser.getFeatureQuantity(),
-//                                settings
+//            else if (parameter.getParameter().equals(ValidParameters.RUN_SETTINGS)) {
+//                if (executionSettings == null) {
+//                    System.out.println(Error.NOT_LOADED_SETTINGS);
+//                } else {
+//                    PythonTreeGeneratorCaller treeGeneratorCaller = new PythonTreeGeneratorCaller();
+//                    RandomForest randomForestGenerator = new RandomForest();
+//
+//                    HashMap<String, Boolean> estimatorsGenerationController = new HashMap<>();
+//
+//                    for (int index = 0; index < executionSettings.executionsSettings.size(); index++) {
+//                        Settings jsonSettings = executionSettings.executionsSettings.get(index);
+//
+//                        /* verifica se a flag que indica se devera ou não regerar novas arvores pro mesmo dataset */
+//                        /*
+//                         *  caso no HashMap não ouver uma chave (nome do dataset) retornará null e gerará as arvores para o mesmo
+//                         *  caso não retorne null significa que as arvores ja foram geradas, dando continuidade à execução do algoritmo
+//                         * */
+//
+//                        if (Objects.equals(executionSettings.estimatorsGenerationPolicy, "regenerate")) {
+//                            treeGeneratorCaller.execute(
+//                                path,
+//                                jsonSettings.dataset,
+//                                jsonSettings.trainingParameters.trainingPercent,
+//                                jsonSettings.trainingParameters.estimatorsQuantity,
+//                                jsonSettings.trainingParameters.maxDepth
 //                            );
-                        }
-                    }
-//                    ReportGenerator reportGenerator = new ReportGenerator();
-//                    reportGenerator.generateReport();
-//                    System.out.println("job finished: Success");
-                }
-            }
+//                        } else if (Objects.equals(executionSettings.estimatorsGenerationPolicy, "not regenerate")) {
+//                            if (estimatorsGenerationController.get(executionSettings.executionsSettings.get(index).dataset) == null) {
+//                                treeGeneratorCaller.execute(
+//                                    path,
+//                                    jsonSettings.dataset,
+//                                    jsonSettings.trainingParameters.trainingPercent,
+//                                    jsonSettings.trainingParameters.estimatorsQuantity,
+//                                    jsonSettings.trainingParameters.maxDepth
+//                                );
+//                                estimatorsGenerationController.put(
+//                                    executionSettings.executionsSettings.get(index).dataset,
+//                                    true
+//                                );
+//                            }
+//                        } else if (Objects.equals(executionSettings.estimatorsGenerationPolicy, "keep")) {
+//                            ;
+//                            ;
+//                        }
+//
+//                        List<Tree> trees = Parser.execute(jsonSettings.dataset);
+//
+//                        if (jsonSettings instanceof SettingsJsonCEM) {
+//                            SettingsCli settings = new SettingsCli();
+//                            settings.inferenceParameters.precision = ((SettingsJsonCEM) jsonSettings).inferenceParameters.precision;
+//                            settings.trainingParameters.trainingPercent = jsonSettings.trainingParameters.trainingPercent;
+//                            settings.trainingParameters.estimatorsQuantity = jsonSettings.trainingParameters.estimatorsQuantity;
+//                            settings.trainingParameters.maxDepth = jsonSettings.trainingParameters.maxDepth;
+//
+//                            switch (jsonSettings.approach) {
+//                                case "conditional":
+//                                    settings.approach = "conditional";
+//                                    randomForestGenerator.executeConditionalApproach(
+//                                        trees,
+//                                        Parser.getClassQuantity(),
+//                                        Parser.getFeatureQuantity(),
+//                                        settings
+//                                    );
+//                                    break;
+//                                case "multiplexer":
+//                                    settings.approach = "multiplexer";
+//
+//                                    randomForestGenerator.executeMultiplexerApproach(
+//                                        trees,
+//                                        Parser.getClassQuantity(),
+//                                        Parser.getFeatureQuantity(),
+//                                        settings
+//                                    );
+//                                    break;
+//                                case "equation":
+//                                    settings.approach = "equation";
+//
+//                                    randomForestGenerator.executeEquationApproach(
+//                                        trees,
+//                                        Parser.getClassQuantity(),
+//                                        Parser.getFeatureQuantity(),
+//                                        settings
+//                                    );
+//                                    break;
+//                                case "conditional_pipeline":
+//                                    settings.approach = "conditional_pipeline";
+//
+//                                    randomForestGenerator.executePipelinedConditionalApproach(
+//                                        trees,
+//                                        Parser.getClassQuantity(),
+//                                        Parser.getFeatureQuantity(),
+//                                        settings
+//                                    );
+//                                    break;
+//                            }
+//                        } else if (jsonSettings instanceof SettingsJsonT) {
+//                            SettingsCliT settings = new SettingsCliT();
+//                            settings.inferenceParameters.fieldsBitwidth.comparedValue  = ((SettingsJsonT) jsonSettings).inferenceParameters.fieldsBitwidth.comparedValue;
+//                            settings.inferenceParameters.fieldsBitwidth.index          = ((SettingsJsonT) jsonSettings).inferenceParameters.fieldsBitwidth.index;
+//                            settings.inferenceParameters.fieldsBitwidth.comparedColumn = ((SettingsJsonT) jsonSettings).inferenceParameters.fieldsBitwidth.comparedColumn;
+//                            settings.trainingParameters.trainingPercent                = jsonSettings.trainingParameters.trainingPercent;
+//                            settings.trainingParameters.estimatorsQuantity             = jsonSettings.trainingParameters.estimatorsQuantity;
+//                            settings.trainingParameters.maxDepth                       = jsonSettings.trainingParameters.maxDepth;
+//                            settings.approach = "table";
+//
+//                            System.out.println(settings.inferenceParameters.fieldsBitwidth.toString());
+//
+////                            randomForestGenerator.executeTableApproach(
+////                                trees,
+////                                Parser.getClassQuantity(),
+////                                Parser.getFeatureQuantity(),
+////                                settings
+////                            );
+//                        }
+//                    }
+////                    ReportGenerator reportGenerator = new ReportGenerator();
+////                    reportGenerator.generateReport();
+////                    System.out.println("job finished: Success");
+//                }
+//            }
         }
     }
 }

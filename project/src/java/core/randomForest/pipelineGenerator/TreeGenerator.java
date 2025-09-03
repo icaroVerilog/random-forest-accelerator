@@ -20,33 +20,16 @@ public class TreeGenerator extends BaseTreeGenerator {
 	private int maxDepth;
 
 	public void execute(List<Tree> treeList, int classQnt, int featureQnt, SettingsCli settings){
-
-		switch (settings.inferenceParameters.precision){
-			case "double":
-				this.precision = DOUBLE_PRECISION;
-				break;
-			case "normal":
-				this.precision = NORMAL_PRECISION;
-				break;
-			case "half":
-				this.precision = HALF_PRECISION;
-				break;
-			case "e4m3":
-				this.precision = E4M3;
-				break;
-			default:
-				this.precision = 0;
-				break;
-		}
+		this.precision = parsePrecision(settings.inferenceParameters.precision);
 
 		this.maxDepth = 0;
 
 		ReportGenerator reportGenerator = new ReportGenerator();
 		ArrayList<Integer> nodeQntByTree = new ArrayList<>();
 
-		for (int index = 0; index < treeList.size(); index++) {
-			if (treeList.get(index).getMaxDepth() > this.maxDepth) {
-				this.maxDepth = treeList.get(index).getMaxDepth();
+		for (Tree tree : treeList) {
+			if (tree.getMaxDepth() > this.maxDepth) {
+				this.maxDepth = tree.getMaxDepth();
 			}
 		}
 
@@ -58,7 +41,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 			String src = "";
 
 			src += generateHeader(index);
-			src += generateFloatingPointComparatorFunction(this.precision);
+			src += generateComparatorFunction(this.precision);
 			src += generateParameters(currentTree.innerNodes, classQnt);
 			src += generatePortDeclaration(featureQnt, classQnt, currentTree.getInnerNodes().size(), currentTree.getMaxDepth());
 			src += generateAlwaysBlock(featureQnt, currentTree.innerNodes, currentTree.getMaxDepth());
@@ -131,7 +114,6 @@ public class TreeGenerator extends BaseTreeGenerator {
 			double threshold = innerNodes.get(key).getComparisson().getThreshold();
 
 			if (this.precision == E4M3){
-//				System.out.printf("%s %s %s\n",threshold, toE4M3DS(threshold), toE4M3GPT(threshold));
 				src += tab(1) + String.format(
 					"parameter threshold%d_%d = %d'b%s;\n",
 					counter,
@@ -139,7 +121,17 @@ public class TreeGenerator extends BaseTreeGenerator {
 					this.precision,
 					toE4M3DS(threshold)
 				);
-			} else {
+			}
+			else if (this.precision == INTEGER4){
+				src += tab(1) + String.format(
+					"parameter threshold%d_%d = %d'b%s;\n",
+					counter,
+					innerNodes.get(key).getComparisson().getColumn(),
+					this.precision,
+					toBin((int) Math.floor(threshold), this.precision)
+				);
+			}
+			else if (this.precision == DOUBLE_PRECISION || this.precision == NORMAL_PRECISION || this.precision == HALF_PRECISION){
 				src += tab(1) + String.format(
 					"parameter threshold%d_%d = %d'b%s;\n",
 					counter,
@@ -159,7 +151,7 @@ public class TreeGenerator extends BaseTreeGenerator {
 		String src = "";
 
 		src += tab + "input wire clk;\n";
-		src += tab + "input wire rst;\n\n";
+		src += tab + "input wire rst;\n";
 		src += tab + "input wire valid_data;\n\n";
 		src += tab(1) + generatePort("data", WIRE, INPUT, this.precision * featureQnt, true);
 		src += "\n";
@@ -246,7 +238,17 @@ public class TreeGenerator extends BaseTreeGenerator {
 					innerNodes.get(key).getComparisson().getColumn(),
 					innerNodes.get(key).getComparisson().getColumn()
 				);
-			} else {
+			}
+			else if (this.precision == INTEGER4){
+				src += tab(2) + String.format(
+					"comparison[%d] <= comparator(threshold%d_%d, feature%d);\n",
+					counter,
+					counter,
+					innerNodes.get(key).getComparisson().getColumn(),
+					innerNodes.get(key).getComparisson().getColumn()
+				);
+			}
+			else if (this.precision == DOUBLE_PRECISION || this.precision == NORMAL_PRECISION || this.precision == HALF_PRECISION){
 				src += tab(2) + String.format(
 					"comparison[%d] <= IEEE754_comparator(threshold%d_%d, feature%d);\n",
 					counter,

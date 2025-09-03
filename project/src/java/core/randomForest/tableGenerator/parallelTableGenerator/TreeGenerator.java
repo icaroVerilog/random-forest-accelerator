@@ -1,8 +1,8 @@
 package project.src.java.core.randomForest.tableGenerator.parallelTableGenerator;
 
 import project.src.java.core.BasicGenerator;
-import project.src.java.core.randomForest.tableGenerator.TableEntryGenerator;
-import project.src.java.core.randomForest.tableGenerator.tableEntryDataStructures.binary.BinaryTableEntry;
+import project.src.java.core.randomForest.tableGenerator.tableEntry.TableEntryGenerator;
+import project.src.java.core.randomForest.tableGenerator.tableEntry.binary.BinaryTableEntry;
 import project.src.java.core.parsers.dotTreeParser.treeStructure.Tree;
 import project.src.java.relatory.ReportGenerator;
 import project.src.java.util.FileBuilder;
@@ -62,7 +62,7 @@ public class TreeGenerator extends BasicGenerator {
 			String src = "";
 
 			src += generateHeader(index);
-			src += generateFloatingPointComparatorFunction(this.precision);
+			src += generateComparatorFunction(this.precision);
 			src += generatePortInstantiation(featureQuantity);
 			src += generateInternalVariables(nodeQnt, classQuantity);
 			src += generateWireAssign(featureQuantity);

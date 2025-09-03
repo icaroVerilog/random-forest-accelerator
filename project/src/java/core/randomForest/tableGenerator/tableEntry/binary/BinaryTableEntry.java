@@ -1,4 +1,4 @@
-package project.src.java.core.randomForest.tableGenerator.tableEntryDataStructures.binary;
+package project.src.java.core.randomForest.tableGenerator.tableEntry.binary;
 
 public class BinaryTableEntry {
     private final String nodeFlag;

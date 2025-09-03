@@ -83,8 +83,8 @@ public class UserInterface {
 						break;
 					case ValidParameters.START_TRAINING:
 						parameter = new Parameter(
-							Arrays.asList("-e", "-tp", "-d"),
-							Arrays.asList("numeric", "numeric", "numeric")
+							Arrays.asList("-e", "-tp", "-d", "-n0", "-n1"),
+							Arrays.asList("numeric", "numeric", "numeric", "numeric", "numeric")
 						);
 						parameter.add(ValidParameters.START_TRAINING, "", "");
 						break;

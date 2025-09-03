@@ -14,20 +14,29 @@ public class Messages {
 				-e						defines the quantity of estimators (trees) of the random forest
 				-tp						defines the percentage of the dataset used in the training
 				-d       				defines the maximum depth of the estimators (trees)
+				-m0 [optional]			defines the max value to normalize the dataset
+				-m1 [optional]			defines the min value to normalize the dataset
 				
 			%s   [options]   generate the inference design in verilog using conditional constructs
 			%s  [options]   generate the inference design in verilog using conditional constructs with pipeline
 			%s  [options]   generate the inference design in verilog using multiplexers
 			%s   [options]   generate the inference design in verilog using boolean equations
 			%s  [options]   generate the inference design in verilog using multiple tables
-				-p			[value] 	defines the precision of the IEEE375 float point representation
+				-p			[value] 	defines the precision of the numerical representation
+				 \u21B3 int4: 4 bits unsigned integer (experimental)
 				 \u21B3 e4m3:   NVIDIA 8 bits floating point https://docs.nvidia.com/deeplearning/transformer-engine/user-guide/examples/fp8_primer.html
-				 \u21B3 half:   IEE754 compliant 16 bits floating point
+				 \u21B3 half:   IEE754 16 bits floating point
 				 \u21B3 normal: IEE754 32 bits floating point
 				 \u21B3 double: IEE754 64 bits floating point
 				
 			%s   [options]   generate the inference design in verilog using validation tables (work in progress)
-				-tbw					defines the threshold bitwidth i.e the bitwidth of the values who are compared
+				-tbw	[value] 	defines the precision of the numerical representation
+				  \u21B3 int4: 4 bits unsigned integer (experimental)
+				  \u21B3 e4m3:   NVIDIA 8 bits floating point https://docs.nvidia.com/deeplearning/transformer-engine/user-guide/examples/fp8_primer.html
+				  \u21B3 half:   IEE754 16 bits floating point
+				  \u21B3 normal: IEE754 32 bits floating point
+				  \u21B3 double: IEE754 64 bits floating point
+				  
 				-ibw					defines the node index bitwidth
 				-cbw					defines the bitwidth of the column who represent one dataset column.
 				
